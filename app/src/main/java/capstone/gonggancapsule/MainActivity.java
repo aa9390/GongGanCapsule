@@ -1,7 +1,9 @@
 package capstone.gonggancapsule;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -56,9 +58,6 @@ public class MainActivity extends AppCompatActivity {
         // 메인 진입을 확인하기 위한 임시 토스트 메시지
         Toast.makeText( this, "메인진입", Toast.LENGTH_SHORT ).show();
 
-        // LocationManager, LocationListener 설정
-        settingGPS();
-
         // 현재 위치 받아오기
         Location location = getMyLocation();
 
@@ -72,34 +71,6 @@ public class MainActivity extends AppCompatActivity {
 //        setRange()
     }
 
-    // LocationManager, LocationListener 설정
-    private void settingGPS() {
-        locationManager = (LocationManager) this.getSystemService( this.LOCATION_SERVICE );
-        locationListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                double latitude = location.getLatitude();
-                double longitude = location.getLongitude();
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-
-            }
-        };
-
-    }
-
 
     // 현재 위치 받아오기
     private Location getMyLocation() {
@@ -109,20 +80,30 @@ public class MainActivity extends AppCompatActivity {
 //            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MInteger.REQUEST_CODE_LOCATION);
         }
 
-        // 각각 NETWORT PROVIDER, GPS PROVIDER 에서 정보 얻어오기
         else {
-            locationManager.requestLocationUpdates( LocationManager.NETWORK_PROVIDER, 10, 0, locationListener );
-            locationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 10, 0, locationListener );
+            LocationManager locationManager = (LocationManager) this.getSystemService( Context.LOCATION_SERVICE);
 
-            // 실내, 실외 모두 작동되게 하려면 아래 문장을 if문으로 돌릴것
-            String locationProvider = LocationManager.NETWORK_PROVIDER;
-//            String locationProvider = LocationManager.GPS_PROVIDER;
+            // Best Provider를 가져오기 위한 criteria 선언
+            Criteria criteria = new Criteria();
 
+            // 정확도
+            criteria.setAccuracy(Criteria.NO_REQUIREMENT);
+            // 전원 소비량
+            criteria.setPowerRequirement(Criteria.NO_REQUIREMENT);
+            // 고도, 높이 값을 얻어 올지를 결정
+            criteria.setAltitudeRequired(false);
+            // provider 기본 정보(방위, 방향)
+            criteria.setBearingRequired(false);
+            // 속도
+            criteria.setSpeedRequired(false);
+            // 위치 정보를 얻어 오는데 들어가는 금전적 비용
+            criteria.setCostAllowed(true);
 
-            currentLocation = locationManager.getLastKnownLocation( locationProvider );
+            String bestProvider = locationManager.getBestProvider(new Criteria(), true);
+
+            currentLocation = locationManager.getLastKnownLocation( bestProvider );
 
             if(currentLocation!=null) {
-
                 // 위도와 경도를 설정
                 double longitude = currentLocation.getLongitude();
                 double latitude = currentLocation.getLatitude();
@@ -131,6 +112,8 @@ public class MainActivity extends AppCompatActivity {
                 Log.d( "Main", "longtitude=" + longitude + ", latitude=" + latitude );
 
             }
+            else
+                Toast.makeText( getBaseContext(), "위치를 찾을 수 없습니다", Toast.LENGTH_SHORT ).show();
         }
         return currentLocation;
     }
