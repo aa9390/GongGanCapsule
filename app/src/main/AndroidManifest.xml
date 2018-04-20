@@ -2,21 +2,20 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="capstone.gonggancapsule">
 
-    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
-    <uses-permission android:name="android.permission.CAMERA">
-    </uses-permission>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION">
+    <uses-sdk android:minSdkVersion="24"></uses-sdk>
 
-    </uses-permission>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA"></uses-permission>
 
-    </uses-permission>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE">
+    <uses-feature
+        android:name="android.hardware.camera.ar"
+        android:required="true" />
 
-    </uses-permission>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE">
-
-    </uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"></uses-permission>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"></uses-permission>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
         android:allowBackup="true"
@@ -25,6 +24,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,6 +32,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <meta-data
+            android:name="com.google.ar.core"
+            android:value="required" />
     </application>
 
 </manifest>
