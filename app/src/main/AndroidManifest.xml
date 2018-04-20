@@ -11,6 +11,8 @@
         android:name="android.hardware.camera.ar"
         android:required="true" />
 
+    <uses-feature android:name="android.hardware.camera"/> <!-- 카메라 접근 권한 요청 -->
+
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"></uses-permission>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
@@ -32,6 +34,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- 갤러리 라이브러리에서 사용되는 2개의 액티비티 추가 -->
+        <activity android:name="com.yongbeam.y_photopicker.util.photopicker.PhotoPickerActivity" android:theme="@style/Theme.AppCompat.NoActionBar"/>
+        <activity android:name="com.yongbeam.y_photopicker.util.photopicker.PhotoPagerActivity" android:theme="@style/Theme.AppCompat.NoActionBar" />
 
         <meta-data
             android:name="com.google.ar.core"
