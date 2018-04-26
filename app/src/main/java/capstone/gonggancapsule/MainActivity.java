@@ -2,7 +2,6 @@ package capstone.gonggancapsule;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
@@ -10,8 +9,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.GravityCompat;
@@ -22,19 +19,13 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.ar.core.Session;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
-import com.yongbeam.y_photopicker.util.photopicker.PhotoPagerActivity;
-import com.yongbeam.y_photopicker.util.photopicker.PhotoPickerActivity;
-import com.yongbeam.y_photopicker.util.photopicker.utils.YPhotoPickerIntent;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -56,83 +47,16 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
 
-    // 카메라, 갤러리 실행을 위한 코드
-    private FloatingActionButton cameraBtn;
-    private FloatingActionButton galleryBtn;
-
-    public final static int CAMERA_REQUEST_CODE = 1;
-    public final static int GALLERY_REQUEST_CODE = 2;
-
-    public static ArrayList<String> selectedPhotos = new ArrayList<>();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_main );
-
-        cameraBtn = (FloatingActionButton) findViewById(R.id.cameraBtn);
-        galleryBtn = (FloatingActionButton) findViewById(R.id.galleryBtn);
 
         // 권한 받아오기
         getPermission();
 
         // 메인 화면 초기화
         initView();
-
-        // 카메라 플로팅 버튼을 클릭했을 때
-        cameraBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 카메라 앱 실행
-                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
-
-            }
-        });
-
-        // 갤러리 플로팅 버튼을 클릭했을 때
-        galleryBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                YPhotoPickerIntent intent = new YPhotoPickerIntent(MainActivity.this);
-                intent.setMaxSelectCount(1);    // 선택할 수 있는 이미지의 개수 지정
-                intent.setShowCamera(false);    // 카메라 실행 버튼 표시 여부
-                intent.setShowGif(false);       // gif 이미지도 포함하여 갤러리를 보여줄 것인지
-                intent.setSelectCheckBox(true); // 사진 선택할 때 테두리 색 변하기
-                intent.setMaxGrideItemCount(3); // 한줄에 몇개의 사진을 보여줄 것인지 설정
-                startActivityForResult(intent, GALLERY_REQUEST_CODE);
-            }
-        });
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        switch (requestCode) {
-            case GALLERY_REQUEST_CODE :
-                List<String> photos = null;
-                if (resultCode == RESULT_OK ) { //&& requestCode == GALLERY_REQUEST_CODE) {
-                    if (data != null) {
-                        photos = data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS);
-                    }
-                    if (photos != null) {
-                        selectedPhotos.addAll(photos);
-                    }
-
-                    Intent startActivity = new Intent(this , PhotoPagerActivity.class);
-                    startActivity.putStringArrayListExtra("photos" , selectedPhotos);
-                    startActivity(startActivity);
-                }
-                break;
-
-            case CAMERA_REQUEST_CODE :
-
-                break;
-
-        }
-
-
     }
 
 
