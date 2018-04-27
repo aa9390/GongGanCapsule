@@ -8,8 +8,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-
-
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -40,16 +38,18 @@
         android:layout_gravity="start"
         app:headerLayout="@layout/drawer_header" />
 
+
     <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    <TextView
+
+        <android.opengl.GLSurfaceView
+            android:id="@+id/surfaceview"
+            android:layout_marginTop="50dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:text="AR 배경이 나타날 곳"/>
+            android:layout_height="match_parent" />
+
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/cameraBtn"
