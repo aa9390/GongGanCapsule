@@ -24,6 +24,8 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Toast;
 
 import com.google.ar.core.Camera;
@@ -71,8 +73,11 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     private NavigationView navigationView;
 
     // 카메라, 갤러리 실행을 위한 코드
+    private FloatingActionButton floatingBtn;
     private FloatingActionButton cameraBtn;
     private FloatingActionButton galleryBtn;
+    boolean isOpen = false;
+    Animation FabOpen, FabClose;
 
     public final static int CAMERA_REQUEST_CODE = 1;
     public final static int GALLERY_REQUEST_CODE = 2;
@@ -90,8 +95,17 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         surfaceView = findViewById( R.id.surfaceview );
         displayRotationHelper = new DisplayRotationHelper(/*context=*/ this);
 
-        cameraBtn = (FloatingActionButton) findViewById(R.id.cameraBtn);
-        galleryBtn = (FloatingActionButton) findViewById(R.id.galleryBtn);
+        // 플로팅 버튼 id 가져오기, 클릭 리스너 선언
+        floatingBtn = findViewById( R.id.floatingBtn );
+        cameraBtn = findViewById(R.id.cameraBtn);
+        galleryBtn = findViewById(R.id.galleryBtn);
+
+        floatingBtn.setOnClickListener( clickListener );
+        cameraBtn.setOnClickListener( clickListener );
+        galleryBtn.setOnClickListener( clickListener );
+
+        FabOpen = AnimationUtils.loadAnimation( this, R.anim.fab_open );
+        FabClose = AnimationUtils.loadAnimation( this, R.anim.fab_close );
 
         // 권한 받아오기
         getPermission();
@@ -152,6 +166,26 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         surfaceView.onResume();
         displayRotationHelper.onResume();
     }
+
+    View.OnClickListener clickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            switch (view.getId()) {
+                case R.id.floatingBtn:
+                    if (!isOpen) {
+                        cameraBtn.startAnimation( FabOpen );
+                        galleryBtn.startAnimation( FabOpen );
+                        isOpen = true;
+                    } else {
+                        cameraBtn.startAnimation( FabClose );
+                        galleryBtn.startAnimation( FabClose );
+                        isOpen = false;
+                    }
+                    break;
+
+            }
+        }
+    };
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
