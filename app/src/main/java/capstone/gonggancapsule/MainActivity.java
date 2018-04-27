@@ -90,8 +90,12 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     boolean isOpen = false;
     Animation FabOpen, FabClose;
 
+    //[소지]
+    private static final int REQUEST_CODE_LOCATION = 2;
+
     public final static int CAMERA_REQUEST_CODE = 1;
     public final static int GALLERY_REQUEST_CODE = 2;
+
 
     private boolean installRequested;
 
@@ -142,6 +146,8 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                     }
                 }
 
+
+
             }
         });
 
@@ -161,6 +167,15 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         surfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0); // Alpha used for plane blending.
         surfaceView.setRenderer(this);
 //        surfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+
+
+        // 위치 확인 위한 임시 코드
+        Location location = getMyLocation();
+
+        String longt = String.valueOf( location.getLongitude() );
+        String latt = String.valueOf( location.getLatitude() );
+        Toast.makeText( getBaseContext(), longt, Toast.LENGTH_SHORT).show();
+        Toast.makeText( getBaseContext(), latt, Toast.LENGTH_SHORT).show();
     }
 
     private File createImageFile() throws IOException {
@@ -331,7 +346,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         Location currentLocation = null;
 
         if (ActivityCompat.checkSelfPermission( this, Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission( this, Manifest.permission.ACCESS_COARSE_LOCATION ) != PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MInteger.REQUEST_CODE_LOCATION);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_LOCATION);
         } else {
             LocationManager locationManager = (LocationManager) this.getSystemService( Context.LOCATION_SERVICE );
 
