@@ -4,17 +4,22 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -32,16 +37,18 @@ import com.google.ar.core.PointCloud;
 import com.google.ar.core.Session;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
-import com.yongbeam.y_photopicker.util.photopicker.PhotoPagerActivity;
-import com.yongbeam.y_photopicker.util.photopicker.PhotoPickerActivity;
-import com.yongbeam.y_photopicker.util.photopicker.utils.YPhotoPickerIntent;
 
+import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
+
+import static java.security.AccessController.getContext;
 
 // GLSurfaceView. Renderer가 생성될 때 호출되는 순서
 // onSurfaceCreated() -> onSurfaceChanged() -> onDrawFrame()
@@ -73,11 +80,12 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     // 카메라, 갤러리 실행을 위한 코드
     private FloatingActionButton cameraBtn;
     private FloatingActionButton galleryBtn;
+    private String pictureFilePath;
+    private Uri pictureUri;
+
 
     public final static int CAMERA_REQUEST_CODE = 1;
     public final static int GALLERY_REQUEST_CODE = 2;
-
-    public static ArrayList<String> selectedPhotos = new ArrayList<>();
 
     private boolean installRequested;
 
@@ -103,9 +111,22 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         cameraBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 카메라 앱 실행
-                Intent cameraIntent = new Intent( MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
+                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                if (cameraIntent.resolveActivity(getPackageManager()) != null) {
+                    File pictureFile = null;
+
+                    try {
+                        pictureFile = createImageFile(); //카메라로 찍은 사진 받아오기
+                    } catch (IOException e) {
+                        Toast.makeText(MainActivity.this, "카메라 실행 오류", Toast.LENGTH_SHORT).show();
+                    }
+
+                    if(pictureFile != null) {
+                        pictureUri = FileProvider.getUriForFile(getApplicationContext(), getPackageName(), pictureFile);
+                        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, pictureUri);
+                        startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
+                    }
+                }
 
             }
         });
@@ -114,13 +135,9 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         galleryBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                YPhotoPickerIntent intent = new YPhotoPickerIntent(MainActivity.this);
-                intent.setMaxSelectCount(1);    // 선택할 수 있는 이미지의 개수 지정
-                intent.setShowCamera(false);    // 카메라 실행 버튼 표시 여부
-                intent.setShowGif(false);       // gif 이미지도 포함하여 갤러리를 보여줄 것인지
-                intent.setSelectCheckBox(true); // 사진 선택할 때 테두리 색 변하기
-                intent.setMaxGrideItemCount(3); // 한줄에 몇개의 사진을 보여줄 것인지 설정
-                startActivityForResult(intent, GALLERY_REQUEST_CODE);
+                Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                galleryIntent.setType("image/*");
+                startActivityForResult(galleryIntent, GALLERY_REQUEST_CODE); //갤러리앱 실행
             }
         });
 
@@ -130,6 +147,17 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         surfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0); // Alpha used for plane blending.
         surfaceView.setRenderer(this);
 //        surfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+    }
+
+    private File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String pictureFileName = "GongGan_" + timeStamp;
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                pictureFileName, ".jpg", storageDir
+        );
+        pictureFilePath = image.getAbsolutePath();
+        return image;
     }
 
     @Override
@@ -157,24 +185,25 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        switch (requestCode) {
-            case GALLERY_REQUEST_CODE :
-                List<String> photos = null;
-                if (resultCode == RESULT_OK ) { //&& requestCode == GALLERY_REQUEST_CODE) {
-                    if (data != null) {
-                        photos = data.getStringArrayListExtra( PhotoPickerActivity.KEY_SELECTED_PHOTOS);
-                    }
-                    if (photos != null) {
-                        selectedPhotos.addAll(photos);
-                    }
+        if(resultCode != RESULT_OK) {
+            return;
+        }
 
-                    Intent startActivity = new Intent(this , PhotoPagerActivity.class);
-                    startActivity.putStringArrayListExtra("photos" , selectedPhotos);
-                    startActivity(startActivity);
-                }
+        Intent intent = new Intent(this, WriteDiary.class);
+
+        switch (requestCode) {
+            case CAMERA_REQUEST_CODE :
+                // 카메라로 찍은 사진의 파일 경로를 WriteDiary 레이아웃으로 보내준다.
+                intent.putExtra("pictureFilePath", pictureFilePath);
+                startActivity(intent);
                 break;
 
-            case CAMERA_REQUEST_CODE :
+            case GALLERY_REQUEST_CODE :
+                Uri galleryUri = data.getData(); //선택된 이미지의 uri를 받아온다.
+
+                // 선택된 이미지의 uri를 WriteDiary 레이아웃으로 보내준다.
+                intent.putExtra("uri", galleryUri);
+                startActivity(intent);
 
                 break;
         }

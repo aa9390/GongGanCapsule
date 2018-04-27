@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- 카메라에서 찍은 사진 URI 저장하기 위함 -->
+
+<paths
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <external-path
+        name="my_images"
+        path="Android/data/capstone.gonggancapsule/files/Pictures" />
+</paths>
