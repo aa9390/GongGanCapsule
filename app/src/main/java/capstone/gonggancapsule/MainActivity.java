@@ -29,6 +29,8 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Toast;
 
 import com.google.ar.core.Camera;
@@ -54,6 +56,7 @@ import static java.security.AccessController.getContext;
 // onSurfaceCreated() -> onSurfaceChanged() -> onDrawFrame()
 public class MainActivity extends AppCompatActivity implements GLSurfaceView.Renderer{
 
+    boolean permissionCheck = false;
     private LocationManager locationManager;
     private GLSurfaceView surfaceView;
 
@@ -78,11 +81,14 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     private NavigationView navigationView;
 
     // 카메라, 갤러리 실행을 위한 코드
+    private FloatingActionButton floatingBtn;
     private FloatingActionButton cameraBtn;
     private FloatingActionButton galleryBtn;
+
     private String pictureFilePath;
     private Uri pictureUri;
-
+    boolean isOpen = false;
+    Animation FabOpen, FabClose;
 
     public final static int CAMERA_REQUEST_CODE = 1;
     public final static int GALLERY_REQUEST_CODE = 2;
@@ -98,11 +104,19 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         surfaceView = findViewById( R.id.surfaceview );
         displayRotationHelper = new DisplayRotationHelper(/*context=*/ this);
 
-        cameraBtn = (FloatingActionButton) findViewById(R.id.cameraBtn);
-        galleryBtn = (FloatingActionButton) findViewById(R.id.galleryBtn);
+        // 플로팅 버튼 id 가져오기, 클릭 리스너 선언
+        floatingBtn = findViewById( R.id.floatingBtn );
+        cameraBtn = findViewById(R.id.cameraBtn);
+        galleryBtn = findViewById(R.id.galleryBtn);
 
-        // 권한 받아오기
-        getPermission();
+        floatingBtn.setOnClickListener( clickListener );
+        cameraBtn.setOnClickListener( clickListener );
+        galleryBtn.setOnClickListener( clickListener );
+
+        FabOpen = AnimationUtils.loadAnimation( this, R.anim.fab_open );
+        FabClose = AnimationUtils.loadAnimation( this, R.anim.fab_close );
+
+
 
         // 메인 화면 초기화
         initView();
@@ -173,13 +187,38 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     protected void onResume() {
         super.onResume();
 
-        Toast.makeText( this, "on Resume", Toast.LENGTH_SHORT ).show();
+        // 권한을 다 받았으면 권한 받아오기를 실행하지 않음
+        if(!permissionCheck) getPermission();
+        else {
 
-        session = new Session( this );
-        session.resume();
-        surfaceView.onResume();
-        displayRotationHelper.onResume();
+            Toast.makeText( this, "on Resume", Toast.LENGTH_SHORT ).show();
+
+            session = new Session( this );
+            session.resume();
+            surfaceView.onResume();
+            displayRotationHelper.onResume();
+        }
     }
+
+    View.OnClickListener clickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            switch (view.getId()) {
+                case R.id.floatingBtn:
+                    if (!isOpen) {
+                        cameraBtn.startAnimation( FabOpen );
+                        galleryBtn.startAnimation( FabOpen );
+                        isOpen = true;
+                    } else {
+                        cameraBtn.startAnimation( FabClose );
+                        galleryBtn.startAnimation( FabClose );
+                        isOpen = false;
+                    }
+                    break;
+
+            }
+        }
+    };
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -217,12 +256,14 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             // 권한을 모두 허용했을 경우
             @Override
             public void onPermissionGranted() {
+                permissionCheck=true;
                 Toast.makeText( MainActivity.this, "반갑습니다.", Toast.LENGTH_SHORT ).show();
             }
 
             // 권한이 거부되었을 경우
             @Override
             public void onPermissionDenied(ArrayList<String> deniedPermissions) {
+                permissionCheck=false;
                 Toast.makeText( MainActivity.this, "권한이 거부되었습니다.\n" + deniedPermissions.toString(), Toast.LENGTH_SHORT ).show();
             }
 
