@@ -49,6 +49,7 @@ import javax.microedition.khronos.opengles.GL10;
 // onSurfaceCreated() -> onSurfaceChanged() -> onDrawFrame()
 public class MainActivity extends AppCompatActivity implements GLSurfaceView.Renderer{
 
+    boolean permissionCheck = false;
     private LocationManager locationManager;
     private GLSurfaceView surfaceView;
 
@@ -107,8 +108,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         FabOpen = AnimationUtils.loadAnimation( this, R.anim.fab_open );
         FabClose = AnimationUtils.loadAnimation( this, R.anim.fab_close );
 
-        // 권한 받아오기
-        getPermission();
+
 
         // 메인 화면 초기화
         initView();
@@ -159,12 +159,17 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     protected void onResume() {
         super.onResume();
 
-        Toast.makeText( this, "on Resume", Toast.LENGTH_SHORT ).show();
+        // 권한을 다 받았으면 권한 받아오기를 실행하지 않음
+        if(!permissionCheck) getPermission();
+        else {
 
-        session = new Session( this );
-        session.resume();
-        surfaceView.onResume();
-        displayRotationHelper.onResume();
+            Toast.makeText( this, "on Resume", Toast.LENGTH_SHORT ).show();
+
+            session = new Session( this );
+            session.resume();
+            surfaceView.onResume();
+            displayRotationHelper.onResume();
+        }
     }
 
     View.OnClickListener clickListener = new View.OnClickListener() {
@@ -222,12 +227,14 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             // 권한을 모두 허용했을 경우
             @Override
             public void onPermissionGranted() {
+                permissionCheck=true;
                 Toast.makeText( MainActivity.this, "반갑습니다.", Toast.LENGTH_SHORT ).show();
             }
 
             // 권한이 거부되었을 경우
             @Override
             public void onPermissionDenied(ArrayList<String> deniedPermissions) {
+                permissionCheck=false;
                 Toast.makeText( MainActivity.this, "권한이 거부되었습니다.\n" + deniedPermissions.toString(), Toast.LENGTH_SHORT ).show();
             }
 
