@@ -33,7 +33,7 @@ public class CapsuleDB {
     }
 
     public CapsuleDB(double latitude, double longitude,
-                     String create_date, String content, String picture, int id) {
+                     String create_date, String content, String picture) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.create_date = create_date;

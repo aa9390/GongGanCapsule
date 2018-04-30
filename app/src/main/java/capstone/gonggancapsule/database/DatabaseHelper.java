@@ -66,9 +66,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("SELECT * FROM capsule", null);
         while (cursor.moveToNext()) {
             result += " 위도: "
-                    + cursor.getString(0)
+                    + cursor.getDouble(0)
                     + " 경도: "
-                    + cursor.getString(1)
+                    + cursor.getDouble(1)
                     + " 날짜: "
                     + cursor.getString(2)
                     + " 내용: "
