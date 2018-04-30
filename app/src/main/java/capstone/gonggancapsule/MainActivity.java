@@ -4,8 +4,6 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -31,6 +29,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.ar.core.Camera;
@@ -45,12 +44,9 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
-
-import static java.security.AccessController.getContext;
 
 // GLSurfaceView. Renderer가 생성될 때 호출되는 순서
 // onSurfaceCreated() -> onSurfaceChanged() -> onDrawFrame()
@@ -96,6 +92,10 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     public final static int CAMERA_REQUEST_CODE = 1;
     public final static int GALLERY_REQUEST_CODE = 2;
 
+    // 위치 확인용
+    private TextView longi;
+    private TextView lati;
+
 
     private boolean installRequested;
 
@@ -120,6 +120,8 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         FabOpen = AnimationUtils.loadAnimation( this, R.anim.fab_open );
         FabClose = AnimationUtils.loadAnimation( this, R.anim.fab_close );
 
+        longi = findViewById( R.id.longi );
+        lati = findViewById( R.id.lati );
 
 
         // 메인 화면 초기화
@@ -169,13 +171,12 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 //        surfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
 
-        // 위치 확인 위한 임시 코드
+//        // 위치 확인 위한 임시 코드
         Location location = getMyLocation();
+//
+        longi.setText( "위도 : " + location.getLongitude() + "" );
+        lati.setText( "경도 : " + location.getLatitude() + "" );
 
-        String longt = String.valueOf( location.getLongitude() );
-        String latt = String.valueOf( location.getLatitude() );
-        Toast.makeText( getBaseContext(), longt, Toast.LENGTH_SHORT).show();
-        Toast.makeText( getBaseContext(), latt, Toast.LENGTH_SHORT).show();
     }
 
     private File createImageFile() throws IOException {
@@ -205,8 +206,13 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         // 권한을 다 받았으면 권한 받아오기를 실행하지 않음
         if(!permissionCheck) getPermission();
         else {
-
             Toast.makeText( this, "on Resume", Toast.LENGTH_SHORT ).show();
+
+//            // 위치 확인 위한 임시 코드
+//            Location location = getMyLocation();
+//
+//            longi.setText( location.getLongitude() + "" );
+//            lati.setText( location.getLatitude() + "" );
 
             session = new Session( this );
             session.resume();
@@ -389,6 +395,9 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         @Override
         public void onLocationChanged(Location location) {
 
+            location = getMyLocation();
+            longi.setText( "위도 : " + location.getLongitude() + "" );
+            lati.setText( "경도 : " + location.getLatitude() + "" );
         }
 
         @Override
