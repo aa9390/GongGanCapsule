@@ -175,10 +175,10 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
 
 //        // 위치 확인 위한 임시 코드
-        Location location = getMyLocation();
-//
-        longi.setText( "위도 : " + location.getLongitude() + "" );
-        lati.setText( "경도 : " + location.getLatitude() + "" );
+//        Location location = getMyLocation();
+////
+//        longi.setText( "위도 : " + location.getLongitude() + "" );
+//        lati.setText( "경도 : " + location.getLatitude() + "" );
 
     }
 
@@ -211,11 +211,11 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         else {
             Toast.makeText( this, "on Resume", Toast.LENGTH_SHORT ).show();
 
-//            // 위치 확인 위한 임시 코드
-//            Location location = getMyLocation();
-//
-//            longi.setText( location.getLongitude() + "" );
-//            lati.setText( location.getLatitude() + "" );
+            // 위치 확인 위한 임시 코드
+            Location location = getMyLocation();
+
+            longi.setText( location.getLongitude() + "" );
+            lati.setText( location.getLatitude() + "" );
 
             session = new Session( this );
             session.resume();

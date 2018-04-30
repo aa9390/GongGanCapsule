@@ -11,14 +11,12 @@ public class CapsuleDB {
     public static final String COLUMN_CREATEDATE = "create_date";
     public static final String COLUMN_CONTENT = "content";
     public static final String COLUMN_PICTURE = "picture";
-    public static final String COLUMN_ID = "id";
 
     private double latitude;
     private double longitude;
     private String create_date;
     private String content;
     private String picture;
-    private int id;
 
     //create table SQL query
     public static final String CREATE_TABLE =
@@ -28,7 +26,6 @@ public class CapsuleDB {
                     + COLUMN_CREATEDATE + " STRING, "
                     + COLUMN_CONTENT + " TEXT, "
                     + COLUMN_PICTURE + " STRING, "
-                    + COLUMN_ID + " INTEGER AUTO_INCREMENT,"
                     + " PRIMARY KEY(" + COLUMN_LATITUDE + ", " + COLUMN_LONGITUDE + ")"
                     + ");";
 
@@ -42,24 +39,20 @@ public class CapsuleDB {
         this.create_date = create_date;
         this.content = content;
         this.picture = picture;
-        this.id = id;
     }
 
 
     //get()
-    public int getId(){
-        return id;
-    }
     public double getLatitude(){
         return latitude;
     }
     public double getLongitude(){
         return longitude;
     }
-    public String getTimestamp(){
+    public String getCreate_date(){
         return create_date;
     }
-    public String setContent(){
+    public String getContent(){
         return content;
     }
     public String getPicture(){
@@ -69,16 +62,13 @@ public class CapsuleDB {
 
 
     //set()
-    public void setIndex(int id) {
-        this.id = id;
-    }
     public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
     public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
-    public void setTimeStamp(String create_date) {
+    public void setCreate_date(String create_date) {
         this.create_date = create_date;
     }
     public void setPicture(String picture) {

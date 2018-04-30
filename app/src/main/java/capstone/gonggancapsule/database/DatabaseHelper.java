@@ -52,7 +52,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(CapsuleDB.COLUMN_PICTURE, picture);
 
         // DB에 입력한 값으로 행 추가
-        db.execSQL("INSERT INTO capsule VALUES(" + latitude +  ", " + longitude + ", '" + create_date + "', '" + content + "', '" + picture + "', " + null + ");" );
+        db.execSQL("INSERT INTO capsule VALUES(" + latitude +  ", " + longitude + ", '" + create_date + "', '" + content + "', '" + picture + "');" );
         db.close();
     }
 
@@ -65,8 +65,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         Cursor cursor = db.rawQuery("SELECT * FROM capsule", null);
         while (cursor.moveToNext()) {
-            result += cursor.getString(5)
-                    + " 위도: "
+            result += " 위도: "
                     + cursor.getString(0)
                     + " 경도: "
                     + cursor.getString(1)
@@ -89,7 +88,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         int count = cursor.getCount();
         cursor.close();
-
 
         // return count
         return count;
