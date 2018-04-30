@@ -29,6 +29,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,16 +49,21 @@ import java.util.Date;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 // GLSurfaceView. Renderer가 생성될 때 호출되는 순서
 // onSurfaceCreated() -> onSurfaceChanged() -> onDrawFrame()
-public class MainActivity extends AppCompatActivity implements GLSurfaceView.Renderer{
+public class MainActivity extends AppCompatActivity implements GLSurfaceView.Renderer {
 
     boolean permissionCheck = false;
+    @BindView(R.id.database)
+    ImageButton database;
     private LocationManager locationManager;
     private GLSurfaceView surfaceView;
 
-
-     // hello ar의 코드를 이용하기 위해 필요한 코드
+    // hello ar의 코드를 이용하기 위해 필요한 코드
     private final BackgroundRenderer backgroundRenderer = new BackgroundRenderer();
     private final PlaneRenderer planeRenderer = new PlaneRenderer();
     private final PointCloudRenderer pointCloud = new PointCloudRenderer();
@@ -88,7 +94,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
     //[소지]
     private static final int REQUEST_CODE_LOCATION = 2;
-
     public final static int CAMERA_REQUEST_CODE = 1;
     public final static int GALLERY_REQUEST_CODE = 2;
 
@@ -103,15 +108,16 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_main );
+        ButterKnife.bind( this );
 
         // 카메라 뷰를 위한 surfaceview 선언
         surfaceView = findViewById( R.id.surfaceview );
-        displayRotationHelper = new DisplayRotationHelper(/*context=*/ this);
+        displayRotationHelper = new DisplayRotationHelper(/*context=*/ this );
 
         // 플로팅 버튼 id 가져오기, 클릭 리스너 선언
         floatingBtn = findViewById( R.id.floatingBtn );
-        cameraBtn = findViewById(R.id.cameraBtn);
-        galleryBtn = findViewById(R.id.galleryBtn);
+        cameraBtn = findViewById( R.id.cameraBtn );
+        galleryBtn = findViewById( R.id.galleryBtn );
 
         floatingBtn.setOnClickListener( clickListener );
         cameraBtn.setOnClickListener( clickListener );
@@ -128,46 +134,43 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         initView();
 
         // 카메라 플로팅 버튼을 클릭했을 때
-        cameraBtn.setOnClickListener(new View.OnClickListener() {
+        cameraBtn.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                if (cameraIntent.resolveActivity(getPackageManager()) != null) {
+                Intent cameraIntent = new Intent( MediaStore.ACTION_IMAGE_CAPTURE );
+                if (cameraIntent.resolveActivity( getPackageManager() ) != null) {
                     File pictureFile = null;
 
                     try {
                         pictureFile = createImageFile(); //카메라로 찍은 사진 받아오기
                     } catch (IOException e) {
-                        Toast.makeText(MainActivity.this, "카메라 실행 오류", Toast.LENGTH_SHORT).show();
+                        Toast.makeText( MainActivity.this, "카메라 실행 오류", Toast.LENGTH_SHORT ).show();
                     }
 
-                    if(pictureFile != null) {
-                        pictureUri = FileProvider.getUriForFile(getApplicationContext(), getPackageName(), pictureFile);
-                        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, pictureUri);
-                        startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
+                    if (pictureFile != null) {
+                        pictureUri = FileProvider.getUriForFile( getApplicationContext(), getPackageName(), pictureFile );
+                        cameraIntent.putExtra( MediaStore.EXTRA_OUTPUT, pictureUri );
+                        startActivityForResult( cameraIntent, CAMERA_REQUEST_CODE );
                     }
                 }
-
-
-
             }
-        });
+        } );
 
         // 갤러리 플로팅 버튼을 클릭했을 때
-        galleryBtn.setOnClickListener(new View.OnClickListener() {
+        galleryBtn.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                galleryIntent.setType("image/*");
-                startActivityForResult(galleryIntent, GALLERY_REQUEST_CODE); //갤러리앱 실행
+                Intent galleryIntent = new Intent( Intent.ACTION_GET_CONTENT );
+                galleryIntent.setType( "image/*" );
+                startActivityForResult( galleryIntent, GALLERY_REQUEST_CODE ); //갤러리앱 실행
             }
-        });
+        } );
 
         // Renderer 설정
-        surfaceView.setPreserveEGLContextOnPause(true);
-        surfaceView.setEGLContextClientVersion(2);
-        surfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0); // Alpha used for plane blending.
-        surfaceView.setRenderer(this);
+        surfaceView.setPreserveEGLContextOnPause( true );
+        surfaceView.setEGLContextClientVersion( 2 );
+        surfaceView.setEGLConfigChooser( 8, 8, 8, 8, 16, 0 ); // Alpha used for plane blending.
+        surfaceView.setRenderer( this );
 //        surfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
 
@@ -180,9 +183,9 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     }
 
     private File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String timeStamp = new SimpleDateFormat( "yyyyMMdd_HHmmss" ).format( new Date() );
         String pictureFileName = "GongGan_" + timeStamp;
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File storageDir = getExternalFilesDir( Environment.DIRECTORY_PICTURES );
         File image = File.createTempFile(
                 pictureFileName, ".jpg", storageDir
         );
@@ -204,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         super.onResume();
 
         // 권한을 다 받았으면 권한 받아오기를 실행하지 않음
-        if(!permissionCheck) getPermission();
+        if (!permissionCheck) getPermission();
         else {
             Toast.makeText( this, "on Resume", Toast.LENGTH_SHORT ).show();
 
@@ -243,28 +246,27 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult( requestCode, resultCode, data );
 
-        if(resultCode != RESULT_OK) {
+        if (resultCode != RESULT_OK) {
             return;
         }
 
-        Intent intent = new Intent(this, WriteDiary.class);
+        Intent intent = new Intent( this, WriteDiary.class );
 
         switch (requestCode) {
-            case CAMERA_REQUEST_CODE :
+            case CAMERA_REQUEST_CODE:
                 // 카메라로 찍은 사진의 파일 경로를 WriteDiary 레이아웃으로 보내준다.
-                intent.putExtra("pictureFilePath", pictureFilePath);
-                startActivity(intent);
+                intent.putExtra( "pictureFilePath", pictureFilePath );
+                startActivity( intent );
                 break;
 
-            case GALLERY_REQUEST_CODE :
+            case GALLERY_REQUEST_CODE:
                 Uri galleryUri = data.getData(); //선택된 이미지의 uri를 받아온다.
 
                 // 선택된 이미지의 uri를 WriteDiary 레이아웃으로 보내준다.
-                intent.putExtra("uri", galleryUri);
-                startActivity(intent);
-
+                intent.putExtra( "uri", galleryUri );
+                startActivity( intent );
                 break;
         }
     }
@@ -277,14 +279,14 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             // 권한을 모두 허용했을 경우
             @Override
             public void onPermissionGranted() {
-                permissionCheck=true;
+                permissionCheck = true;
                 Toast.makeText( MainActivity.this, "반갑습니다.", Toast.LENGTH_SHORT ).show();
             }
 
             // 권한이 거부되었을 경우
             @Override
             public void onPermissionDenied(ArrayList<String> deniedPermissions) {
-                permissionCheck=false;
+                permissionCheck = false;
                 Toast.makeText( MainActivity.this, "권한이 거부되었습니다.\n" + deniedPermissions.toString(), Toast.LENGTH_SHORT ).show();
             }
 
@@ -302,25 +304,25 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     }
 
     public void initView() {
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        toolbar = (Toolbar) findViewById( R.id.toolbar );
+        drawerLayout = (DrawerLayout) findViewById( R.id.drawer_layout );
+        navigationView = (NavigationView) findViewById( R.id.navigation_view );
 
         // 툴바 생성 및 세팅하는 부분
-        setSupportActionBar(toolbar);
+        setSupportActionBar( toolbar );
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setHomeAsUpIndicator(R.drawable.open_save_data_btn);
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeAsUpIndicator( R.drawable.open_save_data_btn );
+        actionBar.setDisplayHomeAsUpEnabled( true );
         actionBar.setDisplayShowTitleEnabled( false );
 
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+        navigationView.setNavigationItemSelectedListener( new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
-                item.setChecked(true);
+                item.setChecked( true );
                 drawerLayout.closeDrawers();
                 return true;
             }
-        });
+        } );
 
         // 메인 진입을 확인하기 위한 임시 토스트 메시지
         Toast.makeText( this, "메인진입", Toast.LENGTH_SHORT ).show();
@@ -338,12 +340,12 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        switch (id){
+        switch (id) {
             case android.R.id.home:
-                drawerLayout.openDrawer( GravityCompat.START);
+                drawerLayout.openDrawer( GravityCompat.START );
                 return true;
         }
-        return super.onOptionsItemSelected(item);
+        return super.onOptionsItemSelected( item );
     }
 
 
@@ -352,7 +354,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         Location currentLocation = null;
 
         if (ActivityCompat.checkSelfPermission( this, Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission( this, Manifest.permission.ACCESS_COARSE_LOCATION ) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_LOCATION);
+            ActivityCompat.requestPermissions( this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_LOCATION );
         } else {
             LocationManager locationManager = (LocationManager) this.getSystemService( Context.LOCATION_SERVICE );
 
@@ -418,13 +420,13 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        GLES20.glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        GLES20.glClearColor( 0.1f, 0.1f, 0.1f, 1.0f );
 
         // Prepare the rendering objects. This involves reading shaders, so may throw an IOException.
         try {
             // Create the texture and pass it to ARCore session to be filled during update().
-            backgroundRenderer.createOnGlThread(/*context=*/ this);
-            planeRenderer.createOnGlThread(/*context=*/ this, "models/trigrid.png");
+            backgroundRenderer.createOnGlThread(/*context=*/ this );
+            planeRenderer.createOnGlThread(/*context=*/ this, "models/trigrid.png" );
 //            pointCloudRenderer.createOnGlThread(/*context=*/ this);
 
 //      virtualObject.createOnGlThread(/*context=*/ this, "models/andy.obj", "models/andy.png");
@@ -443,8 +445,8 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
-        displayRotationHelper.onSurfaceChanged(width, height);
-        GLES20.glViewport(0, 0, width, height);
+        displayRotationHelper.onSurfaceChanged( width, height );
+        GLES20.glViewport( 0, 0, width, height );
 
     }
 
@@ -570,5 +572,9 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     }
 
 
-
+    @OnClick(R.id.database)
+    public void onViewClicked() {
+        Intent intent = new Intent( this, DataBaseCheckActivity.class );
+        startActivity( intent );
+    }
 }

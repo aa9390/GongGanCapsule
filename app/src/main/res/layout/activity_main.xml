@@ -29,6 +29,18 @@
 
         </android.support.v7.widget.Toolbar>
 
+        <ImageButton
+            android:id="@+id/database"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginRight="10dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/right_btn"
+            android:background="@null"
+            app:layout_constraintBottom_toBottomOf="@+id/toolbar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
     </android.support.constraint.ConstraintLayout>
 
     <android.support.design.widget.NavigationView
