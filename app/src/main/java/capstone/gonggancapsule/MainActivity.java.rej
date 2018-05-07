@@ -1,0 +1,14 @@
+diff a/app/src/main/java/capstone/gonggancapsule/MainActivity.java b/app/src/main/java/capstone/gonggancapsule/MainActivity.java	(rejected hunks)
+@@ -218,7 +218,11 @@
+ 
+         Toast.makeText( this, "on Pause", Toast.LENGTH_SHORT ).show();
+ 
+-        surfaceView.onPause();
++        if (session != null) {
++            displayRotationHelper.onPause();
++            surfaceView.onPause();
++            session.pause();
++        }
+     }
+ 
+     @Override
