@@ -4,12 +4,54 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".WriteDiary">
 
     <ImageView
         android:id="@+id/selectedPictureIv"
-        android:layout_margin="20dp"
+        android:layout_marginTop="70dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
         android:layout_width="match_parent"
-        android:layout_height="250dp" />
+        android:layout_height="250dp"
+        android:layout_gravity="center"/>
+
+    <TextView
+        android:id="@+id/dateTv"
+        android:text="날짜"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:paddingRight="20dp"
+        android:paddingLeft="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="20dp" />
+
+    <EditText
+        android:id="@+id/writeContentEt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:ems="10"
+        android:inputType="textMultiLine"
+        android:lines="8"
+        android:maxLines="8"
+        android:background="@android:color/transparent"
+        android:scrollbars="none"/>
+
+    <Button
+        android:id="@+id/saveDiaryBtn"
+        android:layout_gravity="right"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="35dp"
+        android:backgroundTint="#ff9100"
+        android:textColor="#ffffff"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SAVE" />
 
 </LinearLayout>
