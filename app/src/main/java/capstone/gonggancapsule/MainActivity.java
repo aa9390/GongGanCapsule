@@ -69,8 +69,8 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     private final PointCloudRenderer pointCloud = new PointCloudRenderer();
 
     // 현재는 앵커(Object)를 만들지 않았기 때문에 필요없는 코드.
-//    private final ObjectRenderer virtualObject = new ObjectRenderer();
-//    private final ObjectRenderer virtualObjectShadow = new ObjectRenderer();
+    private final ObjectRenderer virtualObject = new ObjectRenderer();
+    private final ObjectRenderer virtualObjectShadow = new ObjectRenderer();
 
     // Session은 필요 유무에 따라 삭제
     private Session session;

@@ -22,12 +22,10 @@ import android.opengl.GLSurfaceView;
 import com.google.ar.core.Frame;
 import com.google.ar.core.Session;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-
-import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.opengles.GL10;
 
 /**
  * This class renders the AR background from camera feed. It creates and hosts the texture given to
@@ -35,6 +33,10 @@ import javax.microedition.khronos.opengles.GL10;
  */
 public class BackgroundRenderer {
   private static final String TAG = BackgroundRenderer.class.getSimpleName();
+
+  // Shader names.
+  private static final String VERTEX_SHADER_NAME = "shaders/screenquad.vert";
+  private static final String FRAGMENT_SHADER_NAME = "shaders/screenquad.frag";
 
   private static final int COORDS_PER_VERTEX = 3;
   private static final int TEXCOORDS_PER_VERTEX = 2;
@@ -63,8 +65,7 @@ public class BackgroundRenderer {
    *
    * @param context Needed to access shader source.
    */
-
-  public void createOnGlThread(Context context) {
+  public void createOnGlThread(Context context) throws IOException {
     // Generate the background texture.
     int[] textures = new int[1];
     GLES20.glGenTextures(1, textures, 0);
@@ -82,28 +83,27 @@ public class BackgroundRenderer {
     }
 
     ByteBuffer bbVertices = ByteBuffer.allocateDirect(QUAD_COORDS.length * FLOAT_SIZE);
-    bbVertices.order( ByteOrder.nativeOrder());
+    bbVertices.order(ByteOrder.nativeOrder());
     quadVertices = bbVertices.asFloatBuffer();
     quadVertices.put(QUAD_COORDS);
     quadVertices.position(0);
 
     ByteBuffer bbTexCoords =
         ByteBuffer.allocateDirect(numVertices * TEXCOORDS_PER_VERTEX * FLOAT_SIZE);
-    bbTexCoords.order( ByteOrder.nativeOrder());
+    bbTexCoords.order(ByteOrder.nativeOrder());
     quadTexCoord = bbTexCoords.asFloatBuffer();
     quadTexCoord.put(QUAD_TEXCOORDS);
     quadTexCoord.position(0);
 
     ByteBuffer bbTexCoordsTransformed =
         ByteBuffer.allocateDirect(numVertices * TEXCOORDS_PER_VERTEX * FLOAT_SIZE);
-    bbTexCoordsTransformed.order( ByteOrder.nativeOrder());
+    bbTexCoordsTransformed.order(ByteOrder.nativeOrder());
     quadTexCoordTransformed = bbTexCoordsTransformed.asFloatBuffer();
 
     int vertexShader =
-        ShaderUtil.loadGLShader(TAG, context, GLES20.GL_VERTEX_SHADER, R.raw.screenquad_vertex);
+        ShaderUtil.loadGLShader(TAG, context, GLES20.GL_VERTEX_SHADER, VERTEX_SHADER_NAME);
     int fragmentShader =
-        ShaderUtil.loadGLShader(
-            TAG, context, GLES20.GL_FRAGMENT_SHADER, R.raw.screenquad_fragment_oes);
+        ShaderUtil.loadGLShader(TAG, context, GLES20.GL_FRAGMENT_SHADER, FRAGMENT_SHADER_NAME);
 
     quadProgram = GLES20.glCreateProgram();
     GLES20.glAttachShader(quadProgram, vertexShader);
@@ -137,10 +137,10 @@ public class BackgroundRenderer {
 
     // No need to test or write depth, the screen quad has arbitrary depth, and is expected
     // to be drawn first.
-    GLES20.glDisable( GLES20.GL_DEPTH_TEST);
+    GLES20.glDisable(GLES20.GL_DEPTH_TEST);
     GLES20.glDepthMask(false);
 
-    GLES20.glBindTexture( GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textureId);
+    GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textureId);
 
     GLES20.glUseProgram(quadProgram);
 
@@ -161,7 +161,7 @@ public class BackgroundRenderer {
     GLES20.glEnableVertexAttribArray(quadPositionParam);
     GLES20.glEnableVertexAttribArray(quadTexCoordParam);
 
-    GLES20.glDrawArrays( GLES20.GL_TRIANGLE_STRIP, 0, 4);
+    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
 
     // Disable vertex arrays
     GLES20.glDisableVertexAttribArray(quadPositionParam);
@@ -169,7 +169,7 @@ public class BackgroundRenderer {
 
     // Restore the depth state for further drawing.
     GLES20.glDepthMask(true);
-    GLES20.glEnable( GLES20.GL_DEPTH_TEST);
+    GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 
     ShaderUtil.checkGLError(TAG, "Draw");
   }
