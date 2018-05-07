@@ -18,6 +18,6 @@ public class SplashActivity extends AppCompatActivity {
             public void run() {
                 finish();
             }
-        }, 3000);// 3 초
+        }, 3500);// 3 초
     }
 }

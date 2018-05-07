@@ -28,7 +28,7 @@ import com.google.ar.core.Session;
  * by the onSurfaceChanged() callback, and thus they require listening to the android display
  * events.
  */
-public class DisplayRotationHelper implements DisplayListener {
+public final class DisplayRotationHelper implements DisplayListener {
   private boolean viewportChanged;
   private int viewportWidth;
   private int viewportHeight;
