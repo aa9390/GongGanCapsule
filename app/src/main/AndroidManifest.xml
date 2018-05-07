@@ -10,7 +10,9 @@
     <uses-feature
         android:name="android.hardware.camera.ar"
         android:required="true" />
-    <uses-feature android:name="android.hardware.camera" android:required="true"/> <!-- 카메라 접근 권한 요청 -->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" /> <!-- 카메라 접근 권한 요청 -->
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -32,27 +34,28 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".SplashActivity">
+        </activity>
         <activity android:name=".DataBaseCheckActivity">
-
         </activity>
 
         <meta-data
             android:name="com.google.ar.core"
             android:value="required" />
 
-        <activity android:name=".WriteDiary"></activity>
+        <activity android:name=".WriteDiary" />
 
         <!-- 카메라 사진 저장을 위한 코드 -->
         <provider
-            android:authorities="capstone.gonggancapsule"
             android:name="android.support.v4.content.FileProvider"
+            android:authorities="capstone.gonggancapsule"
             android:exported="false"
             android:grantUriPermissions="true">
-
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"/>
+                android:resource="@xml/file_paths" />
         </provider>
+
     </application>
 
 </manifest>
