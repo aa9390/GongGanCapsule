@@ -20,7 +20,7 @@ public final class GPSTracker implements LocationListener {
 
     private final Context mContext;
     private static final int REQUEST_CODE_LOCATION = 2;
-    private Activity mActivity;
+    Activity mActivity;
 
     // flag for GPS status
     public boolean isGPSEnabled = false;

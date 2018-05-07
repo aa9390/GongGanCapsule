@@ -109,8 +109,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     boolean isOpen = false;
     Animation FabOpen, FabClose;
 
-    //[소지]
-    private static final int REQUEST_CODE_LOCATION = 2;
     public final static int CAMERA_REQUEST_CODE = 1;
     public final static int GALLERY_REQUEST_CODE = 2;
 
