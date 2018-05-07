@@ -28,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.ar.core.Anchor;
+import com.google.ar.core.ArCoreApk;
 import com.google.ar.core.Camera;
 import com.google.ar.core.Frame;
 import com.google.ar.core.HitResult;
@@ -41,7 +42,9 @@ import com.google.ar.core.TrackingState;
 import com.google.ar.core.exceptions.CameraNotAvailableException;
 import com.google.ar.core.exceptions.UnavailableApkTooOldException;
 import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
+import com.google.ar.core.exceptions.UnavailableDeviceNotCompatibleException;
 import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
+import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
 
@@ -62,10 +65,9 @@ import butterknife.OnClick;
 // onSurfaceCreated() -> onSurfaceChanged() -> onDrawFrame()
 public class MainActivity extends AppCompatActivity implements GLSurfaceView.Renderer {
 
-    boolean permissionCheck = false;
-
     @BindView(R.id.database)
     ImageButton database;
+
     private LocationManager locationManager;
     private GLSurfaceView surfaceView;
 
@@ -110,8 +112,8 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     private TextView longi;
     private TextView lati;
 
-
     private boolean installRequested;
+    boolean permissionCheck = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,8 +121,26 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         setContentView( R.layout.activity_main );
         ButterKnife.bind( this );
 
+        if (!permissionCheck) getPermission();
+
         //splash 화면 띄우기
         startActivity(new Intent(this, SplashActivity.class));
+
+//        //위치 받아오기
+//        GPSTracker mGPS = new GPSTracker(this);
+//
+//        //위치 받아오는지 확인하기 위한 임시코드
+//        TextView text = (TextView) findViewById(R.id.longi);
+//        TextView text2 = (TextView) findViewById(R.id.lati);
+//
+//        if(mGPS.canGetLocation ){
+//            mGPS.getLocation();
+//            text.setText("Lat"+mGPS.getLatitude());
+//            text2.setText("Lon"+mGPS.getLongitude());
+//        }else{
+//            text.setText("Unabletofind");
+//            System.out.println("Unable");
+//        }
 
         // 카메라 뷰를 위한 surfaceview 선언
         surfaceView = findViewById( R.id.surfaceview );
@@ -140,9 +160,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
         FabOpen = AnimationUtils.loadAnimation( this, R.anim.fab_open );
         FabClose = AnimationUtils.loadAnimation( this, R.anim.fab_close );
-
-        longi = findViewById( R.id.longi );
-        lati = findViewById( R.id.lati );
 
         // 메인 화면 초기화
         initView();
@@ -188,6 +205,37 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         surfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
     }
 
+    public void getPermission() {
+        PermissionListener permissionlistener = new PermissionListener() {
+
+            // 권한을 모두 허용했을 경우
+            @Override
+            public void onPermissionGranted() {
+                permissionCheck = true;
+                Toast.makeText( MainActivity.this, "반갑습니다.", Toast.LENGTH_SHORT ).show();
+            }
+
+            // 권한이 거부되었을 경우
+            @Override
+            public void onPermissionDenied(ArrayList<String> deniedPermissions) {
+                permissionCheck = false;
+                Toast.makeText( MainActivity.this, "권한이 거부되었습니다.\n" + deniedPermissions.toString(), Toast.LENGTH_SHORT ).show();
+            }
+        };
+
+        TedPermission.with( this )
+                .setPermissionListener( permissionlistener )
+                .setRationaleTitle( "권한 알림" )
+                .setRationaleMessage( "공간캡슐을 실행하기 위해서는 카메라, 위치, 저장소 권한이 필요합니다. 확인을 눌러주세요!" )
+                .setDeniedTitle( "권한 거부" )
+                .setDeniedMessage( "권한이 거부되었습니다. 확인 버튼을 누르시면 설정 창으로 이동합니다." )
+                .setGotoSettingButtonText( "확인" )
+                .setPermissions( Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)
+                .check();
+
+    };
+
+
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat( "yyyyMMdd_HHmmss" ).format( new Date() );
         String pictureFileName = "GongGan_" + timeStamp;
@@ -200,52 +248,100 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-
-        Toast.makeText( this, "on Pause", Toast.LENGTH_SHORT ).show();
-
-        Session session = null;
-        try {
-            session = new Session( this );
-        } catch (UnavailableArcoreNotInstalledException e) {
-            e.printStackTrace();
-        } catch (UnavailableApkTooOldException e) {
-            e.printStackTrace();
-        } catch (UnavailableSdkTooOldException e) {
-            e.printStackTrace();
-        }
-        displayRotationHelper.onPause();
-        surfaceView.onPause();
-        session.pause();
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
 
-        // 권한을 다 받았으면 권한 받아오기를 실행하지 않음
-        if (!permissionCheck) getPermission();
-        else {
-            Toast.makeText( this, "on Resume", Toast.LENGTH_SHORT ).show();
-            if (session==null) {
-                try {
-                    session = new Session( this );
-                } catch (UnavailableArcoreNotInstalledException e) {
-                    e.printStackTrace();
-                } catch (UnavailableApkTooOldException e) {
-                    e.printStackTrace();
-                } catch (UnavailableSdkTooOldException e) {
-                    e.printStackTrace();
-                }
-            }
+        Toast.makeText( this, "on Resume", Toast.LENGTH_SHORT ).show();
+
+        //위치 받아오기
+        GPSTracker mGPS = new GPSTracker(this);
+
+        //위치 받아오는지 확인하기 위한 임시코드
+        TextView text = (TextView) findViewById(R.id.longi);
+        TextView text2 = (TextView) findViewById(R.id.lati);
+
+        if(mGPS.canGetLocation ){
+            mGPS.getLocation();
+            text.setText("Lat"+mGPS.getLatitude());
+            text2.setText("Lon"+mGPS.getLongitude());
+        }else{
+            text.setText("Unabletofind");
+            System.out.println("Unable");
+        }
+
+        if (session == null) {
+            Exception exception = null;
+            String message = null;
             try {
-                session.resume();
-            } catch (CameraNotAvailableException e) {
-                e.printStackTrace();
+                switch (ArCoreApk.getInstance().requestInstall(this, !installRequested)) {
+                    case INSTALL_REQUESTED:
+                        installRequested = true;
+                        return;
+                    case INSTALLED:
+                        break;
+                }
+
+                // ARCore requires camera permissions to operate. If we did not yet obtain runtime
+                // permission on Android M and above, now is a good time to ask the user for it.
+//                if (!CameraPermissionHelper.hasCameraPermission(this)) {
+//                    CameraPermissionHelper.requestCameraPermission(this);
+//                    return;
+//                }
+
+                // Create the session.
+                session = new Session(/* context= */ this);
+
+            } catch (UnavailableArcoreNotInstalledException
+                    | UnavailableUserDeclinedInstallationException e) {
+                message = "Please install ARCore";
+                exception = e;
+            } catch (UnavailableApkTooOldException e) {
+                message = "Please update ARCore";
+                exception = e;
+            } catch (UnavailableSdkTooOldException e) {
+                message = "Please update this app";
+                exception = e;
+            } catch (UnavailableDeviceNotCompatibleException e) {
+                message = "This device does not support AR";
+                exception = e;
+            } catch (Exception e) {
+                message = "Failed to create AR session";
+                exception = e;
             }
-            surfaceView.onResume();
-            displayRotationHelper.onResume();
+
+            if (message != null) {
+                messageSnackbarHelper.showError(this, message);
+//                Log.e(TAG, "Exception creating session", exception);
+                return;
+            }
+        }
+
+        // Note that order matters - see the note in onPause(), the reverse applies here.
+        try {
+            session.resume();
+        } catch (CameraNotAvailableException e) {
+            // In some cases (such as another camera app launching) the camera may be given to
+            // a different app instead. Handle this properly by showing a message and recreate the
+            // session at the next iteration.
+            messageSnackbarHelper.showError(this, "Camera not available. Please restart the app.");
+            session = null;
+            return;
+        }
+
+        surfaceView.onResume();
+        displayRotationHelper.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (session != null) {
+            // Note that the order matters - GLSurfaceView is paused first so that it does not try
+            // to query the session. If Session is paused before GLSurfaceView, GLSurfaceView may
+            // still call session.update() and get a SessionPausedException.
+            displayRotationHelper.onPause();
+            surfaceView.onPause();
+            session.pause();
         }
     }
 
@@ -264,7 +360,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                         isOpen = false;
                     }
                     break;
-
             }
         }
     };
@@ -294,38 +389,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                 startActivity( intent );
                 break;
         }
-    }
-
-
-    // 권한을 받기 위한 코드
-    public void getPermission() {
-        PermissionListener permissionlistener = new PermissionListener() {
-
-            // 권한을 모두 허용했을 경우
-            @Override
-            public void onPermissionGranted() {
-                permissionCheck = true;
-                Toast.makeText( MainActivity.this, "반갑습니다.", Toast.LENGTH_SHORT ).show();
-            }
-
-            // 권한이 거부되었을 경우
-            @Override
-            public void onPermissionDenied(ArrayList<String> deniedPermissions) {
-                permissionCheck = false;
-                Toast.makeText( MainActivity.this, "권한이 거부되었습니다.\n" + deniedPermissions.toString(), Toast.LENGTH_SHORT ).show();
-            }
-
-        };
-
-        TedPermission.with( this )
-                .setPermissionListener( permissionlistener )
-                .setRationaleTitle( "권한 알림" )
-                .setRationaleMessage( "공간캡슐을 실행하기 위해서는 카메라, 위치, 저장소 권한이 필요합니다. 확인을 눌러주세요!" )
-                .setDeniedTitle( "권한 거부" )
-                .setDeniedMessage( "권한이 거부되었습니다. 확인 버튼을 누르시면 설정 창으로 이동합니다." )
-                .setGotoSettingButtonText( "확인" )
-                .setPermissions( Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION )
-                .check();
     }
 
     public void initView() {
