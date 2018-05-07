@@ -10,29 +10,56 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import capstone.gonggancapsule.database.DatabaseHelper;
 
 public class WriteDiary extends AppCompatActivity {
 
+    // 사진 이미지뷰
     ImageView selectedPictureIv;
 
+    String pictureFilePath;
     int exifOrientation;
     int exifDegree;
+
+    TextView dateTv;
+    EditText writeContentEt;
+    Button saveDiaryBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_write_diary);
 
+        // DB
+        final DatabaseHelper dbHelper = new DatabaseHelper(WriteDiary.this, "capsule", null, 1);
+
         selectedPictureIv = (ImageView)findViewById(R.id.selectedPictureIv);
+        dateTv = (TextView)findViewById(R.id.dateTv);
+        writeContentEt = (EditText)findViewById(R.id.writeContentEt);
+        saveDiaryBtn = (Button)findViewById(R.id.saveDiaryBtn);
+
+        // 현재 날짜 세팅하기
+        String date = getDateString();
+        dateTv.setText(date);
+        dateTv.setBackgroundResource(R.drawable.textview_border);
 
         // uri 받아오기
         Intent intent = getIntent();
         Uri uri = intent.getParcelableExtra("uri");
-        String pictureFilePath = intent.getStringExtra("pictureFilePath");
+        pictureFilePath = intent.getStringExtra("pictureFilePath");
 
         if (uri != null && pictureFilePath == null) {
             try {
@@ -65,6 +92,57 @@ public class WriteDiary extends AppCompatActivity {
 
             selectedPictureIv.setImageBitmap(rotate(bitmap, exifDegree));
         }
+
+        // Content EditText 라인 수 제한하기 위함(입력가능한 최대 라인수)
+        writeContentEt.addTextChangedListener(new TextWatcher() {
+            String previousString = "";
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                previousString = s.toString();
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if(writeContentEt.getLineCount() >= 9) { //8줄까지 쓸 수 있도록 설정
+                    writeContentEt.setText(previousString);
+                    writeContentEt.setSelection(writeContentEt.length());
+                }
+            }
+        });
+
+        // save 버튼을 누르면 DB에 데이터 저장 (INSERT)
+        saveDiaryBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Double latitude = Math.random() * 1000; //위도 (임시로 저장하기위해 랜덤 사용)
+                Double longitude = Math.random() * 1000; //경도 (임시로 저장하기위해 랜덤 사용)
+                String create_date = dateTv.getText().toString(); //현재 날짜
+                String content = writeContentEt.getText().toString(); //내용
+                String picture = pictureFilePath; //경로
+
+                dbHelper.insertDiary(latitude, longitude, create_date, content, picture);
+
+                Intent intent = new Intent(WriteDiary.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+    }
+
+    public String getDateString() {
+        long now = System.currentTimeMillis();
+        Date date = new Date(now);
+
+        // 출력될 포맷 설정
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy년 MM월 dd일");
+        return simpleDateFormat.format(date);
     }
 
     // 사진을 띄울 때 회전되지 않게 보여주기 위함(exifOrientationToDegrees, rotate 함수)

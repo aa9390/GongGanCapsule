@@ -214,8 +214,8 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             // 위치 확인 위한 임시 코드
             Location location = getMyLocation();
 
-            longi.setText( location.getLongitude() + "" );
-            lati.setText( location.getLatitude() + "" );
+            //longi.setText( location.getLongitude() + "" );
+            //lati.setText( location.getLatitude() + "" );
 
             session = new Session( this );
             session.resume();
@@ -459,6 +459,12 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     public void onDrawFrame(GL10 gl) {
         // Clear screen to notify driver it should not load any pixels from previous frame.
         GLES20.glClear( GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT );
+
+        // save 버튼을 클릭하고 메인화면 오류없이 돌아가기
+        if(session == null) {
+            return;
+        }
+
         displayRotationHelper.updateSessionIfNeeded( session );
 
         try {
