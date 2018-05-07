@@ -240,7 +240,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         if (!permissionCheck) getPermission();
         else {
             Toast.makeText( this, "on Resume", Toast.LENGTH_SHORT ).show();
-
             session = new Session( this );
             session.resume();
             surfaceView.onResume();
@@ -412,14 +411,14 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     @Override
     public void onDrawFrame(GL10 gl) {
         // Clear screen to notify driver it should not load any pixels from previous frame.
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+        GLES20.glClear( GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT );
 
-        if (session == null) {
+        // save 버튼을 클릭하고 메인화면 오류없이 돌아가기
+        if(session == null) {
             return;
         }
-        // Notify ARCore session that the view size changed so that the perspective matrix and
-        // the video background can be properly adjusted.
-        displayRotationHelper.updateSessionIfNeeded(session);
+
+        displayRotationHelper.updateSessionIfNeeded( session );
 
         try {
             session.setCameraTextureName(backgroundRenderer.getTextureId());
