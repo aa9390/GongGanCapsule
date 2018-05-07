@@ -108,10 +108,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     public final static int CAMERA_REQUEST_CODE = 1;
     public final static int GALLERY_REQUEST_CODE = 2;
 
-    // 위치 확인용
-    private TextView longi;
-    private TextView lati;
-
     private boolean installRequested;
     boolean permissionCheck = false;
 
