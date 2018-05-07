@@ -71,7 +71,7 @@
 
             <TextView
                 android:id="@+id/longi"
-                android:layout_width="80dp"
+                android:layout_width="250dp"
                 android:layout_height="wrap_content"
                 android:text="위도" />
             <TextView
@@ -79,7 +79,7 @@
                 android:layout_below="@+id/longi"
                 android:text="경도"
                 android:layout_gravity="end"
-                android:layout_width="80dp"
+                android:layout_width="250dp"
                 android:layout_height="wrap_content" />
 
         </RelativeLayout>

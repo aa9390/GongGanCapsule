@@ -127,6 +127,22 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         setContentView( R.layout.activity_main );
         ButterKnife.bind( this );
 
+        //위치 받아오기
+        GPSTracker mGPS = new GPSTracker(this);
+
+        //위치 받아오는지 확인하기 위한 임시코드
+        TextView text = (TextView) findViewById(R.id.longi);
+        TextView text2 = (TextView) findViewById(R.id.lati);
+
+        if(mGPS.canGetLocation ){
+            mGPS.getLocation();
+            text.setText("Lat"+mGPS.getLatitude());
+            text2.setText("Lon"+mGPS.getLongitude());
+        }else{
+            text.setText("Unabletofind");
+            System.out.println("Unable");
+        }
+
         //splash 화면 띄우기
         startActivity(new Intent(this, SplashActivity.class));
 
@@ -194,13 +210,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         surfaceView.setRenderer( this );
         surfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
-
-//        // 위치 확인 위한 임시 코드
-//        Location location = getMyLocation();
-////
-//        longi.setText( "위도 : " + location.getLongitude() + "" );
-//        lati.setText( "경도 : " + location.getLatitude() + "" );
-
     }
 
     private File createImageFile() throws IOException {
@@ -231,12 +240,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         if (!permissionCheck) getPermission();
         else {
             Toast.makeText( this, "on Resume", Toast.LENGTH_SHORT ).show();
-
-            // 위치 확인 위한 임시 코드
-            Location location = getMyLocation();
-
-            longi.setText( location.getLongitude() + "" );
-            lati.setText( location.getLatitude() + "" );
 
             session = new Session( this );
             session.resume();
@@ -368,76 +371,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         }
         return super.onOptionsItemSelected( item );
     }
-
-
-    // 현재 위치 받아오기
-    private Location getMyLocation() {
-        Location currentLocation = null;
-
-        if (ActivityCompat.checkSelfPermission( this, Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission( this, Manifest.permission.ACCESS_COARSE_LOCATION ) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions( this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_LOCATION );
-        } else {
-            LocationManager locationManager = (LocationManager) this.getSystemService( Context.LOCATION_SERVICE );
-
-            // Best Provider를 가져오기 위한 criteria 선언
-            Criteria criteria = new Criteria();
-
-            // 정확도
-            criteria.setAccuracy( Criteria.NO_REQUIREMENT );
-            // 전원 소비량
-            criteria.setPowerRequirement( Criteria.NO_REQUIREMENT );
-            // 고도, 높이 값을 얻어 올지를 결정
-            criteria.setAltitudeRequired( false );
-            // provider 기본 정보(방위, 방향)
-            criteria.setBearingRequired( false );
-            // 속도
-            criteria.setSpeedRequired( false );
-            // 위치 정보를 얻어 오는데 들어가는 금전적 비용
-            criteria.setCostAllowed( true );
-
-            String bestProvider = locationManager.getBestProvider( criteria, true );
-
-            currentLocation = locationManager.getLastKnownLocation( bestProvider );
-
-            if (currentLocation != null) {
-                // 위도와 경도를 설정
-                double longitude = currentLocation.getLongitude();
-                double latitude = currentLocation.getLatitude();
-
-                // Log 보기
-                Log.d( "Main", "longtitude=" + longitude + ", latitude=" + latitude );
-
-            } else
-                Toast.makeText( getBaseContext(), "위치를 찾을 수 없습니다", Toast.LENGTH_SHORT ).show();
-        }
-        return currentLocation;
-    }
-
-
-    LocationListener locationListener = new LocationListener() {
-        @Override
-        public void onLocationChanged(Location location) {
-
-            location = getMyLocation();
-            longi.setText( "위도 : " + location.getLongitude() + "" );
-            lati.setText( "경도 : " + location.getLatitude() + "" );
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-
-        }
-    };
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
