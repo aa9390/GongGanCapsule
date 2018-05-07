@@ -40,12 +40,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.opengles.GL10;
-
 /** Renders the detected AR planes. */
 public class PlaneRenderer {
   private static final String TAG = PlaneRenderer.class.getSimpleName();
+
+  // Shader names.
+  private static final String VERTEX_SHADER_NAME = "shaders/plane.vert";
+  private static final String FRAGMENT_SHADER_NAME = "shaders/plane.frag";
 
   private static final int BYTES_PER_FLOAT = Float.SIZE / 8;
   private static final int BYTES_PER_SHORT = Short.SIZE / 8;
@@ -90,11 +91,11 @@ public class PlaneRenderer {
 
   private FloatBuffer vertexBuffer =
       ByteBuffer.allocateDirect(INITIAL_VERTEX_BUFFER_SIZE_BYTES)
-          .order( ByteOrder.nativeOrder())
+          .order(ByteOrder.nativeOrder())
           .asFloatBuffer();
   private ShortBuffer indexBuffer =
       ByteBuffer.allocateDirect(INITIAL_INDEX_BUFFER_SIZE_BYTES)
-          .order( ByteOrder.nativeOrder())
+          .order(ByteOrder.nativeOrder())
           .asShortBuffer();
 
   // Temporary lists/matrices allocated here to reduce number of allocations for each frame.
@@ -118,9 +119,9 @@ public class PlaneRenderer {
    */
   public void createOnGlThread(Context context, String gridDistanceTextureName) throws IOException {
     int vertexShader =
-        ShaderUtil.loadGLShader(TAG, context, GLES20.GL_VERTEX_SHADER, R.raw.plane_vertex);
+        ShaderUtil.loadGLShader(TAG, context, GLES20.GL_VERTEX_SHADER, VERTEX_SHADER_NAME);
     int passthroughShader =
-        ShaderUtil.loadGLShader(TAG, context, GLES20.GL_FRAGMENT_SHADER, R.raw.plane_fragment);
+        ShaderUtil.loadGLShader(TAG, context, GLES20.GL_FRAGMENT_SHADER, FRAGMENT_SHADER_NAME);
 
     planeProgram = GLES20.glCreateProgram();
     GLES20.glAttachShader(planeProgram, vertexShader);
@@ -134,16 +135,16 @@ public class PlaneRenderer {
     Bitmap textureBitmap =
         BitmapFactory.decodeStream(context.getAssets().open(gridDistanceTextureName));
 
-    GLES20.glActiveTexture( GLES20.GL_TEXTURE0);
+    GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
     GLES20.glGenTextures(textures.length, textures, 0);
-    GLES20.glBindTexture( GLES20.GL_TEXTURE_2D, textures[0]);
+    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textures[0]);
 
     GLES20.glTexParameteri(
         GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR_MIPMAP_LINEAR);
-    GLES20.glTexParameteri( GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
-    GLUtils.texImage2D( GLES20.GL_TEXTURE_2D, 0, textureBitmap, 0);
-    GLES20.glGenerateMipmap( GLES20.GL_TEXTURE_2D);
-    GLES20.glBindTexture( GLES20.GL_TEXTURE_2D, 0);
+    GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+    GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, textureBitmap, 0);
+    GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_2D);
+    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
 
     ShaderUtil.checkGLError(TAG, "Texture loading");
 
@@ -191,7 +192,7 @@ public class PlaneRenderer {
       }
       vertexBuffer =
           ByteBuffer.allocateDirect(BYTES_PER_FLOAT * size)
-              .order( ByteOrder.nativeOrder())
+              .order(ByteOrder.nativeOrder())
               .asFloatBuffer();
     }
     vertexBuffer.rewind();
@@ -204,7 +205,7 @@ public class PlaneRenderer {
       }
       indexBuffer =
           ByteBuffer.allocateDirect(BYTES_PER_SHORT * size)
-              .order( ByteOrder.nativeOrder())
+              .order(ByteOrder.nativeOrder())
               .asShortBuffer();
     }
     indexBuffer.rewind();
@@ -335,14 +336,14 @@ public class PlaneRenderer {
     // Start by clearing the alpha channel of the color buffer to 1.0.
     GLES20.glClearColor(1, 1, 1, 1);
     GLES20.glColorMask(false, false, false, true);
-    GLES20.glClear( GLES20.GL_COLOR_BUFFER_BIT);
+    GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
     GLES20.glColorMask(true, true, true, true);
 
     // Disable depth write.
     GLES20.glDepthMask(false);
 
     // Additive blending, masked by alpha channel, clearing alpha channel.
-    GLES20.glEnable( GLES20.GL_BLEND);
+    GLES20.glEnable(GLES20.GL_BLEND);
     GLES20.glBlendFuncSeparate(
         GLES20.GL_DST_ALPHA, GLES20.GL_ONE, // RGB (src, dest)
         GLES20.GL_ZERO, GLES20.GL_ONE_MINUS_SRC_ALPHA); // ALPHA (src, dest)
@@ -351,8 +352,8 @@ public class PlaneRenderer {
     GLES20.glUseProgram(planeProgram);
 
     // Attach the texture.
-    GLES20.glActiveTexture( GLES20.GL_TEXTURE0);
-    GLES20.glBindTexture( GLES20.GL_TEXTURE_2D, textures[0]);
+    GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textures[0]);
     GLES20.glUniform1i(textureUniform, 0);
 
     // Shared fragment uniforms.
@@ -400,8 +401,8 @@ public class PlaneRenderer {
 
     // Clean up the state we set
     GLES20.glDisableVertexAttribArray(planeXZPositionAlphaAttribute);
-    GLES20.glBindTexture( GLES20.GL_TEXTURE_2D, 0);
-    GLES20.glDisable( GLES20.GL_BLEND);
+    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
+    GLES20.glDisable(GLES20.GL_BLEND);
     GLES20.glDepthMask(true);
 
     ShaderUtil.checkGLError(TAG, "Cleaning up after drawing planes");
