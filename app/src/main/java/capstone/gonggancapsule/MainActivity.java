@@ -119,25 +119,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
         if (!permissionCheck) getPermission();
 
-        //splash 화면 띄우기
-        startActivity(new Intent(this, SplashActivity.class));
-
-//        //위치 받아오기
-//        GPSTracker mGPS = new GPSTracker(this);
-//
-//        //위치 받아오는지 확인하기 위한 임시코드
-//        TextView text = (TextView) findViewById(R.id.longi);
-//        TextView text2 = (TextView) findViewById(R.id.lati);
-//
-//        if(mGPS.canGetLocation ){
-//            mGPS.getLocation();
-//            text.setText("Lat"+mGPS.getLatitude());
-//            text2.setText("Lon"+mGPS.getLongitude());
-//        }else{
-//            text.setText("Unabletofind");
-//            System.out.println("Unable");
-//        }
-
         // 카메라 뷰를 위한 surfaceview 선언
         surfaceView = findViewById( R.id.surfaceview );
         displayRotationHelper = new DisplayRotationHelper(/*context=*/ this );
