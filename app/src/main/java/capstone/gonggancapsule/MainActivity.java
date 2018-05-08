@@ -14,14 +14,20 @@ import android.support.v4.content.FileProvider;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,7 +35,14 @@ import com.google.ar.core.Anchor;
 import com.google.ar.core.ArCoreApk;
 import com.google.ar.core.Camera;
 import com.google.ar.core.Frame;
+import com.google.ar.core.HitResult;
+import com.google.ar.core.Plane;
+import com.google.ar.core.Point;
+import com.google.ar.core.Point.OrientationMode;
+import com.google.ar.core.PointCloud;
 import com.google.ar.core.Session;
+import com.google.ar.core.Trackable;
+import com.google.ar.core.TrackingState;
 import com.google.ar.core.exceptions.CameraNotAvailableException;
 import com.google.ar.core.exceptions.UnavailableApkTooOldException;
 import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
@@ -79,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     private final ObjectRenderer virtualObject = new ObjectRenderer();
     private final ObjectRenderer virtualObjectShadow = new ObjectRenderer();
     private final float[] anchorMatrix = new float[16];
-    //private final ArrayList<Anchor> anchors = new ArrayList<>();
+    private final ArrayList<Anchor> anchors = new ArrayList<>();
     Anchor anchor;
 
     private TapHelper tapHelper;
@@ -98,6 +111,14 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     private FloatingActionButton floatingBtn;
     private FloatingActionButton cameraBtn;
     private FloatingActionButton galleryBtn;
+
+    // 작성 날짜를 위한 코드
+    private String[] mDatesTitles;
+    private DrawerLayout mDrawerLayout;
+    private ListView mDrawerList;
+    private ActionBarDrawerToggle mDrawerToggle;
+    private CharSequence mDrawerTitle;
+    private CharSequence mTitle;
 
     private String pictureFilePath;
     private Uri pictureUri;
@@ -140,6 +161,46 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
         FabOpen = AnimationUtils.loadAnimation( this, R.anim.fab_open );
         FabClose = AnimationUtils.loadAnimation( this, R.anim.fab_close );
+
+        // 작성 날짜
+
+        mDatesTitles = getResources().getStringArray(R.array.create_date_array);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+
+
+        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
+                R.layout.drawer_list_item, mDatesTitles));
+        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+
+
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
+                R.string.drawer_open, R.string.drawer_close) {
+
+            /*
+             * drawer가 닫혔을 때, 호출된다.
+             */
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                //getActionBar().setTitle(mTitle);
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+
+            /*
+             * drawer가 열렸을 때, 호출된다.
+             */
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                //getActionBar().setTitle(mDrawerTitle);
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+        };
+        // DrawerListener로 drawer toggle을 설정.
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+
+        if (savedInstanceState == null) {
+            selectItem(0);
+        }
 
         // 메인 화면 초기화
         initView();
@@ -188,9 +249,12 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         // Annotation at Buckingham Palace
         // Shows toast on touch
         LocationMarker buckinghamPalace =  new LocationMarker(
-                37.626715, 127.092962,
+                127.092962, 37.626715,
                 new AnnotationRenderer("Buckingham Palace")
         );
+
+        LocationMarker test1 = new LocationMarker( 127.0891, 37.6274333, new AnnotationRenderer( "test1" ) );
+        LocationMarker test2 = new LocationMarker( 127.0927, 37.6270, new AnnotationRenderer( "test2" ) );
 
         buckinghamPalace.setOnTouchListener(new Runnable() {
             @Override
@@ -200,6 +264,11 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             }
         });
         locationScene.mLocationMarkers.add(buckinghamPalace);
+        Log.d("@TEST0", "MARKER 0");
+        locationScene.mLocationMarkers.add( test1 );
+        Log.d("@TEST1", "MARKER 0");
+        locationScene.mLocationMarkers.add( test2 );
+        Log.d("@TEST2", "MARKER 0");
 
     }
 
@@ -296,7 +365,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                 message = "This device does not support AR";
                 exception = e;
             } catch (Exception e) {
-                message = "Failed to create AR session";
+                message = "";
                 exception = e;
             }
 
@@ -338,6 +407,22 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         }
     }
 
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView parent, View view, int position, long id) {
+            selectItem(position);
+        }
+    }
+
+    private void selectItem(int position) {
+        // update the main content by replacing fragments
+        Bundle args = new Bundle();
+
+        // update selected item and title, then close the drawer
+        mDrawerList.setItemChecked(position, true);
+        setTitle(mDatesTitles[position]);
+        mDrawerLayout.closeDrawer(mDrawerList);
+    }
     View.OnClickListener clickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -387,7 +472,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     public void initView() {
         toolbar = (Toolbar) findViewById( R.id.toolbar );
         drawerLayout = (DrawerLayout) findViewById( R.id.drawer_layout );
-        navigationView = (NavigationView) findViewById( R.id.navigation_view );
+        //navigationView = (NavigationView) findViewById( R.id.navigation_view );
 
         // 툴바 생성 및 세팅하는 부분
         setSupportActionBar( toolbar );
@@ -396,14 +481,14 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         actionBar.setDisplayHomeAsUpEnabled( true );
         actionBar.setDisplayShowTitleEnabled( false );
 
-        navigationView.setNavigationItemSelectedListener( new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(MenuItem item) {
-                item.setChecked( true );
-                drawerLayout.closeDrawers();
-                return true;
-            }
-        } );
+//        navigationView.setNavigationItemSelectedListener( new NavigationView.OnNavigationItemSelectedListener() {
+//            @Override
+//            public boolean onNavigationItemSelected(MenuItem item) {
+//                item.setChecked( true );
+//                drawerLayout.closeDrawers();
+//                return true;
+//            }
+//        } );
 
         // 메인 진입을 확인하기 위한 임시 토스트 메시지
         Toast.makeText( this, "메인진입", Toast.LENGTH_SHORT ).show();
@@ -467,125 +552,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
     // 작동되는 코드
 
-//    @Override
-//    public void onDrawFrame(GL10 gl) {
-//        // Clear screen to notify driver it should not load any pixels from previous frame.
-//        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-//
-//        if (session == null) {
-//            return;
-//        }
-//        // Notify ARCore session that the view size changed so that the perspective matrix and
-//        // the video background can be properly adjusted.
-//        displayRotationHelper.updateSessionIfNeeded(session);
-//
-//        try {
-//            session.setCameraTextureName(backgroundRenderer.getTextureId());
-//
-//            // Obtain the current frame from ARSession. When the configuration is set to
-//            // UpdateMode.BLOCKING (it is by default), this will throttle the rendering to the
-//            // camera framerate.
-//            Frame frame = session.update();
-//            Camera camera = frame.getCamera();
-//
-//            // Handle taps. Handling only one tap per frame, as taps are usually low frequency
-//            // compared to frame rate.
-//
-//            MotionEvent tap = tapHelper.poll();
-//            if (tap != null && camera.getTrackingState() == TrackingState.TRACKING) {
-//                for (HitResult hit : frame.hitTest(tap)) {
-//                    // Check if any plane was hit, and if it was hit inside the plane polygon
-//                    Trackable trackable = hit.getTrackable();
-//                    // Creates an anchor if a plane or an oriented point was hit.
-//                    if ((trackable instanceof Plane && ((Plane) trackable).isPoseInPolygon(hit.getHitPose()))
-//                            || (trackable instanceof Point
-//                            && ((Point) trackable).getOrientationMode()
-//                            == OrientationMode.ESTIMATED_SURFACE_NORMAL)) {
-//                        // Hits are sorted by depth. Consider only closest hit on a plane or oriented point.
-//                        // Cap the number of objects created. This avoids overloading both the
-//                        // rendering system and ARCore.
-//                        if (anchors.size() >= 20) {
-//                            anchors.get(0).detach();
-//                            anchors.remove(0);
-//                        }
-//                        // Adding an Anchor tells ARCore that it should track this position in
-//                        // space. This anchor is created on the Plane to place the 3D model
-//                        // in the correct position relative both to the world and to the plane.
-//                        anchors.add(hit.createAnchor());
-//                        break;
-//                    }
-//                }
-//            }
-//
-//            // Draw background.
-//            backgroundRenderer.draw(frame);
-//
-//            // If not tracking, don't draw 3d objects.
-//            if (camera.getTrackingState() == TrackingState.PAUSED) {
-//                return;
-//            }
-//
-//            // Get projection matrix.
-//            float[] projmtx = new float[16];
-//            camera.getProjectionMatrix(projmtx, 0, 0.1f, 100.0f);
-//
-//            // Get camera matrix and draw.
-//            float[] viewmtx = new float[16];
-//            camera.getViewMatrix(viewmtx, 0);
-//
-//            // Compute lighting from average intensity of the image.
-//            // The first three components are color scaling factors.
-//            // The last one is the average pixel intensity in gamma space.
-//            final float[] colorCorrectionRgba = new float[4];
-//            frame.getLightEstimate().getColorCorrection(colorCorrectionRgba, 0);
-//
-//            // Visualize tracked points.
-//            PointCloud pointCloud = frame.acquirePointCloud();
-//            pointCloudRenderer.update(pointCloud);
-//            pointCloudRenderer.draw(viewmtx, projmtx);
-//
-//            // Application is responsible for releasing the point cloud resources after
-//            // using it.
-//            pointCloud.release();
-//
-//            // Check if we detected at least one plane. If so, hide the loading message.
-//            if (messageSnackbarHelper.isShowing()) {
-//                for (Plane plane : session.getAllTrackables(Plane.class)) {
-//                    if (plane.getType() == Plane.Type.HORIZONTAL_UPWARD_FACING
-//                            && plane.getTrackingState() == TrackingState.TRACKING) {
-//                        messageSnackbarHelper.hide(this);
-//                        break;
-//                    }
-//                }
-//            }
-//
-//            // Visualize planes.
-//            planeRenderer.drawPlanes(
-//                    session.getAllTrackables(Plane.class), camera.getDisplayOrientedPose(), projmtx);
-//
-//            // Visualize anchors created by touch.
-//            float scaleFactor = 1.0f;
-//            for (Anchor anchor : anchors) {
-//                if (anchor.getTrackingState() != TrackingState.TRACKING) {
-//                    continue;
-//                }
-//                // Get the current pose of an Anchor in world space. The Anchor pose is updated
-//                // during calls to session.update() as ARCore refines its estimate of the world.
-//                anchor.getPose().toMatrix(anchorMatrix, 0);
-//
-//                // Update and draw the model and its shadow.
-//                virtualObject.updateModelMatrix(anchorMatrix, scaleFactor);
-//                virtualObjectShadow.updateModelMatrix(anchorMatrix, scaleFactor);
-//                virtualObject.draw(viewmtx, projmtx, colorCorrectionRgba);
-//                virtualObjectShadow.draw(viewmtx, projmtx, colorCorrectionRgba);
-//            }
-//
-//        } catch (Throwable t) {
-//            // Avoid crashing the application due to unhandled exceptions.
-////            Log.e(TAG, "Exception on the OpenGL thread", t);
-//        }
-//    }
-
     @Override
     public void onDrawFrame(GL10 gl) {
         // Clear screen to notify driver it should not load any pixels from previous frame.
@@ -606,18 +572,135 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             // camera framerate.
             Frame frame = session.update();
             Camera camera = frame.getCamera();
+
+            // Handle taps. Handling only one tap per frame, as taps are usually low frequency
+            // compared to frame rate.
+
+            MotionEvent tap = tapHelper.poll();
+            if (tap != null && camera.getTrackingState() == TrackingState.TRACKING) {
+                for (HitResult hit : frame.hitTest(tap)) {
+                    // Check if any plane was hit, and if it was hit inside the plane polygon
+                    Trackable trackable = hit.getTrackable();
+                    // Creates an anchor if a plane or an oriented point was hit.
+                    if ((trackable instanceof Plane && ((Plane) trackable).isPoseInPolygon(hit.getHitPose()))
+                            || (trackable instanceof Point
+                            && ((Point) trackable).getOrientationMode()
+                            == OrientationMode.ESTIMATED_SURFACE_NORMAL)) {
+                        // Hits are sorted by depth. Consider only closest hit on a plane or oriented point.
+                        // Cap the number of objects created. This avoids overloading both the
+                        // rendering system and ARCore.
+                        if (anchors.size() >= 20) {
+                            anchors.get(0).detach();
+                            anchors.remove(0);
+                        }
+                        // Adding an Anchor tells ARCore that it should track this position in
+                        // space. This anchor is created on the Plane to place the 3D model
+                        // in the correct position relative both to the world and to the plane.
+                        anchors.add(hit.createAnchor());
+                        break;
+                    }
+                }
+            }
+
             // Draw background.
             backgroundRenderer.draw(frame);
 
-// Draw location markers
-            locationScene.draw(frame);
+            // If not tracking, don't draw 3d objects.
+            if (camera.getTrackingState() == TrackingState.PAUSED) {
+                return;
+            }
+
+            // Get projection matrix.
+            float[] projmtx = new float[16];
+            camera.getProjectionMatrix(projmtx, 0, 0.1f, 100.0f);
+
+            // Get camera matrix and draw.
+            float[] viewmtx = new float[16];
+            camera.getViewMatrix(viewmtx, 0);
+
+            // Compute lighting from average intensity of the image.
+            // The first three components are color scaling factors.
+            // The last one is the average pixel intensity in gamma space.
+            final float[] colorCorrectionRgba = new float[4];
+            frame.getLightEstimate().getColorCorrection(colorCorrectionRgba, 0);
+
+            // Visualize tracked points.
+            PointCloud pointCloud = frame.acquirePointCloud();
+            pointCloudRenderer.update(pointCloud);
+            pointCloudRenderer.draw(viewmtx, projmtx);
+
+            // Application is responsible for releasing the point cloud resources after
+            // using it.
+            pointCloud.release();
+
+            // Check if we detected at least one plane. If so, hide the loading message.
+            if (messageSnackbarHelper.isShowing()) {
+                for (Plane plane : session.getAllTrackables(Plane.class)) {
+                    if (plane.getType() == Plane.Type.HORIZONTAL_UPWARD_FACING
+                            && plane.getTrackingState() == TrackingState.TRACKING) {
+                        messageSnackbarHelper.hide(this);
+                        break;
+                    }
+                }
+            }
+
+            // Visualize planes.
+            planeRenderer.drawPlanes(
+                    session.getAllTrackables(Plane.class), camera.getDisplayOrientedPose(), projmtx);
+
+            // Visualize anchors created by touch.
+            float scaleFactor = 1.0f;
+            for (Anchor anchor : anchors) {
+                if (anchor.getTrackingState() != TrackingState.TRACKING) {
+                    continue;
+                }
+                // Get the current pose of an Anchor in world space. The Anchor pose is updated
+                // during calls to session.update() as ARCore refines its estimate of the world.
+                anchor.getPose().toMatrix(anchorMatrix, 0);
+
+                // Update and draw the model and its shadow.
+                virtualObject.updateModelMatrix(anchorMatrix, scaleFactor);
+                virtualObjectShadow.updateModelMatrix(anchorMatrix, scaleFactor);
+                virtualObject.draw(viewmtx, projmtx, colorCorrectionRgba);
+                virtualObjectShadow.draw(viewmtx, projmtx, colorCorrectionRgba);
+            }
+
         } catch (Throwable t) {
             // Avoid crashing the application due to unhandled exceptions.
 //            Log.e(TAG, "Exception on the OpenGL thread", t);
         }
     }
 
-
+//    @Override
+//    public void onDrawFrame(GL10 gl) {
+//        // Clear screen to notify driver it should not load any pixels from previous frame.
+//        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+//
+//        if (session == null) {
+//            return;
+//        }
+//        // Notify ARCore session that the view size changed so that the perspective matrix and
+//        // the video background can be properly adjusted.
+//        displayRotationHelper.updateSessionIfNeeded(session);
+//
+//        try {
+//            session.setCameraTextureName(backgroundRenderer.getTextureId());
+//
+//            // Obtain the current frame from ARSession. When the configuration is set to
+//            // UpdateMode.BLOCKING (it is by default), this will throttle the rendering to the
+//            // camera framerate.
+//            Frame frame = session.update();
+//            Camera camera = frame.getCamera();
+//            // Draw background.
+//            backgroundRenderer.draw(frame);
+//            // Draw location markers
+//            locationScene.draw(frame);
+//
+//        } catch (Throwable t) {
+//            // Avoid crashing the application due to unhandled exceptions.
+////            Log.e(TAG, "Exception on the OpenGL thread", t);
+//        }
+//    }
 
     @OnClick(R.id.database)
     public void onViewClicked() {
