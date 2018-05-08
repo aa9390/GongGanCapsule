@@ -86,14 +86,12 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     private final BackgroundRenderer backgroundRenderer = new BackgroundRenderer();
     private final PlaneRenderer planeRenderer = new PlaneRenderer();
     private final PointCloudRenderer pointCloudRenderer = new PointCloudRenderer();
-    private final SnackbarHelper messageSnackbarHelper = new SnackbarHelper();
 
     // 앵커 관련 코드
     private final ObjectRenderer virtualObject = new ObjectRenderer();
     private final ObjectRenderer virtualObjectShadow = new ObjectRenderer();
     private final float[] anchorMatrix = new float[16];
     private final ArrayList<Anchor> anchors = new ArrayList<>();
-    Anchor anchor;
 
     private TapHelper tapHelper;
 
@@ -139,104 +137,12 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         setContentView( R.layout.activity_main );
         ButterKnife.bind( this );
 
-         locationScene = new LocationScene( this, this, session );
+        locationScene = new LocationScene( this, this, session );
 
         if (!permissionCheck) getPermission();
 
-        // 카메라 뷰를 위한 surfaceview 선언
-        surfaceView = findViewById( R.id.surfaceview );
-        displayRotationHelper = new DisplayRotationHelper(/*context=*/ this );
-        tapHelper = new TapHelper(/*context=*/ this);
-
-        surfaceView.setOnTouchListener(tapHelper);
-
-        // 플로팅 버튼 id 가져오기, 클릭 리스너 선언
-        floatingBtn = findViewById( R.id.floatingBtn );
-        cameraBtn = findViewById( R.id.cameraBtn );
-        galleryBtn = findViewById( R.id.galleryBtn );
-
-        floatingBtn.setOnClickListener( clickListener );
-        cameraBtn.setOnClickListener( clickListener );
-        galleryBtn.setOnClickListener( clickListener );
-
-        FabOpen = AnimationUtils.loadAnimation( this, R.anim.fab_open );
-        FabClose = AnimationUtils.loadAnimation( this, R.anim.fab_close );
-
-        // 작성 날짜
-
-        mDatesTitles = getResources().getStringArray(R.array.create_date_array);
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
-
-
-        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
-                R.layout.drawer_list_item, mDatesTitles));
-        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
-
-
-        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
-                R.string.drawer_open, R.string.drawer_close) {
-
-            /*
-             * drawer가 닫혔을 때, 호출된다.
-             */
-            public void onDrawerClosed(View view) {
-                super.onDrawerClosed(view);
-                //getActionBar().setTitle(mTitle);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
-
-            /*
-             * drawer가 열렸을 때, 호출된다.
-             */
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-                //getActionBar().setTitle(mDrawerTitle);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
-        };
-        // DrawerListener로 drawer toggle을 설정.
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
-
-        if (savedInstanceState == null) {
-            selectItem(0);
-        }
-
         // 메인 화면 초기화
         initView();
-
-        // 카메라 플로팅 버튼을 클릭했을 때
-        cameraBtn.setOnClickListener( new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent cameraIntent = new Intent( MediaStore.ACTION_IMAGE_CAPTURE );
-                if (cameraIntent.resolveActivity( getPackageManager() ) != null) {
-                    File pictureFile = null;
-
-                    try {
-                        pictureFile = createImageFile(); //카메라로 찍은 사진 받아오기
-                    } catch (IOException e) {
-                        Toast.makeText( MainActivity.this, "카메라 실행 오류", Toast.LENGTH_SHORT ).show();
-                    }
-
-                    if (pictureFile != null) {
-                        pictureUri = FileProvider.getUriForFile( getApplicationContext(), getPackageName(), pictureFile );
-                        cameraIntent.putExtra( MediaStore.EXTRA_OUTPUT, pictureUri );
-                        startActivityForResult( cameraIntent, CAMERA_REQUEST_CODE );
-                    }
-                }
-            }
-        } );
-
-        // 갤러리 플로팅 버튼을 클릭했을 때
-        galleryBtn.setOnClickListener( new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent galleryIntent = new Intent( Intent.ACTION_GET_CONTENT );
-                galleryIntent.setType( "image/*" );
-                startActivityForResult( galleryIntent, GALLERY_REQUEST_CODE ); //갤러리앱 실행
-            }
-        } );
 
         // Renderer 설정
         surfaceView.setPreserveEGLContextOnPause( true );
@@ -245,9 +151,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         surfaceView.setRenderer( this );
         surfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
-
-        // Annotation at Buckingham Palace
-        // Shows toast on touch
+        // LocationMarker 라이브러리 이용하여 위도, 경도에 해당하는 위치에 Marker 생성
         LocationMarker buckinghamPalace =  new LocationMarker(
                 127.092962, 37.626715,
                 new AnnotationRenderer("Buckingham Palace")
@@ -272,6 +176,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
     }
 
+    // 권한 받아오기
     public void getPermission() {
         PermissionListener permissionlistener = new PermissionListener() {
 
@@ -300,8 +205,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                 .setPermissions( Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)
                 .check();
 
-    };
-
+    }
 
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat( "yyyyMMdd_HHmmss" ).format( new Date() );
@@ -370,7 +274,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             }
 
             if (message != null) {
-                messageSnackbarHelper.showError(this, message);
+//                messageSnackbarHelper.showError(this, message);
 //                Log.e(TAG, "Exception creating session", exception);
                 return;
             }
@@ -383,7 +287,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             // In some cases (such as another camera app launching) the camera may be given to
             // a different app instead. Handle this properly by showing a message and recreate the
             // session at the next iteration.
-            messageSnackbarHelper.showError(this, "Camera not available. Please restart the app.");
+//            messageSnackbarHelper.showError(this, "Camera not available. Please restart the app.");
             session = null;
             return;
         }
@@ -470,6 +374,66 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     }
 
     public void initView() {
+
+        // 카메라 뷰를 위한 surfaceview 선언
+        surfaceView = findViewById( R.id.surfaceview );
+        displayRotationHelper = new DisplayRotationHelper(/*context=*/ this );
+        tapHelper = new TapHelper(/*context=*/ this);
+
+        surfaceView.setOnTouchListener(tapHelper);
+
+        // 플로팅 버튼 id 가져오기, 클릭 리스너 선언
+        floatingBtn = findViewById( R.id.floatingBtn );
+        cameraBtn = findViewById( R.id.cameraBtn );
+        galleryBtn = findViewById( R.id.galleryBtn );
+
+        floatingBtn.setOnClickListener( clickListener );
+        cameraBtn.setOnClickListener( clickListener );
+        galleryBtn.setOnClickListener( clickListener );
+
+        FabOpen = AnimationUtils.loadAnimation( this, R.anim.fab_open );
+        FabClose = AnimationUtils.loadAnimation( this, R.anim.fab_close );
+
+        // 작성 날짜
+
+        mDatesTitles = getResources().getStringArray(R.array.create_date_array);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+
+
+        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
+                R.layout.drawer_list_item, mDatesTitles));
+        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+
+
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
+                R.string.drawer_open, R.string.drawer_close) {
+
+            /*
+             * drawer가 닫혔을 때, 호출된다.
+             */
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                //getActionBar().setTitle(mTitle);
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+
+            /*
+             * drawer가 열렸을 때, 호출된다.
+             */
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                //getActionBar().setTitle(mDrawerTitle);
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+        };
+        // DrawerListener로 drawer toggle을 설정.
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+
+//        if (savedInstanceState == null) {
+//            selectItem(0);
+//        }
+
         toolbar = (Toolbar) findViewById( R.id.toolbar );
         drawerLayout = (DrawerLayout) findViewById( R.id.drawer_layout );
         //navigationView = (NavigationView) findViewById( R.id.navigation_view );
@@ -481,26 +445,44 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         actionBar.setDisplayHomeAsUpEnabled( true );
         actionBar.setDisplayShowTitleEnabled( false );
 
-//        navigationView.setNavigationItemSelectedListener( new NavigationView.OnNavigationItemSelectedListener() {
-//            @Override
-//            public boolean onNavigationItemSelected(MenuItem item) {
-//                item.setChecked( true );
-//                drawerLayout.closeDrawers();
-//                return true;
-//            }
-//        } );
-
         // 메인 진입을 확인하기 위한 임시 토스트 메시지
         Toast.makeText( this, "메인진입", Toast.LENGTH_SHORT ).show();
 
-    }
+        // 카메라 플로팅 버튼을 클릭했을 때
+        cameraBtn.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent cameraIntent = new Intent( MediaStore.ACTION_IMAGE_CAPTURE );
+                if (cameraIntent.resolveActivity( getPackageManager() ) != null) {
+                    File pictureFile = null;
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        MenuInflater menuInflater = getMenuInflater();
-//        menuInflater.inflate(R.menu.menu_main, menu);
-//        return true;
-//    }
+                    try {
+                        pictureFile = createImageFile(); //카메라로 찍은 사진 받아오기
+                    } catch (IOException e) {
+                        Toast.makeText( MainActivity.this, "카메라 실행 오류", Toast.LENGTH_SHORT ).show();
+                    }
+
+                    if (pictureFile != null) {
+                        pictureUri = FileProvider.getUriForFile( getApplicationContext(), getPackageName(), pictureFile );
+                        cameraIntent.putExtra( MediaStore.EXTRA_OUTPUT, pictureUri );
+                        startActivityForResult( cameraIntent, CAMERA_REQUEST_CODE );
+                    }
+                }
+            }
+        } );
+
+        // 갤러리 플로팅 버튼을 클릭했을 때
+        galleryBtn.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent galleryIntent = new Intent( Intent.ACTION_GET_CONTENT );
+                galleryIntent.setType( "image/*" );
+                startActivityForResult( galleryIntent, GALLERY_REQUEST_CODE ); //갤러리앱 실행
+            }
+        } );
+
+
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -633,17 +615,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             // using it.
             pointCloud.release();
 
-            // Check if we detected at least one plane. If so, hide the loading message.
-            if (messageSnackbarHelper.isShowing()) {
-                for (Plane plane : session.getAllTrackables(Plane.class)) {
-                    if (plane.getType() == Plane.Type.HORIZONTAL_UPWARD_FACING
-                            && plane.getTrackingState() == TrackingState.TRACKING) {
-                        messageSnackbarHelper.hide(this);
-                        break;
-                    }
-                }
-            }
-
             // Visualize planes.
             planeRenderer.drawPlanes(
                     session.getAllTrackables(Plane.class), camera.getDisplayOrientedPose(), projmtx);
@@ -666,8 +637,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             }
 
         } catch (Throwable t) {
-            // Avoid crashing the application due to unhandled exceptions.
-//            Log.e(TAG, "Exception on the OpenGL thread", t);
         }
     }
 
