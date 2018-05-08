@@ -52,7 +52,7 @@ public class WriteDiary extends AppCompatActivity {
         saveDiaryBtn = (Button)findViewById(R.id.saveDiaryBtn);
 
         // 현재 날짜 세팅하기
-        String date = getDateString();
+        String date = getShortDateString();
         dateTv.setText(date);
         dateTv.setBackgroundResource(R.drawable.textview_border);
 
@@ -119,10 +119,18 @@ public class WriteDiary extends AppCompatActivity {
         saveDiaryBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                GPSTracker gpsTracker = new GPSTracker(WriteDiary.this);
 
-                Double latitude = Math.random() * 1000; //위도 (임시로 저장하기위해 랜덤 사용)
-                Double longitude = Math.random() * 1000; //경도 (임시로 저장하기위해 랜덤 사용)
-                String create_date = dateTv.getText().toString(); //현재 날짜
+                Double latitude = 0.00;
+                Double longitude = 0.00;
+
+                if(gpsTracker.canGetLocation ){
+                    gpsTracker.getLocation();
+
+                    latitude = gpsTracker.getLatitude();
+                    longitude = gpsTracker.getLongitude();
+                }
+                String create_date = getLongDateString(); //현재 날짜
                 String content = writeContentEt.getText().toString(); //내용
                 String picture = pictureFilePath; //경로
 
@@ -136,12 +144,19 @@ public class WriteDiary extends AppCompatActivity {
 
     }
 
-    public String getDateString() {
+    public String getShortDateString() {
         long now = System.currentTimeMillis();
         Date date = new Date(now);
 
-        // 출력될 포맷 설정
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy년 MM월 dd일");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy년 MM월 dd일"); //출력 포맷
+        return simpleDateFormat.format(date);
+    }
+
+    public String getLongDateString() {
+        long now = System.currentTimeMillis();
+        Date date = new Date(now);
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy년 MM월 dd일 HH:mm:ss"); //출력 포맷
         return simpleDateFormat.format(date);
     }
 
