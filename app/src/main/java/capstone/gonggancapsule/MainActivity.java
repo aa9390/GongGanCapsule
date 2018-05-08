@@ -122,9 +122,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
         if (!permissionCheck) getPermission();
 
-        //splash 화면 띄우기
-        startActivity(new Intent(this, SplashActivity.class));
-
         // 카메라 뷰를 위한 surfaceview 선언
         surfaceView = findViewById( R.id.surfaceview );
         displayRotationHelper = new DisplayRotationHelper(/*context=*/ this );
