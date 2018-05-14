@@ -37,7 +37,7 @@ public class PermissionActivity extends AppCompatActivity {
             // 권한이 거부되었을 경우
             @Override
             public void onPermissionDenied(ArrayList<String> deniedPermissions) {
-                Toast.makeText( PermissionActivity.this, "권한이 거부되었습니다.\n" + deniedPermissions.toString(), Toast.LENGTH_SHORT ).show();
+                Toast.makeText( PermissionActivity.this, "권한 허용하기 버튼을 눌러주세요.", Toast.LENGTH_SHORT ).show();
             }
         };
 

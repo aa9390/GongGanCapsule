@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PermisisonActivity">
+    tools:context=".PermissionActivity">
 
     <ImageView
         android:id="@+id/icon"
@@ -31,12 +31,14 @@
         android:layout_height="59dp"
         android:gravity="center"
         android:layout_marginTop="10dp"
+        android:textColor="#000000"
         android:text="공간캡슐에서는 원활한 서비스 제공을 위해 \n카메라, 위치, 저장소 권한이 필요합니다. \n 요청 화면이 뜨면 허용을 눌러주세요."
         android:layout_below="@+id/title"/>
 
 
     <LinearLayout
         android:id="@+id/permissionList"
+        android:gravity="center"
         android:layout_below="@id/content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -160,7 +162,7 @@
         android:id="@+id/permisson_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
+        android:layout_margin="10dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
         android:text="권한 허용하기" />

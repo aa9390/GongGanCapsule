@@ -1,6 +1,5 @@
 package capstone.gonggancapsule;
 
-import android.Manifest;
 import android.content.Intent;
 import android.net.Uri;
 import android.opengl.GLES20;
@@ -34,16 +33,12 @@ import com.google.ar.core.Anchor;
 import com.google.ar.core.Camera;
 import com.google.ar.core.Config;
 import com.google.ar.core.Frame;
-import com.google.ar.core.Plane;
-import com.google.ar.core.PointCloud;
 import com.google.ar.core.Session;
 import com.google.ar.core.TrackingState;
 import com.google.ar.core.exceptions.CameraNotAvailableException;
 import com.google.ar.core.exceptions.UnavailableApkTooOldException;
 import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
 import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
-import com.gun0912.tedpermission.PermissionListener;
-import com.gun0912.tedpermission.TedPermission;
 
 import java.io.File;
 import java.io.IOException;
@@ -120,7 +115,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     public final static int GALLERY_REQUEST_CODE = 2;
 
     private boolean installRequested;
-    boolean permissionCheck = false;
 
     private LocationScene locationScene;
 
@@ -129,8 +123,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_main );
         ButterKnife.bind( this );
-
-        getPermission();
 
         // 메인 화면 초기화
         initView();
@@ -183,37 +175,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         surfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
     }
 
-    // 권한 받아오기
-    public void getPermission() {
-        PermissionListener permissionlistener = new PermissionListener() {
-
-            // 권한을 모두 허용했을 경우
-            @Override
-            public void onPermissionGranted() {
-                permissionCheck = true;
-                Toast.makeText( MainActivity.this, "반갑습니다.", Toast.LENGTH_SHORT ).show();
-            }
-
-            // 권한이 거부되었을 경우
-            @Override
-            public void onPermissionDenied(ArrayList<String> deniedPermissions) {
-                permissionCheck = false;
-                Toast.makeText( MainActivity.this, "권한이 거부되었습니다.\n" + deniedPermissions.toString(), Toast.LENGTH_SHORT ).show();
-            }
-        };
-
-        TedPermission.with( this )
-                .setPermissionListener( permissionlistener )
-                .setRationaleTitle( "권한 알림" )
-                .setRationaleMessage( "공간캡슐을 실행하기 위해서는 카메라, 위치, 저장소 권한이 필요합니다. 확인을 눌러주세요!" )
-                .setDeniedTitle( "권한 거부" )
-                .setDeniedMessage( "권한이 거부되었습니다. 확인 버튼을 누르시면 설정 창으로 이동합니다." )
-                .setGotoSettingButtonText( "확인" )
-                .setPermissions( Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)
-                .check();
-
-    }
-
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat( "yyyyMMdd_HHmmss" ).format( new Date() );
         String pictureFileName = "GongGan_" + timeStamp;
@@ -231,23 +192,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
         Toast.makeText( this, "on Resume", Toast.LENGTH_SHORT ).show();
 
-//        //위치 받아오기
-//        GPSTracker mGPS = new GPSTracker(this);
-//
-//        //위치 받아오는지 확인하기 위한 임시코드
-//        TextView text = findViewById(R.id.longi);
-//        TextView text2 = findViewById(R.id.lati);
-//
-//        if(mGPS.canGetLocation ){
-//            mGPS.getLocation();
-//            text.setText("Lat"+mGPS.getLatitude());
-//            text2.setText("Lon"+mGPS.getLongitude());
-//        }else{
-//            text.setText("Unabletofind");
-//            System.out.println("Unable");
-//        }
-
-        if(permissionCheck) {
             if(locationScene!=null)
                 locationScene.resume();
             //위치 받아오기
@@ -275,10 +219,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             }
             surfaceView.onResume();
             displayRotationHelper.onResume();
-        }
-        else {
-            getPermission();
-        }
+
     }
 
     @Override
@@ -475,8 +416,8 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
         try {
             backgroundRenderer.createOnGlThread(/*context=*/ this );
-            planeRenderer.createOnGlThread(/*context=*/ this, "models/trigrid.png" );
-            pointCloudRenderer.createOnGlThread(/*context=*/ this);
+//            planeRenderer.createOnGlThread(/*context=*/ this, "models/trigrid.png" );
+//            pointCloudRenderer.createOnGlThread(/*context=*/ this);
         } catch (IOException e) {
         }
 
@@ -523,32 +464,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             // Handle taps. Handling only one tap per frame, as taps are usually low frequency
             // compared to frame rate.
 
-//            MotionEvent tap = tapHelper.poll();
-//            if (tap != null && camera.getTrackingState() == TrackingState.TRACKING) {
-//                for (HitResult hit : frame.hitTest(tap)) {
-//                    // Check if any plane was hit, and if it was hit inside the plane polygon
-//                    Trackable trackable = hit.getTrackable();
-//                    // Creates an anchor if a plane or an oriented point was hit.
-//                    if ((trackable instanceof Plane && ((Plane) trackable).isPoseInPolygon(hit.getHitPose()))
-//                            || (trackable instanceof Point
-//                            && ((Point) trackable).getOrientationMode()
-//                            == OrientationMode.ESTIMATED_SURFACE_NORMAL)) {
-//                        // Hits are sorted by depth. Consider only closest hit on a plane or oriented point.
-//                        // Cap the number of objects created. This avoids overloading both the
-//                        // rendering system and ARCore.
-//                        if (anchors.size() >= 20) {
-//                            anchors.get(0).detach();
-//                            anchors.remove(0);
-//                        }
-//                        // Adding an Anchor tells ARCore that it should track this position in
-//                        // space. This anchor is created on the Plane to place the 3D model
-//                        // in the correct position relative both to the world and to the plane.
-//                        anchors.add(hit.createAnchor());
-//                        break;
-//                    }
-//                }
-//            }
-
             // Draw background.
             backgroundRenderer.draw(frame);
             locationScene.draw(frame);
@@ -572,18 +487,18 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             final float[] colorCorrectionRgba = new float[4];
             frame.getLightEstimate().getColorCorrection(colorCorrectionRgba, 0);
 
-            // Visualize tracked points.
-            PointCloud pointCloud = frame.acquirePointCloud();
-            pointCloudRenderer.update(pointCloud);
-            pointCloudRenderer.draw(viewmtx, projmtx);
+//            // Visualize tracked points.
+//            PointCloud pointCloud = frame.acquirePointCloud();
+//            pointCloudRenderer.update(pointCloud);
+//            pointCloudRenderer.draw(viewmtx, projmtx);
 
-            // Application is responsible for releasing the point cloud resources after
-            // using it.
-            pointCloud.release();
+//            // Application is responsible for releasing the point cloud resources after
+//            // using it.
+//            pointCloud.release();
 
-            // Visualize planes.
-            planeRenderer.drawPlanes(
-                    session.getAllTrackables(Plane.class), camera.getDisplayOrientedPose(), projmtx);
+//            // Visualize planes.
+//            planeRenderer.drawPlanes(
+//                    session.getAllTrackables(Plane.class), camera.getDisplayOrientedPose(), projmtx);
 
             // Visualize anchors created by touch.
             float scaleFactor = 1.0f;
