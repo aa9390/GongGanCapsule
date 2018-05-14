@@ -27,20 +27,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-        <activity android:name=".MainActivity">
-        </activity>
-
-        <activity android:name=".SplashActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".DataBaseCheckActivity">
-        </activity>
+        <activity android:name=".MainActivity" />
+        <activity android:name=".SplashActivity"></activity>
+        <activity android:name=".DataBaseCheckActivity" />
 
         <meta-data
             android:name="com.google.ar.core"
@@ -59,6 +48,13 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
+        <activity android:name=".PermissionActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

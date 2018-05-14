@@ -17,7 +17,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -32,23 +31,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.ar.core.Anchor;
-import com.google.ar.core.ArCoreApk;
 import com.google.ar.core.Camera;
+import com.google.ar.core.Config;
 import com.google.ar.core.Frame;
-import com.google.ar.core.HitResult;
 import com.google.ar.core.Plane;
-import com.google.ar.core.Point;
-import com.google.ar.core.Point.OrientationMode;
 import com.google.ar.core.PointCloud;
 import com.google.ar.core.Session;
-import com.google.ar.core.Trackable;
 import com.google.ar.core.TrackingState;
 import com.google.ar.core.exceptions.CameraNotAvailableException;
 import com.google.ar.core.exceptions.UnavailableApkTooOldException;
 import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
-import com.google.ar.core.exceptions.UnavailableDeviceNotCompatibleException;
 import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
-import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
 
@@ -67,6 +60,8 @@ import butterknife.OnClick;
 import uk.co.appoly.arcorelocation.LocationMarker;
 import uk.co.appoly.arcorelocation.LocationScene;
 import uk.co.appoly.arcorelocation.rendering.AnnotationRenderer;
+import uk.co.appoly.arcorelocation.rendering.ImageRenderer;
+import uk.co.appoly.arcorelocation.utils.Utils2D;
 
 // GLSurfaceView. Renderer가 생성될 때 호출되는 순서
 // onSurfaceCreated() -> onSurfaceChanged() -> onDrawFrame()
@@ -88,8 +83,8 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     private final PointCloudRenderer pointCloudRenderer = new PointCloudRenderer();
 
     // 앵커 관련 코드
-    private final ObjectRenderer virtualObject = new ObjectRenderer();
-    private final ObjectRenderer virtualObjectShadow = new ObjectRenderer();
+//    private final ObjectRenderer virtualObject = new ObjectRenderer();
+//    private final ObjectRenderer virtualObjectShadow = new ObjectRenderer();
     private final float[] anchorMatrix = new float[16];
     private final ArrayList<Anchor> anchors = new ArrayList<>();
 
@@ -115,8 +110,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
-    private CharSequence mDrawerTitle;
-    private CharSequence mTitle;
 
     private String pictureFilePath;
     private Uri pictureUri;
@@ -129,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     private boolean installRequested;
     boolean permissionCheck = false;
 
-    LocationScene locationScene;
+    private LocationScene locationScene;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,12 +130,50 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         setContentView( R.layout.activity_main );
         ButterKnife.bind( this );
 
-        locationScene = new LocationScene( this, this, session );
-
-        if (!permissionCheck) getPermission();
+        getPermission();
 
         // 메인 화면 초기화
         initView();
+
+        Exception exception = null;
+        String message = null;
+        try {
+            session = new Session(/* context= */ this);
+        } catch (UnavailableArcoreNotInstalledException e) {
+            message = "Please install ARCore";
+            exception = e;
+        } catch (UnavailableApkTooOldException e) {
+            message = "Please update ARCore";
+            exception = e;
+        } catch (UnavailableSdkTooOldException e) {
+            message = "Please update this app";
+            exception = e;
+        } catch (Exception e) {
+            message = "This device does not support AR";
+            exception = e;
+        }
+
+        if (message != null) {
+            return;
+        }
+
+        // Create default config and check if supported.
+        Config config = new Config(session);
+        if (!session.isSupported(config)) {
+        }
+        session.configure(config);
+
+        locationScene = new LocationScene( this, this, session );
+
+        LocationMarker test9 = new LocationMarker( 127.0930,37.5347, new AnnotationRenderer( "test9" ) );
+        locationScene.mLocationMarkers.add( test9 );
+        locationScene.mLocationMarkers.add(
+                new LocationMarker(
+                        127.0931,
+                        37.5200,
+                        new ObjectRenderer("andy.obj", "andy.png")));
+
+        locationScene.mLocationMarkers.add( new LocationMarker( 127.0931, 37.5347, new ImageRenderer( "capsule.jpg" ) ) );
 
         // Renderer 설정
         surfaceView.setPreserveEGLContextOnPause( true );
@@ -150,30 +181,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         surfaceView.setEGLConfigChooser( 8, 8, 8, 8, 16, 0 ); // Alpha used for plane blending.
         surfaceView.setRenderer( this );
         surfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
-
-        // LocationMarker 라이브러리 이용하여 위도, 경도에 해당하는 위치에 Marker 생성
-        LocationMarker buckinghamPalace =  new LocationMarker(
-                127.092962, 37.626715,
-                new AnnotationRenderer("Buckingham Palace")
-        );
-
-        LocationMarker test1 = new LocationMarker( 127.0891, 37.6274333, new AnnotationRenderer( "test1" ) );
-        LocationMarker test2 = new LocationMarker( 127.0927, 37.6270, new AnnotationRenderer( "test2" ) );
-
-        buckinghamPalace.setOnTouchListener(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(MainActivity.this,
-                        "Touched Buckingham Palace", Toast.LENGTH_SHORT).show();
-            }
-        });
-        locationScene.mLocationMarkers.add(buckinghamPalace);
-        Log.d("@TEST0", "MARKER 0");
-        locationScene.mLocationMarkers.add( test1 );
-        Log.d("@TEST1", "MARKER 0");
-        locationScene.mLocationMarkers.add( test2 );
-        Log.d("@TEST2", "MARKER 0");
-
     }
 
     // 권한 받아오기
@@ -224,90 +231,66 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
         Toast.makeText( this, "on Resume", Toast.LENGTH_SHORT ).show();
 
-        //위치 받아오기
-        GPSTracker mGPS = new GPSTracker(this);
+//        //위치 받아오기
+//        GPSTracker mGPS = new GPSTracker(this);
+//
+//        //위치 받아오는지 확인하기 위한 임시코드
+//        TextView text = findViewById(R.id.longi);
+//        TextView text2 = findViewById(R.id.lati);
+//
+//        if(mGPS.canGetLocation ){
+//            mGPS.getLocation();
+//            text.setText("Lat"+mGPS.getLatitude());
+//            text2.setText("Lon"+mGPS.getLongitude());
+//        }else{
+//            text.setText("Unabletofind");
+//            System.out.println("Unable");
+//        }
 
-        //위치 받아오는지 확인하기 위한 임시코드
-        TextView text = (TextView) findViewById(R.id.longi);
-        TextView text2 = (TextView) findViewById(R.id.lati);
+        if(permissionCheck) {
+            if(locationScene!=null)
+                locationScene.resume();
+            //위치 받아오기
+            GPSTracker mGPS = new GPSTracker(this);
 
-        if(mGPS.canGetLocation ){
-            mGPS.getLocation();
-            text.setText("Lat"+mGPS.getLatitude());
-            text2.setText("Lon"+mGPS.getLongitude());
-        }else{
-            text.setText("Unabletofind");
-            System.out.println("Unable");
-        }
+            //위치 받아오는지 확인하기 위한 임시코드
+            TextView text = findViewById(R.id.longi);
+            TextView text2 = findViewById(R.id.lati);
 
-        if (session == null) {
-            Exception exception = null;
-            String message = null;
-            try {
-                switch (ArCoreApk.getInstance().requestInstall(this, !installRequested)) {
-                    case INSTALL_REQUESTED:
-                        installRequested = true;
-                        return;
-                    case INSTALLED:
-                        break;
+            if(mGPS.canGetLocation ){
+                mGPS.getLocation();
+                text.setText("Lat"+mGPS.getLatitude());
+                text2.setText("Lon"+mGPS.getLongitude());
+            }else{
+                text.setText("Unabletofind");
+                System.out.println("Unable");
+            }
+
+            if(session !=null) {
+                try {
+                    session.resume();
+                } catch (CameraNotAvailableException e) {
+                    e.printStackTrace();
                 }
-
-                // Create the session.
-                session = new Session(/* context= */ this);
-
-            } catch (UnavailableArcoreNotInstalledException
-                    | UnavailableUserDeclinedInstallationException e) {
-                message = "Please install ARCore";
-                exception = e;
-            } catch (UnavailableApkTooOldException e) {
-                message = "Please update ARCore";
-                exception = e;
-            } catch (UnavailableSdkTooOldException e) {
-                message = "Please update this app";
-                exception = e;
-            } catch (UnavailableDeviceNotCompatibleException e) {
-                message = "This device does not support AR";
-                exception = e;
-            } catch (Exception e) {
-                message = "";
-                exception = e;
             }
-
-            if (message != null) {
-//                messageSnackbarHelper.showError(this, message);
-//                Log.e(TAG, "Exception creating session", exception);
-                return;
-            }
+            surfaceView.onResume();
+            displayRotationHelper.onResume();
         }
-
-        // Note that order matters - see the note in onPause(), the reverse applies here.
-        try {
-            session.resume();
-        } catch (CameraNotAvailableException e) {
-            // In some cases (such as another camera app launching) the camera may be given to
-            // a different app instead. Handle this properly by showing a message and recreate the
-            // session at the next iteration.
-//            messageSnackbarHelper.showError(this, "Camera not available. Please restart the app.");
-            session = null;
-            return;
+        else {
+            getPermission();
         }
-
-        locationScene.resume();
-        surfaceView.onResume();
-        displayRotationHelper.onResume();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if (session != null) {
-            // Note that the order matters - GLSurfaceView is paused first so that it does not try
-            // to query the session. If Session is paused before GLSurfaceView, GLSurfaceView may
-            // still call session.update() and get a SessionPausedException.
-            displayRotationHelper.onPause();
-            surfaceView.onPause();
-            session.pause();
+        if(locationScene != null)
             locationScene.pause();
+        if(displayRotationHelper!=null)
+            displayRotationHelper.onPause();
+        surfaceView.onPause();
+        if (session != null) {
+            session.pause();
         }
     }
 
@@ -319,14 +302,11 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     }
 
     private void selectItem(int position) {
-        // update the main content by replacing fragments
-        Bundle args = new Bundle();
-
-        // update selected item and title, then close the drawer
         mDrawerList.setItemChecked(position, true);
         setTitle(mDatesTitles[position]);
         mDrawerLayout.closeDrawer(mDrawerList);
     }
+
     View.OnClickListener clickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -374,7 +354,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     }
 
     public void initView() {
-
         // 카메라 뷰를 위한 surfaceview 선언
         surfaceView = findViewById( R.id.surfaceview );
         displayRotationHelper = new DisplayRotationHelper(/*context=*/ this );
@@ -409,18 +388,14 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 R.string.drawer_open, R.string.drawer_close) {
 
-            /*
-             * drawer가 닫혔을 때, 호출된다.
-             */
+            // drawer가 닫혔을 때, 호출된다.
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
                 //getActionBar().setTitle(mTitle);
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
 
-            /*
-             * drawer가 열렸을 때, 호출된다.
-             */
+            // drawer가 열렸을 때, 호출된다.
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
                 //getActionBar().setTitle(mDrawerTitle);
@@ -480,8 +455,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                 startActivityForResult( galleryIntent, GALLERY_REQUEST_CODE ); //갤러리앱 실행
             }
         } );
-
-
     }
 
     @Override
@@ -500,21 +473,11 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         GLES20.glClearColor( 0.1f, 0.1f, 0.1f, 1.0f );
 
-        // Prepare the rendering objects. This involves reading shaders, so may throw an IOException.
         try {
-            // Create the texture and pass it to ARCore session to be filled during update().
             backgroundRenderer.createOnGlThread(/*context=*/ this );
             planeRenderer.createOnGlThread(/*context=*/ this, "models/trigrid.png" );
             pointCloudRenderer.createOnGlThread(/*context=*/ this);
-
-      virtualObject.createOnGlThread(/*context=*/ this, "models/andy.obj", "models/andy.png");
-      virtualObject.setMaterialProperties(0.0f, 2.0f, 0.5f, 6.0f);
-      virtualObjectShadow.createOnGlThread(
-          /*context=*/ this, "models/andy_shadow.obj", "models/andy_shadow.png");
-      virtualObjectShadow.setBlendMode( ObjectRenderer.BlendMode.Shadow);
-      virtualObjectShadow.setMaterialProperties(1.0f, 0.0f, 0.0f, 1.0f);
         } catch (IOException e) {
-//            Log.e(TAG, "Failed to read an asset file", e);
         }
 
     }
@@ -526,14 +489,11 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
     }
 
-    // GLSurfaceView가 생성되고 나면
-    // surface의 크기가 변경되지 않는 한 onDrawFrame이 반복 호출됨
-    // GLSurfaceView.onPause()가 호출되면 GLSurfaceView.Renderer interface의 abstract method 들의 호출이 중단되고,
-    // onResume()이 호출되면 onSurfaceCreated()부터 다시 호출이 된다.
-    // 즉, surface가 다시 생성된다.
-
-    // 작동되는 코드
-
+    //    // GLSurfaceView가 생성되고 나면
+    //    // surface의 크기가 변경되지 않는 한 onDrawFrame이 반복 호출됨
+    //    // GLSurfaceView.onPause()가 호출되면 GLSurfaceView.Renderer interface의 abstract method 들의 호출이 중단되고,
+    //    // onResume()이 호출되면 onSurfaceCreated()부터 다시 호출이 된다.
+    //    // 즉, surface가 다시 생성된다.
     @Override
     public void onDrawFrame(GL10 gl) {
         // Clear screen to notify driver it should not load any pixels from previous frame.
@@ -555,37 +515,43 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             Frame frame = session.update();
             Camera camera = frame.getCamera();
 
+            MotionEvent tap = tapHelper.poll();
+            if (tap != null && camera.getTrackingState() == TrackingState.TRACKING) {
+//                Log.i(TAG, "HITTEST: Got a tap and tracking");
+                Utils2D.handleTap(this, locationScene, frame, tap);
+            }
             // Handle taps. Handling only one tap per frame, as taps are usually low frequency
             // compared to frame rate.
 
-            MotionEvent tap = tapHelper.poll();
-            if (tap != null && camera.getTrackingState() == TrackingState.TRACKING) {
-                for (HitResult hit : frame.hitTest(tap)) {
-                    // Check if any plane was hit, and if it was hit inside the plane polygon
-                    Trackable trackable = hit.getTrackable();
-                    // Creates an anchor if a plane or an oriented point was hit.
-                    if ((trackable instanceof Plane && ((Plane) trackable).isPoseInPolygon(hit.getHitPose()))
-                            || (trackable instanceof Point
-                            && ((Point) trackable).getOrientationMode()
-                            == OrientationMode.ESTIMATED_SURFACE_NORMAL)) {
-                        // Hits are sorted by depth. Consider only closest hit on a plane or oriented point.
-                        // Cap the number of objects created. This avoids overloading both the
-                        // rendering system and ARCore.
-                        if (anchors.size() >= 20) {
-                            anchors.get(0).detach();
-                            anchors.remove(0);
-                        }
-                        // Adding an Anchor tells ARCore that it should track this position in
-                        // space. This anchor is created on the Plane to place the 3D model
-                        // in the correct position relative both to the world and to the plane.
-                        anchors.add(hit.createAnchor());
-                        break;
-                    }
-                }
-            }
+//            MotionEvent tap = tapHelper.poll();
+//            if (tap != null && camera.getTrackingState() == TrackingState.TRACKING) {
+//                for (HitResult hit : frame.hitTest(tap)) {
+//                    // Check if any plane was hit, and if it was hit inside the plane polygon
+//                    Trackable trackable = hit.getTrackable();
+//                    // Creates an anchor if a plane or an oriented point was hit.
+//                    if ((trackable instanceof Plane && ((Plane) trackable).isPoseInPolygon(hit.getHitPose()))
+//                            || (trackable instanceof Point
+//                            && ((Point) trackable).getOrientationMode()
+//                            == OrientationMode.ESTIMATED_SURFACE_NORMAL)) {
+//                        // Hits are sorted by depth. Consider only closest hit on a plane or oriented point.
+//                        // Cap the number of objects created. This avoids overloading both the
+//                        // rendering system and ARCore.
+//                        if (anchors.size() >= 20) {
+//                            anchors.get(0).detach();
+//                            anchors.remove(0);
+//                        }
+//                        // Adding an Anchor tells ARCore that it should track this position in
+//                        // space. This anchor is created on the Plane to place the 3D model
+//                        // in the correct position relative both to the world and to the plane.
+//                        anchors.add(hit.createAnchor());
+//                        break;
+//                    }
+//                }
+//            }
 
             // Draw background.
             backgroundRenderer.draw(frame);
+            locationScene.draw(frame);
 
             // If not tracking, don't draw 3d objects.
             if (camera.getTrackingState() == TrackingState.PAUSED) {
@@ -628,48 +594,11 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                 // Get the current pose of an Anchor in world space. The Anchor pose is updated
                 // during calls to session.update() as ARCore refines its estimate of the world.
                 anchor.getPose().toMatrix(anchorMatrix, 0);
-
-                // Update and draw the model and its shadow.
-                virtualObject.updateModelMatrix(anchorMatrix, scaleFactor);
-                virtualObjectShadow.updateModelMatrix(anchorMatrix, scaleFactor);
-                virtualObject.draw(viewmtx, projmtx, colorCorrectionRgba);
-                virtualObjectShadow.draw(viewmtx, projmtx, colorCorrectionRgba);
             }
 
         } catch (Throwable t) {
         }
     }
-
-//    @Override
-//    public void onDrawFrame(GL10 gl) {
-//        // Clear screen to notify driver it should not load any pixels from previous frame.
-//        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-//
-//        if (session == null) {
-//            return;
-//        }
-//        // Notify ARCore session that the view size changed so that the perspective matrix and
-//        // the video background can be properly adjusted.
-//        displayRotationHelper.updateSessionIfNeeded(session);
-//
-//        try {
-//            session.setCameraTextureName(backgroundRenderer.getTextureId());
-//
-//            // Obtain the current frame from ARSession. When the configuration is set to
-//            // UpdateMode.BLOCKING (it is by default), this will throttle the rendering to the
-//            // camera framerate.
-//            Frame frame = session.update();
-//            Camera camera = frame.getCamera();
-//            // Draw background.
-//            backgroundRenderer.draw(frame);
-//            // Draw location markers
-//            locationScene.draw(frame);
-//
-//        } catch (Throwable t) {
-//            // Avoid crashing the application due to unhandled exceptions.
-////            Log.e(TAG, "Exception on the OpenGL thread", t);
-//        }
-//    }
 
     @OnClick(R.id.database)
     public void onViewClicked() {

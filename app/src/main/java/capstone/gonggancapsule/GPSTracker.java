@@ -2,16 +2,12 @@ package capstone.gonggancapsule;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
@@ -38,7 +34,7 @@ public final class GPSTracker implements LocationListener {
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 0; // 0 meters
 
     // The minimum time between updates in milliseconds
-    private static final long MIN_TIME_BW_UPDATES = 0; // 0초
+    private static final long MIN_TIME_BW_UPDATES = 1; // 0초
 
     // Declaring a Location Manager
     protected LocationManager locationManager;
@@ -116,7 +112,7 @@ public final class GPSTracker implements LocationListener {
 //
 //        return location;
 //    }
-
+//
 
     public Location getLocation() {
 
