@@ -48,12 +48,13 @@
 
         <activity android:name=".WriteDiary" />
 
-        <!-- 카메라 사진 저장을 위한 코드 -->
+        <!-- 갤러리에 사진을 저장하기 위한 코드 -->
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="capstone.gonggancapsule"
+            android:authorities="capstone.gonggancapsule.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
+
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
