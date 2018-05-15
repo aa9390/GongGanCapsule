@@ -127,6 +127,22 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         // 메인 화면 초기화
         initView();
 
+        GPSTracker mGPS = new GPSTracker(this);
+
+            //위치 받아오는지 확인하기 위한 임시코드
+            TextView text = findViewById(R.id.longi);
+            TextView text2 = findViewById(R.id.lati);
+
+            if(mGPS.canGetLocation ){
+                mGPS.getLocation();
+                text.setText("Lat"+mGPS.getLatitude());
+                text2.setText("Lon"+mGPS.getLongitude());
+
+            }else{
+                text.setText("Unabletofind");
+                System.out.println("Unable");
+            }
+
         Exception exception = null;
         String message = null;
         try {
@@ -195,20 +211,20 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             if(locationScene!=null)
                 locationScene.resume();
             //위치 받아오기
-            GPSTracker mGPS = new GPSTracker(this);
-
-            //위치 받아오는지 확인하기 위한 임시코드
-            TextView text = findViewById(R.id.longi);
-            TextView text2 = findViewById(R.id.lati);
-
-            if(mGPS.canGetLocation ){
-                mGPS.getLocation();
-                text.setText("Lat"+mGPS.getLatitude());
-                text2.setText("Lon"+mGPS.getLongitude());
-            }else{
-                text.setText("Unabletofind");
-                System.out.println("Unable");
-            }
+//            GPSTracker mGPS = new GPSTracker(this);
+//
+//            //위치 받아오는지 확인하기 위한 임시코드
+//            TextView text = findViewById(R.id.longi);
+//            TextView text2 = findViewById(R.id.lati);
+//
+//            if(mGPS.canGetLocation ){
+//                mGPS.getLocation();
+//                text.setText("Lat"+mGPS.getLatitude());
+//                text2.setText("Lon"+mGPS.getLongitude());
+//            }else{
+//                text.setText("Unabletofind");
+//                System.out.println("Unable");
+//            }
 
             if(session !=null) {
                 try {
