@@ -1,7 +1,9 @@
 package capstone.gonggancapsule;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
+import android.net.wifi.p2p.nsd.WifiP2pServiceRequest;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
@@ -40,7 +42,9 @@ import com.google.ar.core.exceptions.UnavailableApkTooOldException;
 import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
 import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -95,24 +99,23 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
 
-    // 카메라, 갤러리 실행을 위한 코드
-    private FloatingActionButton floatingBtn;
-    private FloatingActionButton cameraBtn;
-    private FloatingActionButton galleryBtn;
-
     // 작성 날짜를 위한 코드
     private String[] mDatesTitles;
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
 
-    private String pictureFilePath;
-    private Uri pictureUri;
     boolean isOpen = false;
     Animation FabOpen, FabClose;
 
+    // 카메라, 갤러리 실행을 위한 코드
+    private FloatingActionButton floatingBtn;
+    private FloatingActionButton cameraBtn;
+    private FloatingActionButton galleryBtn;
     public final static int CAMERA_REQUEST_CODE = 1;
     public final static int GALLERY_REQUEST_CODE = 2;
+    private Uri mImageCaptureUri;
+    public String absolutePath;
 
     private boolean installRequested;
 
@@ -189,17 +192,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         surfaceView.setEGLConfigChooser( 8, 8, 8, 8, 16, 0 ); // Alpha used for plane blending.
         surfaceView.setRenderer( this );
         surfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
-    }
-
-    private File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat( "yyyyMMdd_HHmmss" ).format( new Date() );
-        String pictureFileName = "GongGan_" + timeStamp;
-        File storageDir = getExternalFilesDir( Environment.DIRECTORY_PICTURES );
-        File image = File.createTempFile(
-                pictureFileName, ".jpg", storageDir
-        );
-        pictureFilePath = image.getAbsolutePath();
-        return image;
     }
 
     @Override
@@ -287,26 +279,59 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult( requestCode, resultCode, data );
 
-        if (resultCode != RESULT_OK) {
-            return;
-        }
+        if (resultCode != RESULT_OK) return;
 
-        Intent intent = new Intent( this, WriteDiary.class );
+        Intent goWriteIntent = new Intent(MainActivity.this, WriteDiary.class);
 
         switch (requestCode) {
-            case CAMERA_REQUEST_CODE:
-                // 카메라로 찍은 사진의 파일 경로를 WriteDiary 레이아웃으로 보내준다.
-                intent.putExtra( "pictureFilePath", pictureFilePath );
-                startActivity( intent );
+            case GALLERY_REQUEST_CODE :
+                mImageCaptureUri = data.getData();
+                goWriteIntent.putExtra("mImageCaptureUri", mImageCaptureUri);
                 break;
 
-            case GALLERY_REQUEST_CODE:
-                Uri galleryUri = data.getData(); //선택된 이미지의 uri를 받아온다.
+            case CAMERA_REQUEST_CODE :
+                goWriteIntent.putExtra("mImageCaptureUri", mImageCaptureUri);
+                String filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/GONGGANCAPSULE/" + System.currentTimeMillis() + ".jpg";
+                try {
+                    Bitmap photo = MediaStore.Images.Media.getBitmap(getContentResolver(), mImageCaptureUri);
+                    savePicture(photo, filePath);
+                    absolutePath = filePath;
+                } catch (Exception e) {
 
-                // 선택된 이미지의 uri를 WriteDiary 레이아웃으로 보내준다.
-                intent.putExtra( "uri", galleryUri );
-                startActivity( intent );
+                }
+
+                File f = new File(mImageCaptureUri.getPath());
+                if(f.exists()) {
+                    f.delete();
+                }
+
                 break;
+        }
+        startActivity(goWriteIntent);
+
+    }
+
+    private void savePicture(Bitmap bitmap, String filePath) {
+        String dirPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/GONGGANCAPSULE";
+        File directory_GONGGANCAPSULE = new File(dirPath);
+        if(!directory_GONGGANCAPSULE.exists())
+            directory_GONGGANCAPSULE.mkdir();
+
+        //File copyFile = new File(filePath);
+        BufferedOutputStream out = null;
+
+        try {
+            directory_GONGGANCAPSULE.createNewFile();
+            out = new BufferedOutputStream(new FileOutputStream(directory_GONGGANCAPSULE));
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+
+            sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
+                    FileProvider.getUriForFile(getBaseContext(), "capstone.gonggancapsule", directory_GONGGANCAPSULE)));
+
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -384,22 +409,17 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         cameraBtn.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent cameraIntent = new Intent( MediaStore.ACTION_IMAGE_CAPTURE );
-                if (cameraIntent.resolveActivity( getPackageManager() ) != null) {
-                    File pictureFile = null;
+                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-                    try {
-                        pictureFile = createImageFile(); //카메라로 찍은 사진 받아오기
-                    } catch (IOException e) {
-                        Toast.makeText( MainActivity.this, "카메라 실행 오류", Toast.LENGTH_SHORT ).show();
-                    }
+                //임시로 사용할 파일의 경로 생성
+                String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+                String url = "GongGanCapsule_" + timeStamp + ".jpg";
 
-                    if (pictureFile != null) {
-                        pictureUri = FileProvider.getUriForFile( getApplicationContext(), getPackageName(), pictureFile );
-                        cameraIntent.putExtra( MediaStore.EXTRA_OUTPUT, pictureUri );
-                        startActivityForResult( cameraIntent, CAMERA_REQUEST_CODE );
-                    }
-                }
+                mImageCaptureUri = FileProvider.getUriForFile(getBaseContext(), "capstone.gonggancapsule.fileprovider",
+                        new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)+"/GONGGANCAPSULE", url));
+
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageCaptureUri);
+                startActivityForResult(intent, CAMERA_REQUEST_CODE);
             }
         } );
 
@@ -407,9 +427,9 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         galleryBtn.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent galleryIntent = new Intent( Intent.ACTION_GET_CONTENT );
-                galleryIntent.setType( "image/*" );
-                startActivityForResult( galleryIntent, GALLERY_REQUEST_CODE ); //갤러리앱 실행
+                Intent intent = new Intent(Intent.ACTION_PICK);
+                intent.setType("image/*");
+                startActivityForResult(intent, GALLERY_REQUEST_CODE);
             }
         } );
     }
