@@ -56,7 +56,6 @@ import uk.co.appoly.arcorelocation.LocationMarker;
 import uk.co.appoly.arcorelocation.LocationScene;
 import uk.co.appoly.arcorelocation.rendering.AnnotationRenderer;
 import uk.co.appoly.arcorelocation.rendering.ImageRenderer;
-import uk.co.appoly.arcorelocation.utils.Utils2D;
 
 // GLSurfaceView. Renderer가 생성될 때 호출되는 순서
 // onSurfaceCreated() -> onSurfaceChanged() -> onDrawFrame()
@@ -157,15 +156,19 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
         locationScene = new LocationScene( this, this, session );
 
-        LocationMarker test9 = new LocationMarker( 127.0930,37.5347, new AnnotationRenderer( "test9" ) );
-        locationScene.mLocationMarkers.add( test9 );
-        locationScene.mLocationMarkers.add(
-                new LocationMarker(
-                        127.0931,
-                        37.5200,
-                        new ObjectRenderer("andy.obj", "andy.png")));
+        LocationMarker test1 = new LocationMarker(
+                127.091294, 37.628213, new AnnotationRenderer( "중앙도서관" ) );
+        LocationMarker test2 = new LocationMarker(
+                127.093161, 37.625952, new AnnotationRenderer( "서울여대 CU" ) );
+        LocationMarker test3 = new LocationMarker(
+                127.090576, 37.629215,  new ImageRenderer( "icon_capsule.png" ) );
+        LocationMarker test4 = new LocationMarker(
+                127.093703, 37.625757,   new ImageRenderer( "icon_capsule.png" ) );
 
-        locationScene.mLocationMarkers.add( new LocationMarker( 127.0931, 37.5347, new ImageRenderer( "capsule.jpg" ) ) );
+        locationScene.mLocationMarkers.add( test1 );
+        locationScene.mLocationMarkers.add( test2 );
+        locationScene.mLocationMarkers.add( test3 );
+        locationScene.mLocationMarkers.add( test4 );
 
         // Renderer 설정
         surfaceView.setPreserveEGLContextOnPause( true );
@@ -437,15 +440,15 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     //    // 즉, surface가 다시 생성된다.
     @Override
     public void onDrawFrame(GL10 gl) {
-        // Clear screen to notify driver it should not load any pixels from previous frame.
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-
-        if (session == null) {
-            return;
-        }
-        // Notify ARCore session that the view size changed so that the perspective matrix and
-        // the video background can be properly adjusted.
-        displayRotationHelper.updateSessionIfNeeded(session);
+//        // Clear screen to notify driver it should not load any pixels from previous frame.
+//        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+//
+//        if (session == null) {
+//            return;
+//        }
+//        // Notify ARCore session that the view size changed so that the perspective matrix and
+//        // the video background can be properly adjusted.
+//        displayRotationHelper.updateSessionIfNeeded(session);
 
         try {
             session.setCameraTextureName(backgroundRenderer.getTextureId());
@@ -457,10 +460,10 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             Camera camera = frame.getCamera();
 
             MotionEvent tap = tapHelper.poll();
-            if (tap != null && camera.getTrackingState() == TrackingState.TRACKING) {
-//                Log.i(TAG, "HITTEST: Got a tap and tracking");
-                Utils2D.handleTap(this, locationScene, frame, tap);
-            }
+//            if (tap != null && camera.getTrackingState() == TrackingState.TRACKING) {
+////                Log.i(TAG, "HITTEST: Got a tap and tracking");
+//                Utils2D.handleTap(this, locationScene, frame, tap);
+//            }
             // Handle taps. Handling only one tap per frame, as taps are usually low frequency
             // compared to frame rate.
 
