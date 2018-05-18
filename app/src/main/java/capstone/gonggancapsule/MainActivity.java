@@ -3,7 +3,6 @@ package capstone.gonggancapsule;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.net.wifi.p2p.nsd.WifiP2pServiceRequest;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
@@ -56,10 +55,12 @@ import javax.microedition.khronos.opengles.GL10;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import capstone.gonggancapsule.database.DatabaseHelper;
 import uk.co.appoly.arcorelocation.LocationMarker;
 import uk.co.appoly.arcorelocation.LocationScene;
 import uk.co.appoly.arcorelocation.rendering.AnnotationRenderer;
 import uk.co.appoly.arcorelocation.rendering.ImageRenderer;
+import uk.co.appoly.arcorelocation.utils.Utils2D;
 
 // GLSurfaceView. Renderer가 생성될 때 호출되는 순서
 // onSurfaceCreated() -> onSurfaceChanged() -> onDrawFrame()
@@ -70,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     @BindView(R.id.database)
     ImageButton database;
     // Database Helper 선언
-//    DatabaseHelper dbHelper = new DatabaseHelper(getApplicationContext(), "capsule", null, 1);
+    DatabaseHelper dbHelper = new DatabaseHelper(this, "capsule", null, 1);
 
     // 카메라 프리뷰를 위한 surfaceView 선언
     private GLSurfaceView surfaceView;
@@ -103,6 +104,8 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
+    private CharSequence mDrawerTitle;
+    private CharSequence mTitle;
 
     boolean isOpen = false;
     Animation FabOpen, FabClose;
@@ -117,8 +120,9 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     public String absolutePath;
 
     private boolean installRequested;
+    boolean permissionCheck = false;
 
-    private LocationScene locationScene;
+    LocationScene locationScene;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,19 +135,19 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
         GPSTracker mGPS = new GPSTracker(this);
 
-            //위치 받아오는지 확인하기 위한 임시코드
-            TextView text = findViewById(R.id.longi);
-            TextView text2 = findViewById(R.id.lati);
+        //위치 받아오는지 확인하기 위한 임시코드
+        TextView text = findViewById(R.id.longi);
+        TextView text2 = findViewById(R.id.lati);
 
-            if(mGPS.canGetLocation ){
-                mGPS.getLocation();
-                text.setText("Lat"+mGPS.getLatitude());
-                text2.setText("Lon"+mGPS.getLongitude());
+        if(mGPS.canGetLocation ){
+            mGPS.getLocation();
+            text.setText("Lat"+mGPS.getLatitude());
+            text2.setText("Lon"+mGPS.getLongitude());
 
-            }else{
-                text.setText("Unabletofind");
-                System.out.println("Unable");
-            }
+        }else{
+            text.setText("Unabletofind");
+            System.out.println("Unable");
+        }
 
         Exception exception = null;
         String message = null;
@@ -203,33 +207,18 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
         Toast.makeText( this, "on Resume", Toast.LENGTH_SHORT ).show();
 
-            if(locationScene!=null)
-                locationScene.resume();
-            //위치 받아오기
-//            GPSTracker mGPS = new GPSTracker(this);
-//
-//            //위치 받아오는지 확인하기 위한 임시코드
-//            TextView text = findViewById(R.id.longi);
-//            TextView text2 = findViewById(R.id.lati);
-//
-//            if(mGPS.canGetLocation ){
-//                mGPS.getLocation();
-//                text.setText("Lat"+mGPS.getLatitude());
-//                text2.setText("Lon"+mGPS.getLongitude());
-//            }else{
-//                text.setText("Unabletofind");
-//                System.out.println("Unable");
-//            }
+        if(locationScene!=null)
+            locationScene.resume();
 
-            if(session !=null) {
-                try {
-                    session.resume();
-                } catch (CameraNotAvailableException e) {
-                    e.printStackTrace();
-                }
+        if(session !=null) {
+            try {
+                session.resume();
+            } catch (CameraNotAvailableException e) {
+                e.printStackTrace();
             }
-            surfaceView.onResume();
-            displayRotationHelper.onResume();
+        }
+        surfaceView.onResume();
+        displayRotationHelper.onResume();
 
     }
 
@@ -476,15 +465,15 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     //    // 즉, surface가 다시 생성된다.
     @Override
     public void onDrawFrame(GL10 gl) {
-//        // Clear screen to notify driver it should not load any pixels from previous frame.
-//        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-//
-//        if (session == null) {
-//            return;
-//        }
-//        // Notify ARCore session that the view size changed so that the perspective matrix and
-//        // the video background can be properly adjusted.
-//        displayRotationHelper.updateSessionIfNeeded(session);
+        // Clear screen to notify driver it should not load any pixels from previous frame.
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+
+        if (session == null) {
+            return;
+        }
+        // Notify ARCore session that the view size changed so that the perspective matrix and
+        // the video background can be properly adjusted.
+        displayRotationHelper.updateSessionIfNeeded(session);
 
         try {
             session.setCameraTextureName(backgroundRenderer.getTextureId());
@@ -496,10 +485,10 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             Camera camera = frame.getCamera();
 
             MotionEvent tap = tapHelper.poll();
-//            if (tap != null && camera.getTrackingState() == TrackingState.TRACKING) {
-////                Log.i(TAG, "HITTEST: Got a tap and tracking");
-//                Utils2D.handleTap(this, locationScene, frame, tap);
-//            }
+            if (tap != null && camera.getTrackingState() == TrackingState.TRACKING) {
+//                Log.i(TAG, "HITTEST: Got a tap and tracking");
+                Utils2D.handleTap(this, locationScene, frame, tap);
+            }
             // Handle taps. Handling only one tap per frame, as taps are usually low frequency
             // compared to frame rate.
 

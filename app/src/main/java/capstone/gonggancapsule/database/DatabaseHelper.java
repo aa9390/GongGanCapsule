@@ -57,6 +57,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
+
     public String getDiary() {
         // get readable database as we are not inserting anything
         SQLiteDatabase db = this.getReadableDatabase();
@@ -80,6 +81,55 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return result;
     }
 
+    // ----------------INDEX 추가한 getDiary() -----------------------
+//    public String getDiary() {
+//        // get readable database as we are not inserting anything
+//        SQLiteDatabase db = this.getReadableDatabase();
+//
+//        String result = " ";    //db확인하려고 쓰는 result입니다.
+//
+//        Cursor cursor = db.rawQuery("SELECT * FROM capsule", null);
+//        while (cursor.moveToNext()) {
+//            result += " 인덱스: "
+//                    + cursor.getInt(0)
+//                    + " 위도: "
+//                    + cursor.getDouble(1)
+//                    + " 경도: "
+//                    + cursor.getDouble(2)
+//                    + " 날짜: "
+//                    + cursor.getString(3)
+//                    + " 내용: "
+//                    + cursor.getString(4)
+//                    + " 사진: "
+//                    + cursor.getString(5)
+//                    + "\n";
+//        }
+//        return result;
+//    }
+
+
+
+//    public double getLongitude(int indexNum) {
+//        SQLiteDatabase db = this.getReadableDatabase();
+//        String Query = "SELECT " + CapsuleDB.COLUMN_LONGITUDE +" FROM " + CapsuleDB.TABLE_NAME + " WHERE " + CapsuleDB.COLUMN_INDEX + " = " + indexNum;
+//
+//        Cursor cursor = db.rawQuery(Query, null);
+//        double longitude = cursor.getDouble( 0 );
+//        cursor.close();
+//
+//        return longitude;
+//    }
+//
+//    public double getLatitude(int indexNum) {
+//        SQLiteDatabase db = this.getReadableDatabase();
+//        String Query = "SELECT " + CapsuleDB.COLUMN_LATITUDE +" FROM " + CapsuleDB.TABLE_NAME + " WHERE " + CapsuleDB.COLUMN_INDEX + " = " + indexNum;
+//
+//        Cursor cursor = db.rawQuery(Query, null);
+//        double latitude = cursor.getDouble( 0 );
+//        cursor.close();
+//
+//        return latitude;
+//    }
 
     public int getNotesCount() {
         String countQuery = "SELECT  * FROM " + CapsuleDB.TABLE_NAME;
