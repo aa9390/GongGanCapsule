@@ -125,19 +125,19 @@ public class WriteDiary extends AppCompatActivity {
             public void onClick(View v) {
                 GPSTracker gpsTracker = new GPSTracker(WriteDiary.this);
 
-                Double latitude = 0.0;
-                Double longitude = 0.0;
+//                Double latitude = 0.0;
+//                Double longitude = 0.0;
 
 //                DB 저장 테스트용
-//                Double latitude = Math.random() * 100;
-//                Double longitude = Math.random() * 100;
+                Double latitude = Math.random() * 100;
+                Double longitude = Math.random() * 100;
 
-                if(gpsTracker.canGetLocation ){
-                    gpsTracker.getLocation();
-
-                    latitude = gpsTracker.getLatitude();
-                    longitude = gpsTracker.getLongitude();
-                }
+//                if(gpsTracker.canGetLocation ){
+//                    gpsTracker.getLocation();
+//
+//                    latitude = gpsTracker.getLatitude();
+//                    longitude = gpsTracker.getLongitude();
+//                }
                 String create_date = dateTv.getText().toString(); //작성 날짜
                 String content = writeContentEt.getText().toString(); //내용
 //                String picture = mImageCaptureUri.toString(); // 사진 URI

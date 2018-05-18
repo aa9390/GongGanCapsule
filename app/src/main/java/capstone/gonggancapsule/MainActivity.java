@@ -243,11 +243,14 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     }
 
     private void selectItem(int position) {
+        // update the main content by replacing fragments
+        Bundle args = new Bundle();
+
+        // update selected item and title, then close the drawer
         mDrawerList.setItemChecked(position, true);
         setTitle(mDatesTitles[position]);
         mDrawerLayout.closeDrawer(mDrawerList);
     }
-
     View.OnClickListener clickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -328,6 +331,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     }
 
     public void initView() {
+
         // 카메라 뷰를 위한 surfaceview 선언
         surfaceView = findViewById( R.id.surfaceview );
         displayRotationHelper = new DisplayRotationHelper(/*context=*/ this );
@@ -362,14 +366,18 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 R.string.drawer_open, R.string.drawer_close) {
 
-            // drawer가 닫혔을 때, 호출된다.
+            /*
+             * drawer가 닫혔을 때, 호출된다.
+             */
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
                 //getActionBar().setTitle(mTitle);
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
 
-            // drawer가 열렸을 때, 호출된다.
+            /*
+             * drawer가 열렸을 때, 호출된다.
+             */
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
                 //getActionBar().setTitle(mDrawerTitle);
@@ -424,6 +432,8 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                 startActivityForResult(intent, GALLERY_REQUEST_CODE);
             }
         } );
+
+
     }
 
     @Override
