@@ -8,6 +8,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.util.ArrayList;
+
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     // Database Version
@@ -131,7 +133,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 //        return latitude;
 //    }
 
-    public int getNotesCount() {
+    public int getDiaryCount() {
         String countQuery = "SELECT  * FROM " + CapsuleDB.TABLE_NAME;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(countQuery, null);
@@ -142,4 +144,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // return count
         return count;
     }
+
+    // *** 작성날짜 *** //
+    public ArrayList<String> getDateList() {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        ArrayList<String> dateList = new ArrayList<>();
+        String result = null;
+
+        Cursor cursor = db.rawQuery("SELECT create_date FROM " + CapsuleDB.TABLE_NAME, null);
+        while (cursor.moveToNext()) {
+            result = cursor.getString(0);
+            dateList.add(result);
+        }
+
+        return dateList;
+    }
+
 }

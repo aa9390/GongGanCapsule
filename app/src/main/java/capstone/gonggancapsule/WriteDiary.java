@@ -60,43 +60,6 @@ public class WriteDiary extends AppCompatActivity {
         setPicture(mImageCaptureUri); // 불러온 이미지 세팅
         setDate(); // 날짜 세팅
 
-//        // uri 받아오기
-//        Intent intent = getIntent();
-//        Uri uri = intent.getParcelableExtra("uri");
-//        pictureFilePath = intent.getStringExtra("pictureFilePath");
-//
-//        if (uri != null && pictureFilePath == null) {
-//            try {
-//                // 받아온 uri로 bitmap 변환!!
-//                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-//                int nh = (int) (bitmap.getHeight() * (1024.0 / bitmap.getWidth()));
-//                Bitmap scaled = Bitmap.createScaledBitmap(bitmap, 1024, nh, true);
-//                selectedPictureIv.setImageBitmap(scaled);
-//
-//            } catch (Exception e) {
-//                Toast.makeText(this, "갤러리에서 사진 불러오기 오류", Toast.LENGTH_LONG).show();
-//                e.printStackTrace();
-//            }
-//        } else if (uri == null && pictureFilePath != null) {
-//            Bitmap bitmap = BitmapFactory.decodeFile(pictureFilePath);
-//            ExifInterface exif = null;
-//
-//            try {
-//                exif = new ExifInterface(pictureFilePath);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//
-//            if (exif != null) {
-//                exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-//                exifDegree = exifOrientationToDegrees(exifOrientation);
-//            } else {
-//                exifDegree = 0;
-//            }
-//
-//            selectedPictureIv.setImageBitmap(rotate(bitmap, exifDegree));
-//        }
-
         // Content EditText 라인 수 제한하기 위함(입력가능한 최대 라인수)
         writeContentEt.addTextChangedListener(new TextWatcher() {
             String previousString = "";

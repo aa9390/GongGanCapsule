@@ -106,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     private ActionBarDrawerToggle mDrawerToggle;
     private CharSequence mDrawerTitle;
     private CharSequence mTitle;
+    private TextView totalTv;
 
     boolean isOpen = false;
     Animation FabOpen, FabClose;
@@ -351,17 +352,20 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         FabOpen = AnimationUtils.loadAnimation( this, R.anim.fab_open );
         FabClose = AnimationUtils.loadAnimation( this, R.anim.fab_close );
 
-        // 작성 날짜
+        // 작성 날짜 및 개수 받아오기
+        final DatabaseHelper dbHelper = new DatabaseHelper(MainActivity.this, "capsule", null, 1);
+        ArrayList<String> dateList = dbHelper.getDateList();
+        int totalDiary = dbHelper.getDiaryCount();
 
-        mDatesTitles = getResources().getStringArray(R.array.create_date_array);
+        totalTv = (TextView)findViewById(R.id.totalTv);
+        totalTv.setText("총 " + totalDiary + "개");
+        //mDatesTitles = getResources().getStringArray(R.array.create_date_array);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
-
-        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
-                R.layout.drawer_list_item, mDatesTitles));
+        //mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, mDatesTitles));
+        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, dateList));
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
-
 
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 R.string.drawer_open, R.string.drawer_close) {
