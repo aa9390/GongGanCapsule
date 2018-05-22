@@ -256,19 +256,15 @@ public class WriteDiary extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-       // if (requestCode == REQUEST_TEST) {
-            if (resultCode == RESULT_OK) {
-                Bundle bundle = data.getExtras();
-                if(bundle != null) {
-                    locationTv.setText(bundle.getString("LOCATION"));
-                    latitude = bundle.getDouble("LATITUDE");
-                    longitude = bundle.getDouble("LONGITUDE");
-                }
+        if (resultCode == RESULT_OK) {
+            Bundle bundle = data.getExtras();
+            if (bundle != null) {
+                locationTv.setText(bundle.getString("LOCATION"));
+                latitude = bundle.getDouble("LATITUDE");
+                longitude = bundle.getDouble("LONGITUDE");
             } else {   // RESULT_CANCEL
                 setLocation();
             }
-//        } else if (requestCode == REQUEST_ANOTHER) {
-//            ...
         }
-    //}
+    }
 }
