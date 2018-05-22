@@ -29,17 +29,20 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
-    compile 'com.android.support:design:27.1.0'
+    implementation 'com.android.support:design:27.1.0'
     // 권한 확인
-    compile 'gun0912.ted:tedpermission:2.1.1'
+    implementation 'gun0912.ted:tedpermission:2.1.1'
     // AR Core 라이브러리
     implementation 'com.google.ar:core:1.1.0'
     // butterknife
-    compile 'com.jakewharton:butterknife:8.4.0'
+    implementation 'com.jakewharton:butterknife:8.4.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
     // Obj - a simple Wavefront OBJ file loader
     // https://github.com/javagl/Obj
     implementation 'de.javagl:obj:0.2.1'
     // ARCore Location
-    compile 'com.github.appoly:ARCore-Location:0.1.0'
+    implementation 'com.github.appoly:ARCore-Location:0.1.0'
+    // Google Map
+    implementation 'com.google.android.gms:play-services-maps:15.0.1'
+    implementation 'com.google.android.gms:play-services-location:15.0.1'
 }
