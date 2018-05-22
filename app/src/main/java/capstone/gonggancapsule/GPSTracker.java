@@ -9,6 +9,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,7 +37,7 @@ public final class GPSTracker implements LocationListener {
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 0;
 
     // The minimum time between updates in milliseconds
-    private static final long MIN_TIME_BW_UPDATES = 1;
+    private static final long MIN_TIME_BW_UPDATES = 1000 * 20; // 20초
 
     // Declaring a Location Manager
     protected LocationManager locationManager;
@@ -53,9 +54,9 @@ public final class GPSTracker implements LocationListener {
      */
     public Location getLocation() {
 
-//        if ( ContextCompat.checkSelfPermission( mContext, android.Manifest.permission.ACCESS_COARSE_LOCATION ) != PackageManager.PERMISSION_GRANTED ) {
-//            ActivityCompat.requestPermissions( mActivity, new String[] { android.Manifest.permission.ACCESS_COARSE_LOCATION  }, REQUEST_CODE_LOCATION );
-//        }
+        if ( ContextCompat.checkSelfPermission( mContext, android.Manifest.permission.ACCESS_COARSE_LOCATION ) != PackageManager.PERMISSION_GRANTED ) {
+            ActivityCompat.requestPermissions( mActivity, new String[] { android.Manifest.permission.ACCESS_COARSE_LOCATION  }, REQUEST_CODE_LOCATION );
+        }
         try {
             locationManager = (LocationManager) mContext.getSystemService( Context.LOCATION_SERVICE );
 

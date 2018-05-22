@@ -145,7 +145,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             mGPS.getLocation();
             text.setText("Lat"+mGPS.getLatitude());
             text2.setText("Lon"+mGPS.getLongitude());
-
         }else{
             text.setText("Unabletofind");
             System.out.println("Unable");
@@ -371,18 +370,14 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 R.string.drawer_open, R.string.drawer_close) {
 
-            /*
-             * drawer가 닫혔을 때, 호출된다.
-             */
+            //drawer가 닫혔을 때, 호출된다.
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
                 //getActionBar().setTitle(mTitle);
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
 
-            /*
-             * drawer가 열렸을 때, 호출된다.
-             */
+             // drawer가 열렸을 때, 호출된다.
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
                 //getActionBar().setTitle(mDrawerTitle);
@@ -446,8 +441,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
                 startActivityForResult(intent, GALLERY_REQUEST_CODE);
             }
         } );
-
-
     }
 
     @Override

@@ -7,6 +7,9 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,10 +27,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import capstone.gonggancapsule.database.DatabaseHelper;
 
@@ -35,7 +41,9 @@ public class WriteDiary extends AppCompatActivity {
 
     ImageView selectedPictureIv;
     ImageButton changeDateBtn;
+    ImageButton changeLocationBtn;
     TextView dateTv;
+    TextView locationTv;
     EditText writeContentEt;
     Button saveDiaryBtn;
 
@@ -47,6 +55,11 @@ public class WriteDiary extends AppCompatActivity {
     int exifOrientation;
     int exifDegree;
 
+    Geocoder geocoder = new Geocoder(this);
+    List<Address> locationAddress;
+    private Double latitude;
+    private Double longitude;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,11 +68,13 @@ public class WriteDiary extends AppCompatActivity {
         // DB
         final DatabaseHelper dbHelper = new DatabaseHelper(WriteDiary.this, "capsule", null, 1);
 
-        selectedPictureIv = (ImageView)findViewById(R.id.selectedPictureIv);
-        dateTv = (TextView)findViewById(R.id.dateTv);
-        writeContentEt = (EditText)findViewById(R.id.writeContentEt);
-        saveDiaryBtn = (Button)findViewById(R.id.saveDiaryBtn);
-        changeDateBtn = (ImageButton)findViewById(R.id.changeDateBtn);
+        selectedPictureIv = (ImageView) findViewById(R.id.selectedPictureIv);
+        dateTv = (TextView) findViewById(R.id.dateTv);
+        locationTv = (TextView) findViewById(R.id.locationTv);
+        writeContentEt = (EditText) findViewById(R.id.writeContentEt);
+        saveDiaryBtn = (Button) findViewById(R.id.saveDiaryBtn);
+        changeDateBtn = (ImageButton) findViewById(R.id.changeDateBtn);
+        changeLocationBtn = (ImageButton) findViewById(R.id.changeLocationBtn);
 
         Intent intent = getIntent();
         galleryCaptureUri = intent.getParcelableExtra("galleryCaptureUri");
@@ -72,6 +87,7 @@ public class WriteDiary extends AppCompatActivity {
         }
 
         setDate(); // 날짜 세팅
+        setLocation(); // 위치 세팅
 
         // Content EditText 라인 수 제한하기 위함(입력가능한 최대 라인수)
         writeContentEt.addTextChangedListener(new TextWatcher() {
@@ -88,19 +104,20 @@ public class WriteDiary extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                if(writeContentEt.getLineCount() >= 9) { //8줄까지 쓸 수 있도록 설정
+                if (writeContentEt.getLineCount() >= 9) { //8줄까지 쓸 수 있도록 설정
                     writeContentEt.setText(previousString);
                     writeContentEt.setSelection(writeContentEt.length());
                 }
             }
         });
 
+
         // save 버튼을 누르면 DB에 데이터 저장 (INSERT)
         saveDiaryBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GPSTracker gpsTracker = new GPSTracker(WriteDiary.this);
-
+//                GPSTracker gpsTracker = new GPSTracker(WriteDiary.this);
+//
 //                Double latitude = 0.0;
 //                Double longitude = 0.0;
 
@@ -108,12 +125,15 @@ public class WriteDiary extends AppCompatActivity {
                 Double latitude = Math.random() * 100;
                 Double longitude = Math.random() * 100;
 
+
 //                if(gpsTracker.canGetLocation ){
 //                    gpsTracker.getLocation();
 //
 //                    latitude = gpsTracker.getLatitude();
 //                    longitude = gpsTracker.getLongitude();
 //                }
+//                Double latitude = location.getLatitude();
+//                Double longitude = location.getLongitude();
                 String create_date = dateTv.getText().toString(); //작성 날짜
                 String content = writeContentEt.getText().toString(); //내용
                 dbHelper.insertDiary(latitude, longitude, create_date, content, path);
@@ -180,27 +200,49 @@ public class WriteDiary extends AppCompatActivity {
         return simpleDateFormat.format(date);
     }
 
-    //회전 각도 구하기
-    private int getExifOrientation(String filePath) {
-        ExifInterface exif = null;
+    // 위치 설정
+    public void setLocation(){
+        GPSTracker currentGPS = new GPSTracker(this);
+        currentGPS.getLocation();
 
+        // 현재 위치 LocationTextView에 보여주기
         try{
-            exif = new ExifInterface(filePath);
-        } catch (IOException e) {
-            e.printStackTrace();
+            locationAddress = geocoder.getFromLocation(currentGPS.getLatitude(),currentGPS.getLongitude(),1);
+        }catch(IOException ioException) {
+            //지오코더 사용불가능일때
+        }catch(IllegalArgumentException illegalArgumentException) {
+            //잘못된 GPS 를 가져왔을시
         }
+        if (locationAddress == null || locationAddress.size() == 0) {
+            //주소 미발견시
+            locationTv.setText("위치가 없습니다");
+        } else {
+            //주소가 존재하면
+            Address address = locationAddress.get(0);
+            locationTv.setText(address.getAddressLine(0));
+        }
+        locationTv.setBackgroundResource(R.drawable.textview_border);
 
-        if(exif != null) {
-            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,
-                    ExifInterface.ORIENTATION_NORMAL);
-
-            if(orientation != -1) {
-                switch (orientation) {
-                    case ExifInterface.ORIENTATION_ROTATE_90: return 90;
-                    case ExifInterface.ORIENTATION_ROTATE_180: return 180;
-                    case ExifInterface.ORIENTATION_ROTATE_270: return 270;
-                }
+        // 지도로 이동하는 버튼
+        ImageButton mapBtn = findViewById(R.id.changeLocationBtn);
+        mapBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent( WriteDiary.this , GoogleMapActivity.class );
+                startActivityForResult(intent,0);
             }
+        });
+    }
+
+    // 사진을 띄울 때 회전되지 않게 보여주기 위함(exifOrientationToDegrees, rotate 함수)
+    // 상수를 받아 각도로 변환시켜주는 메소드
+    private int exifOrientationToDegrees(int exifOrientation) {
+        if(exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) {
+            return 90;
+        } else if(exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {
+            return 180;
+        } else if(exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {
+            return 270;
         }
         return 0;
     }
@@ -261,4 +303,23 @@ public class WriteDiary extends AppCompatActivity {
         return Bitmap.createBitmap(bitmap, 0,0,bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+       // if (requestCode == REQUEST_TEST) {
+            if (resultCode == RESULT_OK) {
+                Bundle bundle = data.getExtras();
+                if(bundle != null) {
+                    locationTv.setText(bundle.getString("LOCATION"));
+                    latitude = bundle.getDouble("LATITUDE");
+                    longitude = bundle.getDouble("LONGITUDE");
+                }
+            } else {   // RESULT_CANCEL
+                setLocation();
+            }
+//        } else if (requestCode == REQUEST_ANOTHER) {
+//            ...
+        }
+    //}
 }
