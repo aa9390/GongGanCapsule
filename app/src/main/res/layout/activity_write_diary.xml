@@ -12,17 +12,17 @@
         android:layout_height="200dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="45dp" />
-
+        android:layout_marginTop="30dp"
+        android:scaleType="fitCenter" />
 
     <TextView
         android:id="@+id/dateTv"
-        android:layout_width="206dp"
+        android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="239dp"
-        android:layout_toStartOf="@+id/changeDateBtn"
+        android:layout_marginTop="252dp"
+        android:layout_toStartOf="@+id/saveDiaryBtn"
         android:gravity="center"
         android:paddingBottom="10dp"
         android:paddingLeft="20dp"
@@ -34,37 +34,44 @@
         android:id="@+id/changeDateBtn"
         android:layout_width="39dp"
         android:layout_height="39dp"
-        android:layout_above="@+id/locationTv"
+        android:layout_alignBottom="@+id/dateTv"
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="61dp"
         android:background="@null"
         android:scaleType="fitXY"
         android:src="@drawable/ic_date_range_black_24dp" />
 
-    <TextView
-        android:id="@+id/locationTv"
-        android:layout_width="206dp"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/dateTv"
-        android:layout_below="@+id/dateTv"
-        android:layout_gravity="center_horizontal"
+    <LinearLayout
         android:gravity="center"
-        android:paddingBottom="10dp"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:paddingTop="10dp"
-        android:text="위치" />
+        android:layout_marginTop="15dp"
+        android:layout_below="@+id/dateTv"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <ImageButton
-        android:id="@+id/changeLocationBtn"
-        android:layout_width="39dp"
-        android:layout_height="39dp"
-        android:layout_alignBottom="@+id/locationTv"
-        android:layout_marginBottom="-1dp"
-        android:layout_toEndOf="@+id/dateTv"
-        android:background="@null"
-        android:scaleType="fitXY"
-        android:src="@drawable/location_btn" />
+        <TextView
+            android:id="@+id/locationTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:paddingBottom="10dp"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:paddingTop="10dp"
+            android:text="위치" />
+
+        <ImageButton
+            android:id="@+id/changeLocationBtn"
+            android:layout_width="39dp"
+            android:layout_height="39dp"
+            android:layout_alignBottom="@+id/locationTv"
+            android:layout_marginBottom="-1dp"
+            android:background="@null"
+            android:scaleType="fitXY"
+            android:src="@drawable/location_btn" />
+
+    </LinearLayout>
+
 
     <EditText
         android:id="@+id/writeContentEt"
