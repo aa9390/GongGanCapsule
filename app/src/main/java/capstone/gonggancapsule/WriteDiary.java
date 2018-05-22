@@ -2,8 +2,10 @@ package capstone.gonggancapsule;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
@@ -12,6 +14,7 @@ import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -21,6 +24,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -36,7 +40,10 @@ public class WriteDiary extends AppCompatActivity {
     Button saveDiaryBtn;
 
     public String dateString;
-    public Uri mImageCaptureUri;
+    public Uri galleryCaptureUri;
+    public Uri cameraCaptureUri;
+    public String path;
+
     int exifOrientation;
     int exifDegree;
 
@@ -55,9 +62,15 @@ public class WriteDiary extends AppCompatActivity {
         changeDateBtn = (ImageButton)findViewById(R.id.changeDateBtn);
 
         Intent intent = getIntent();
-        mImageCaptureUri = intent.getParcelableExtra("mImageCaptureUri");
+        galleryCaptureUri = intent.getParcelableExtra("galleryCaptureUri");
+        cameraCaptureUri = intent.getParcelableExtra("cameraCaptureUri");
 
-        setPicture(mImageCaptureUri); // 불러온 이미지 세팅
+        if(galleryCaptureUri != null && cameraCaptureUri == null) {
+            setGalleryPicture(galleryCaptureUri);
+        } else if(galleryCaptureUri == null && cameraCaptureUri != null) {
+            setCameraPicture(cameraCaptureUri);
+        }
+
         setDate(); // 날짜 세팅
 
         // Content EditText 라인 수 제한하기 위함(입력가능한 최대 라인수)
@@ -91,7 +104,7 @@ public class WriteDiary extends AppCompatActivity {
 //                Double latitude = 0.0;
 //                Double longitude = 0.0;
 
-//                DB 저장 테스트용
+                //DB 저장 테스트용
                 Double latitude = Math.random() * 100;
                 Double longitude = Math.random() * 100;
 
@@ -103,10 +116,7 @@ public class WriteDiary extends AppCompatActivity {
 //                }
                 String create_date = dateTv.getText().toString(); //작성 날짜
                 String content = writeContentEt.getText().toString(); //내용
-//                String picture = mImageCaptureUri.toString(); // 사진 URI
-                String picture = mImageCaptureUri.getPath(); //사진 경로
-
-                dbHelper.insertDiary(latitude, longitude, create_date, content, picture);
+                dbHelper.insertDiary(latitude, longitude, create_date, content, path);
 
                 Intent intent = new Intent(WriteDiary.this, MainActivity.class);
                 startActivity(intent);
@@ -116,21 +126,23 @@ public class WriteDiary extends AppCompatActivity {
 
     }
 
-    public void setPicture(Uri mImageCaptureUri) {
-        ExifInterface exif = null;
+    public void setGalleryPicture(Uri galleryCaptureUri) {
         try {
-            Bitmap photo = MediaStore.Images.Media.getBitmap(getContentResolver(), mImageCaptureUri);
+            Bitmap picture = MediaStore.Images.Media.getBitmap(getContentResolver(), galleryCaptureUri);
+            selectedPictureIv.setImageBitmap(picture);
+            path = galleryCaptureUri.getPath();
+        } catch (Exception e) {
+            Toast.makeText(WriteDiary.this, "오류 : " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
 
-            if (exif != null) {
-                exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-                exifDegree = exifOrientationToDegrees(exifOrientation);
-            } else {
-                exifDegree = 0;
-            }
+    // 원래 코드
+    public void setCameraPicture(Uri cameraCaptureUri) {
+        try {
+            Bitmap picture = MediaStore.Images.Media.getBitmap(getContentResolver(), cameraCaptureUri);
+            selectedPictureIv.setImageBitmap(rotate(picture));
+            path = cameraCaptureUri.getPath();
 
-            selectedPictureIv.setImageBitmap(rotate(photo, exifDegree));
-
-            //selectedPictureIv.setImageBitmap(photo);
         } catch (Exception e) {
             Toast.makeText(WriteDiary.this, "오류 : " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
@@ -149,7 +161,7 @@ public class WriteDiary extends AppCompatActivity {
                 DatePickerDialog dialog = new DatePickerDialog(WriteDiary.this, new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        dateString = String.format("%d년 %d월 %d일", year, month+1, dayOfMonth);
+                        dateString = String.format("%d년 %d월 %d일", year, month + 1, dayOfMonth);
                         dateTv.setText(dateString);
                     }
                 }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DATE));
@@ -164,36 +176,89 @@ public class WriteDiary extends AppCompatActivity {
         long now = System.currentTimeMillis();
         Date date = new Date(now);
 
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy년 MM월 dd일"); //출력 포맷
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy년 M월 dd일");
         return simpleDateFormat.format(date);
     }
 
-    // 사진을 띄울 때 회전되지 않게 보여주기 위함(exifOrientationToDegrees, rotate 함수)
-    // 상수를 받아 각도로 변환시켜주는 메소드
-    private int exifOrientationToDegrees(int exifOrientation) {
-        if(exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) {
-            return 90;
-        } else if(exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {
-            return 180;
-        } else if(exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {
-            return 270;
+    //회전 각도 구하기
+    private int getExifOrientation(String filePath) {
+        ExifInterface exif = null;
+
+        try{
+            exif = new ExifInterface(filePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if(exif != null) {
+            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_NORMAL);
+
+            if(orientation != -1) {
+                switch (orientation) {
+                    case ExifInterface.ORIENTATION_ROTATE_90: return 90;
+                    case ExifInterface.ORIENTATION_ROTATE_180: return 180;
+                    case ExifInterface.ORIENTATION_ROTATE_270: return 270;
+                }
+            }
         }
         return 0;
     }
 
-    // 비트맵을 각도대로 회전시켜 결과 반환
-    private Bitmap rotate(Bitmap bitmap, float degree) {
+    private Bitmap getRotatedBitmap(Bitmap bitmap, int degree) {
+        if(degree != 0 && bitmap != null) {
+            Matrix matrix = new Matrix();
+            matrix.setRotate(degree, (float)bitmap.getWidth() / 2, (float)bitmap.getHeight() / 2);
+
+            try {
+                Bitmap tmpBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
+                        bitmap.getHeight(), matrix, true);
+
+                if(bitmap != tmpBitmap) {
+                    bitmap.recycle();
+                    bitmap = tmpBitmap;
+                }
+            } catch (OutOfMemoryError e) {
+                e.printStackTrace();
+            }
+        }
+        return bitmap;
+    }
+
+//    private int exifOrientationToDegrees(int exifOrientation) {
+//        if(exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) {
+//            return 90;
+//        } else if(exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {
+//            return 180;
+//        } else if(exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {
+//            return 270;
+//        }
+//        return 0;
+//    }
+
+//    public Bitmap rotate(Bitmap bitmap, int degrees) {
+//        if(degrees != 0 && bitmap != null) {
+//            Matrix m = new Matrix();
+//            m.setRotate(degrees, (float)bitmap.getWidth() / 2, (float)bitmap.getHeight() / 2);
+//
+//            try {
+//                Bitmap converted = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), m, true);
+//                if(bitmap != converted) {
+//                    bitmap.recycle();
+//                    bitmap = converted;
+//                }
+//            } catch (OutOfMemoryError e) {
+//                Toast.makeText(WriteDiary.this, "오류 : " + e.getMessage(), Toast.LENGTH_LONG).show();
+//            }
+//        }
+//        return  bitmap;
+//    }
+
+    // 무조건 90도 회전만
+    private Bitmap rotate(Bitmap bitmap) {
         Matrix matrix = new Matrix();
-        matrix.postRotate(degree);
+        matrix.postRotate(90);
         return Bitmap.createBitmap(bitmap, 0,0,bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
 
-    public String getPathFromUri(Uri uri) {
-        Cursor cursor = getContentResolver().query(uri, null, null, null, null);
-        cursor.moveToNext();
-        String path = cursor.getString(cursor.getColumnIndex("_data"));
-        cursor.close();
-
-        return path;
-    }
 }

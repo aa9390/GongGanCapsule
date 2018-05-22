@@ -17,6 +17,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -252,6 +253,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         setTitle(mDatesTitles[position]);
         mDrawerLayout.closeDrawer(mDrawerList);
     }
+
     View.OnClickListener clickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -282,18 +284,20 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         switch (requestCode) {
             case GALLERY_REQUEST_CODE :
                 mImageCaptureUri = data.getData();
-                goWriteIntent.putExtra("mImageCaptureUri", mImageCaptureUri);
+                goWriteIntent.putExtra("galleryCaptureUri", mImageCaptureUri);
                 break;
 
             case CAMERA_REQUEST_CODE :
-                goWriteIntent.putExtra("mImageCaptureUri", mImageCaptureUri);
-                String filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/GONGGANCAPSULE/" + System.currentTimeMillis() + ".jpg";
+                //goWriteIntent.putExtra("mImageCaptureUri", mImageCaptureUri);
+                goWriteIntent.putExtra("cameraCaptureUri", mImageCaptureUri);
+                String picturePath = mImageCaptureUri.getPath();
+
                 try {
                     Bitmap photo = MediaStore.Images.Media.getBitmap(getContentResolver(), mImageCaptureUri);
-                    savePicture(photo, filePath);
-                    absolutePath = filePath;
-                } catch (Exception e) {
+                    savePicture(photo, picturePath); //저장
 
+                } catch (Exception e) {
+                    Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
                 }
 
                 File f = new File(mImageCaptureUri.getPath());
@@ -307,27 +311,24 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
     }
 
-    private void savePicture(Bitmap bitmap, String filePath) {
-        String dirPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/GONGGANCAPSULE";
-        File directory_GONGGANCAPSULE = new File(dirPath);
-        if(!directory_GONGGANCAPSULE.exists())
-            directory_GONGGANCAPSULE.mkdir();
-
-        //File copyFile = new File(filePath);
-        BufferedOutputStream out = null;
+    private void savePicture(Bitmap photo, String picturePath) {
+        FileOutputStream fos = null;
+        File saveFile = null;
 
         try {
-            directory_GONGGANCAPSULE.createNewFile();
-            out = new BufferedOutputStream(new FileOutputStream(directory_GONGGANCAPSULE));
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-
-            sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
-                    FileProvider.getUriForFile(getBaseContext(), "capstone.gonggancapsule", directory_GONGGANCAPSULE)));
-
-            out.flush();
-            out.close();
+            saveFile = new File(picturePath);
+            fos = new FileOutputStream(saveFile);
+            photo.compress(Bitmap.CompressFormat.JPEG, 100, fos);
         } catch (Exception e) {
-            e.printStackTrace();
+
+        } finally {
+            try {
+                if(fos != null) {
+                    fos.close();
+                }
+            } catch (Exception e) {
+
+            }
         }
     }
 
@@ -353,16 +354,16 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         FabClose = AnimationUtils.loadAnimation( this, R.anim.fab_close );
 
         // 작성 날짜 및 개수 받아오기
-        final DatabaseHelper dbHelper = new DatabaseHelper(MainActivity.this, "capsule", null, 1);
+        //final DatabaseHelper dbHelper = new DatabaseHelper(MainActivity.this, "capsule", null, 1);
         ArrayList<String> dateList = dbHelper.getDateList();
         int totalDiary = dbHelper.getDiaryCount();
 
         totalTv = (TextView)findViewById(R.id.totalTv);
         totalTv.setText("총 " + totalDiary + "개");
-        //mDatesTitles = getResources().getStringArray(R.array.create_date_array);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
+        //mDatesTitles = getResources().getStringArray(R.array.create_date_array);
         //mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, mDatesTitles));
         mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, dateList));
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
@@ -413,14 +414,23 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         cameraBtn.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // 카메라 호출
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-                //임시로 사용할 파일의 경로 생성
-                String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+                String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
                 String url = "GongGanCapsule_" + timeStamp + ".jpg";
 
+                // 저장 경로에 파일 생성 - 촬영한 이미지 파일을 저장하기 위해 경로 설정
+                File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
                 mImageCaptureUri = FileProvider.getUriForFile(getBaseContext(), "capstone.gonggancapsule.fileprovider",
-                        new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)+"/GONGGANCAPSULE", url));
+                        new File(storageDir + "/GongGanCapsule", url));
+                String dirPath = storageDir.getAbsolutePath() + "/GONGGANCAPSULE";
+
+                File directory_GONGGANCAPSULE = new File(dirPath);
+                if(!directory_GONGGANCAPSULE.exists())
+                    directory_GONGGANCAPSULE.mkdir();
+
+                Log.d("path", "path : " + mImageCaptureUri.toString());
 
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageCaptureUri);
                 startActivityForResult(intent, CAMERA_REQUEST_CODE);
