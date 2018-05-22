@@ -30,14 +30,11 @@
         <activity android:name=".MainActivity" />
         <activity android:name=".SplashActivity"></activity>
         <activity android:name=".DataBaseCheckActivity" />
-        <activity android:name=".GoogleMapActivity" />
 
         <meta-data
             android:name="com.google.ar.core"
             android:value="required" />
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBCN_P9vbkHM2dH7_e53PTOU7QobQaXREg" />
+
         <activity android:name=".WriteDiary" />
 
         <!-- 갤러리에 사진을 저장하기 위한 코드 -->
@@ -50,7 +47,6 @@
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
-
         </provider>
 
         <activity android:name=".PermissionActivity">

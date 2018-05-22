@@ -13,15 +13,14 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_gravity="center"
-        android:layout_marginTop="29dp" />
+        android:layout_marginTop="45dp" />
 
     <TextView
         android:id="@+id/dateTv"
-        android:layout_width="206dp"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
+        android:layout_centerVertical="true"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="239dp"
         android:layout_toStartOf="@+id/changeDateBtn"
         android:gravity="center"
         android:paddingBottom="10dp"
@@ -33,44 +32,19 @@
     <ImageButton
         android:id="@+id/changeDateBtn"
         android:layout_width="39dp"
-        android:layout_height="39dp"
-        android:layout_above="@+id/locationTv"
+        android:layout_height="37dp"
         android:layout_alignParentEnd="true"
-        android:layout_marginEnd="61dp"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="70dp"
         android:background="@null"
         android:scaleType="fitXY"
         android:src="@drawable/ic_date_range_black_24dp" />
-
-    <TextView
-        android:id="@+id/locationTv"
-        android:layout_width="206dp"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/dateTv"
-        android:layout_below="@+id/dateTv"
-        android:layout_gravity="center_horizontal"
-        android:gravity="center"
-        android:paddingBottom="10dp"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:paddingTop="10dp"
-        android:text="위치" />
-
-    <ImageButton
-        android:id="@+id/changeLocationBtn"
-        android:layout_width="39dp"
-        android:layout_height="39dp"
-        android:layout_alignBottom="@+id/locationTv"
-        android:layout_marginBottom="-1dp"
-        android:layout_toEndOf="@+id/dateTv"
-        android:background="@null"
-        android:scaleType="fitXY"
-        android:src="@drawable/location_btn" />
 
     <EditText
         android:id="@+id/writeContentEt"
         android:layout_width="319dp"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/saveDiaryBtn"
+        android:layout_below="@+id/changeDateBtn"
         android:layout_centerHorizontal="true"
         android:background="@android:color/transparent"
         android:ems="10"
