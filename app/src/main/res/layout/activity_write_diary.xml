@@ -8,12 +8,12 @@
 
     <ImageView
         android:id="@+id/selectedPictureIv"
-        android:layout_width="350dp"
+        android:layout_width="300dp"
         android:layout_height="200dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_gravity="center"
-        android:layout_marginTop="29dp" />
+        android:layout_marginTop="45dp" />
+
 
     <TextView
         android:id="@+id/dateTv"

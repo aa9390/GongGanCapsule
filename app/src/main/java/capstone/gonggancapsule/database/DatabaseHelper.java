@@ -58,8 +58,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-
-
     public String getDiary() {
         // get readable database as we are not inserting anything
         SQLiteDatabase db = this.getReadableDatabase();
@@ -152,11 +150,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ArrayList<String> dateList = new ArrayList<>();
         String result = null;
 
-        Cursor cursor = db.rawQuery("SELECT create_date FROM " + CapsuleDB.TABLE_NAME, null);
+//        Cursor cursor = db.rawQuery("SELECT create_date FROM " + CapsuleDB.TABLE_NAME, null);
+//        Cursor cursor = db.rawQuery("SELECT DISTINCT create_date FROM " + CapsuleDB.TABLE_NAME, null); // 중복 제거
+        Cursor cursor = db.rawQuery("SELECT create_date FROM " + CapsuleDB.TABLE_NAME + " ORDER BY create_date DESC",
+                null);
+
         while (cursor.moveToNext()) {
             result = cursor.getString(0);
             dateList.add(result);
         }
+        cursor.close();
 
         return dateList;
     }
