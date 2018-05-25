@@ -37,10 +37,7 @@ import java.util.Locale;
 
 public class GoogleMapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    private static final LatLng DEFAULT_LOCATION = new LatLng(37.56, 126.97);
-    Location location;
-    LocationManager locationManager;
-    Criteria criteria = new Criteria();
+    private static final LatLng DEFAULT_LOCATION = new LatLng(37.56, 126.97);   // 서울역
     GoogleMap map;
     Geocoder geocoder = new Geocoder(this);
     List<Address> addresses;
@@ -80,32 +77,29 @@ public class GoogleMapActivity extends AppCompatActivity implements OnMapReadyCa
 
     @Override
     public void onMapReady(final GoogleMap map) {
-        GPSTracker mGPS = new GPSTracker(this);
+//        GPSTracker mGPS = new GPSTracker(this);
+//        mGPS.getLocation();
         // 현재 위치로 이동
         map.setMyLocationEnabled(true);
 
         //위치가 확인 가능하면 지도를 현재 위치로 시작
         //위치가 확인 불가능하면 디폴트 위치에서 시작
-        if (location != null) {
-            LatLng myLocation = new LatLng(mGPS.getLatitude(), mGPS.getLongitude());
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 13));
-        }else {
+//        if (location != null) {
+//            LatLng currentLocation = new LatLng(mGPS.getLatitude(), mGPS.getLongitude());
+//            map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 13));
+//        }else {
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(DEFAULT_LOCATION, 12));
-        }
+//        }
 
         // 맵 터치 이벤트
         map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-
             @Override
             public void onMapClick(LatLng point) {
-                //마커가 하나만 뜨도록 누를 때마다 clear
-                map.clear();
+                map.clear();            //마커가 하나만 뜨도록 누를 때마다 clear
 
                 MarkerOptions mOptions = new MarkerOptions();
 
-                mOptions.title("마커 좌표");    // 마커 이름
-//                location.setLatitude(point.latitude); // 위도
-//                location.setLongitude(point.longitude); // 경도
+                mOptions.title("주소");    // 마커 이름
                 latitude = point.latitude;
                 longitude = point.longitude;
                 // 마커의 스니펫(간단한 텍스트) 설정

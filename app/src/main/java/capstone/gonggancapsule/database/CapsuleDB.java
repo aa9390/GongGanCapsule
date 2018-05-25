@@ -41,7 +41,6 @@ public class CapsuleDB {
         this.picture = picture;
     }
 
-
     //get()
     public double getLatitude(){
         return latitude;
@@ -58,8 +57,6 @@ public class CapsuleDB {
     public String getPicture(){
         return picture;
     }
-
-
 
     //set()
     public void setLatitude(double latitude) {
