@@ -1,9 +1,7 @@
 package capstone.gonggancapsule;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -20,14 +18,12 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,7 +35,6 @@ import com.google.ar.core.exceptions.CameraNotAvailableException;
 import com.google.ar.core.exceptions.UnavailableException;
 import com.google.ar.sceneform.ArSceneView;
 import com.google.ar.sceneform.Node;
-import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.rendering.ViewRenderable;
 
 import java.io.File;
@@ -75,11 +70,6 @@ public class MainActivity extends AppCompatActivity {
     private ArSceneView arSceneView;
 
     private ViewRenderable diaryLayoutRenderable;
-    private ViewRenderable exampleLayoutRenderable;
-    private ViewRenderable exampleLayoutRenderable2;
-    private ViewRenderable exampleLayoutRenderable3;
-    private ViewRenderable exampleLayoutRenderable4;
-    private ModelRenderable andyRenderable;
 
     private LocationScene locationScene;
 
@@ -136,60 +126,15 @@ public class MainActivity extends AppCompatActivity {
             System.out.println( "Unable" );
         }
 
-//        // 일기장 보여줄 레이아웃 임시 설정
-//        // 추후 새롭게 만든 레이아웃으로 교체
-//        CompletableFuture<ViewRenderable> diaryLayout =
-//                ViewRenderable.builder()
-//                        .setView(this, R.layout.activity_diary_test)
-//                        .build();
-
-//        CompletableFuture.allOf(
-//                diaryLayout)
-//                .handle(
-//                        (notUsed, throwable) -> {
-//
-//                            if (throwable != null) {
-//                                DemoUtils.displayError(
-//                                        this, "Unable to load renderables", throwable);
-//                                return null;
-//                            }
-//
-//                            try {
-//                                diaryLayoutRenderable = diaryLayout.get();
-//                            } catch (InterruptedException | ExecutionException ex) {
-//                                DemoUtils.displayError(
-//                                        this, "Unable to load renderables", ex);
-//                            }
-//
-//                            return null;
-//                        });
-
-        CompletableFuture<ViewRenderable> exampleLayout =
+        // 일기장 보여줄 레이아웃 임시 설정
+        // 추후 새롭게 만든 레이아웃으로 교체
+        CompletableFuture<ViewRenderable> diaryLayout =
                 ViewRenderable.builder()
-                        .setView(this, R.layout.example_layout)
+                        .setView(this, R.layout.activity_diary_test)
                         .build();
-
-        CompletableFuture<ViewRenderable> exampleLayout2 =
-                ViewRenderable.builder()
-                        .setView(this, R.layout.example_layout)
-                        .build();
-
-        CompletableFuture<ViewRenderable> exampleLayout3 =
-                ViewRenderable.builder()
-                        .setView(this, R.layout.example_layout)
-                        .build();
-
-        CompletableFuture<ViewRenderable> exampleLayout4 =
-                ViewRenderable.builder()
-                        .setView(this, R.layout.example_layout)
-                        .build();
-
-        CompletableFuture<ModelRenderable> andy = ModelRenderable.builder()
-                .setSource(this, R.raw.andy)
-                .build();
 
         CompletableFuture.allOf(
-                exampleLayout, exampleLayout2, andy)
+                diaryLayout)
                 .handle(
                         (notUsed, throwable) -> {
 
@@ -200,11 +145,7 @@ public class MainActivity extends AppCompatActivity {
                             }
 
                             try {
-                                exampleLayoutRenderable = exampleLayout.get();
-                                exampleLayoutRenderable2 = exampleLayout2.get();
-                                exampleLayoutRenderable3 = exampleLayout3.get();
-                                exampleLayoutRenderable4 = exampleLayout4.get();
-//                                andyRenderable = andy.get();
+                                diaryLayoutRenderable = diaryLayout.get();
                             } catch (InterruptedException | ExecutionException ex) {
                                 DemoUtils.displayError(
                                         this, "Unable to load renderables", ex);
@@ -213,159 +154,6 @@ public class MainActivity extends AppCompatActivity {
                             return null;
                         });
 
-
-        // Set an update listener on the Scene that will hide the loading message once a Plane is
-        // detected.
-//        arSceneView
-//                .getScene()
-//                .setOnUpdateListener(
-//                        frameTime -> {
-//                            if (locationScene == null) {
-//                                locationScene = new LocationScene(this, this, arSceneView);
-//
-//                                LocationMarker Caffebene = new LocationMarker(
-//                                        2.33, 86.0111,
-//                                        getDiaryView()
-//                                );
-//
-//                                // 건국대학교
-//                                LocationMarker konkuk = new LocationMarker(
-//                                        37.5407667,127.0771488,
-//                                        getDiaryView()
-//                                );
-//
-//                                // 건대 호야
-//                                LocationMarker hoya = new LocationMarker(
-//                                        37.5421674,127.0726771,
-//                                        getDiaryView()
-//                                );
-//
-//                                // 세종대학교
-//                                LocationMarker sejong = new LocationMarker(
-//                                        37.5490116,127.0713384,
-//                                        getDiaryView()
-//                                );
-//
-//                                Caffebene.setRenderEvent(new LocationNodeRender() {
-//                                    @Override
-//                                    public void render(LocationNode node) {
-//                                        View eView = diaryLayoutRenderable.getView();
-//                                        TextView content = eView.findViewById( R.id.showContentTv );
-//                                        ImageView pic = eView.findViewById( R.id.showPictureIv );
-//                                        pic.setImageResource( R.drawable.icon_capsule );
-//                                        content.setText( "오늘의 일기 \n 카페베네에에에에렝ㄹㅇ" );
-////                                        TextView distanceTextView = eView.findViewById(R.id.textView2);
-////                                        TextView titleView = eView.findViewById(R.id.textView);
-////                                        TextView contentView = eView.findViewById( R.id.content );
-////                                        LinearLayout back = eView.findViewById( R.id.back );
-////                                        ImageView pic = eView.findViewById( R.id.pic );
-////                                        distanceTextView.setText(node.getDistance() + "M");
-////                                        titleView.setText( "카페베네의 일기" );
-////                                        pic.setImageResource( R.drawable.pic_test2 );
-////                                        contentView.setText( "카페베네 망고스무디를 먹어땅" );
-////                                        pic.setOnClickListener( new View.OnClickListener() {
-////                                            @Override
-////                                            public void onClick(View v) {
-////                                                pic.setImageResource( R.drawable.pic_test1 );
-////                                            }
-////                                        } );
-////                                        back.setBackgroundColor( Color.parseColor("#C14D38") );
-//
-//                                    }
-//                                });
-//
-//                                konkuk.setRenderEvent(new LocationNodeRender() {
-//                                    @Override
-//                                    public void render(LocationNode node) {
-//                                        View eView = diaryLayoutRenderable.getView();
-//                                        TextView content = eView.findViewById( R.id.showContentTv );
-//                                        ImageView pic = eView.findViewById( R.id.showPictureIv );
-//                                        pic.setImageResource( R.drawable.icon_capsule );
-//                                        content.setText( "오늘의 일기 \n 오늘은 건대 탐탐에서 팀플을 했당" );
-////                                        TextView distanceTextView = eView.findViewById(R.id.textView2);
-////                                        TextView titleView = eView.findViewById(R.id.textView);
-////                                        TextView contentView = eView.findViewById( R.id.content );
-////                                        LinearLayout back = eView.findViewById( R.id.back );
-////                                        ImageView pic = eView.findViewById( R.id.pic );
-////                                        distanceTextView.setText(node.getDistance() + "M");
-////                                        titleView.setText( "카페베네의 일기" );
-////                                        pic.setImageResource( R.drawable.pic_test2 );
-////                                        contentView.setText( "카페베네 망고스무디를 먹어땅" );
-////                                        pic.setOnClickListener( new View.OnClickListener() {
-////                                            @Override
-////                                            public void onClick(View v) {
-////                                                pic.setImageResource( R.drawable.pic_test1 );
-////                                            }
-////                                        } );
-////                                        back.setBackgroundColor( Color.parseColor("#C14D38") );
-//
-//                                    }
-//                                });
-//
-//                                hoya.setRenderEvent(new LocationNodeRender() {
-//                                    @Override
-//                                    public void render(LocationNode node) {
-//                                        View eView = diaryLayoutRenderable.getView();
-//                                        TextView content = eView.findViewById( R.id.showContentTv );
-//                                        ImageView pic = eView.findViewById( R.id.showPictureIv );
-//                                        pic.setImageResource( R.drawable.icon_capsule );
-//                                        content.setText( "오늘의 일기 \n 자외선 너무 세ㅠㅠ" );
-////                                        TextView distanceTextView = eView.findViewById(R.id.textView2);
-////                                        TextView titleView = eView.findViewById(R.id.textView);
-////                                        TextView contentView = eView.findViewById( R.id.content );
-////                                        LinearLayout back = eView.findViewById( R.id.back );
-////                                        distanceTextView.setText(node.getDistance() + "M");
-////                                        titleView.setText( "할리스의 일기" );
-////                                        contentView.setText( "나는 할리스에 자주간당" );
-////                                        back.setBackgroundColor( Color.parseColor("#B96CA7") );
-//                                    }
-//                                });
-//
-//                                sejong.setRenderEvent(new LocationNodeRender() {
-//                                    @Override
-//                                    public void render(LocationNode node) {
-//                                        View eView = diaryLayoutRenderable.getView();
-//                                        TextView content = eView.findViewById( R.id.showContentTv );
-//                                        ImageView pic = eView.findViewById( R.id.showPictureIv );
-//                                        pic.setImageResource( R.drawable.icon_capsule );
-//                                        content.setText( "오늘의 일기 \n 후후후후훟ㅎㅎ" );
-////                                        TextView distanceTextView = eView.findViewById(R.id.textView2);
-////                                        TextView titleView = eView.findViewById(R.id.textView);
-////                                        TextView contentView = eView.findViewById( R.id.content );
-////                                        LinearLayout back = eView.findViewById( R.id.back );
-////                                        distanceTextView.setText(node.getDistance() + "M");
-////                                        titleView.setText( "스타벅스의 일기" );
-////                                        contentView.setText( "스타벅스 아메리카노 맛이따" );
-////                                        back.setBackgroundColor( Color.parseColor("#6CB972") );
-//                                    }
-//                                });
-//
-//                                // Adding the marker
-//                                // 마커를 ADD
-//                                locationScene.mLocationMarkers.add(Caffebene);
-//                                locationScene.mLocationMarkers.add(konkuk);
-//                                locationScene.mLocationMarkers.add(hoya);
-//                                locationScene.mLocationMarkers.add(sejong);
-//
-//                                Toast.makeText( this, "레이아웃", Toast.LENGTH_SHORT ).show();
-//                            }
-//
-//                            Frame frame = arSceneView.getArFrame();
-//
-//                            if (frame == null) {
-//                                return;
-//                            }
-//
-//                            if (frame.getCamera().getTrackingState() != TrackingState.TRACKING) {
-//                                return;
-//                            }
-//
-//                            if (locationScene != null) {
-//                                locationScene.processFrame(frame);
-//                            }
-//
-//                        });
-
         arSceneView
                 .getScene()
                 .setOnUpdateListener(
@@ -373,117 +161,131 @@ public class MainActivity extends AppCompatActivity {
                             if (locationScene == null) {
                                 locationScene = new LocationScene(this, this, arSceneView);
 
-                                // 충무로 카페베네 앞.
                                 LocationMarker Caffebene = new LocationMarker(
                                         2.33, 86.0111,
-                                        getExampleView()
+                                        getDiaryView()
                                 );
 
-                                // 충무로 할리스
-                                LocationMarker Hollys = new LocationMarker(
-                                        -0.119677, 51.478494,
-                                        getExampleView2()
+                                // 건국대학교
+                                LocationMarker konkuk = new LocationMarker(
+                                        37.5407667,127.0771488,
+                                        getDiaryView()
                                 );
 
-//                                37.561382, 126.993892
-                                // 충무로 스타벅스
-                                LocationMarker StarBucks = new LocationMarker(
-                                        37.561382, 126.993892,
-                                        getExampleView3()
+                                // 건대 호야
+                                LocationMarker hoya = new LocationMarker(
+                                        37.5421674,127.0726771,
+                                        getDiaryView()
                                 );
 
-                                // 서울여자대학교
-                                LocationMarker swu = new LocationMarker(
-                                        37.99999, 111.123124,
-                                        getExampleView4()
+                                // 세종대학교
+                                LocationMarker sejong = new LocationMarker(
+                                        37.5490116,127.0713384,
+                                        getDiaryView()
                                 );
 
-                                // textView에 일기 제목, textView2에 거리를 보여줌.
-                                // 거리가 이상하게 나오니 새로 만드는게 나을듯.
                                 Caffebene.setRenderEvent(new LocationNodeRender() {
                                     @Override
                                     public void render(LocationNode node) {
-                                        View eView = exampleLayoutRenderable.getView();
-                                        TextView distanceTextView = eView.findViewById(R.id.textView2);
-                                        TextView titleView = eView.findViewById(R.id.textView);
-                                        TextView contentView = eView.findViewById( R.id.content );
-                                        LinearLayout back = eView.findViewById( R.id.back );
-                                        ImageView pic = eView.findViewById( R.id.pic );
-                                        distanceTextView.setText(node.getDistance() + "M");
-                                        titleView.setText( "카페베네의 일기" );
-//                                        pic.setImageResource( R.drawable.pic_test1 );
-                                        contentView.setText( "카페베네 망고스무디를 먹어땅" );
-                                        pic.setOnClickListener( new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                pic.setImageResource( R.drawable.pic_test1 );
-                                            }
-                                        } );
-                                        back.setBackgroundColor( Color.parseColor("#C14D38") );
+                                        View eView = diaryLayoutRenderable.getView();
+                                        TextView content = eView.findViewById( R.id.showContentTv );
+                                        ImageView pic = eView.findViewById( R.id.showPictureIv );
+                                        pic.setImageResource( R.drawable.icon_capsule );
+                                        content.setText( "오늘의 일기 \n 카페베네에에에에렝ㄹㅇ" );
+//                                        TextView distanceTextView = eView.findViewById(R.id.textView2);
+//                                        TextView titleView = eView.findViewById(R.id.textView);
+//                                        TextView contentView = eView.findViewById( R.id.content );
+//                                        LinearLayout back = eView.findViewById( R.id.back );
+//                                        ImageView pic = eView.findViewById( R.id.pic );
+//                                        distanceTextView.setText(node.getDistance() + "M");
+//                                        titleView.setText( "카페베네의 일기" );
+//                                        pic.setImageResource( R.drawable.pic_test2 );
+//                                        contentView.setText( "카페베네 망고스무디를 먹어땅" );
+//                                        pic.setOnClickListener( new View.OnClickListener() {
+//                                            @Override
+//                                            public void onClick(View v) {
+//                                                pic.setImageResource( R.drawable.pic_test1 );
+//                                            }
+//                                        } );
+//                                        back.setBackgroundColor( Color.parseColor("#C14D38") );
 
                                     }
                                 });
 
-                                Hollys.setRenderEvent(new LocationNodeRender() {
+                                konkuk.setRenderEvent(new LocationNodeRender() {
                                     @Override
                                     public void render(LocationNode node) {
-                                        View eView = exampleLayoutRenderable2.getView();
-                                        TextView distanceTextView = eView.findViewById(R.id.textView2);
-                                        TextView titleView = eView.findViewById(R.id.textView);
-                                        TextView contentView = eView.findViewById( R.id.content );
-                                        LinearLayout back = eView.findViewById( R.id.back );
-                                        distanceTextView.setText(node.getDistance() + "M");
-                                        titleView.setText( "할리스의 일기" );
-                                        contentView.setText( "나는 할리스에 자주간당" );
-                                        back.setBackgroundColor( Color.parseColor("#B96CA7") );
+                                        View eView = diaryLayoutRenderable.getView();
+                                        TextView content = eView.findViewById( R.id.showContentTv );
+                                        ImageView pic = eView.findViewById( R.id.showPictureIv );
+                                        pic.setImageResource( R.drawable.icon_capsule );
+                                        content.setText( "오늘의 일기 \n 오늘은 건대 탐탐에서 팀플을 했당" );
+//                                        TextView distanceTextView = eView.findViewById(R.id.textView2);
+//                                        TextView titleView = eView.findViewById(R.id.textView);
+//                                        TextView contentView = eView.findViewById( R.id.content );
+//                                        LinearLayout back = eView.findViewById( R.id.back );
+//                                        ImageView pic = eView.findViewById( R.id.pic );
+//                                        distanceTextView.setText(node.getDistance() + "M");
+//                                        titleView.setText( "카페베네의 일기" );
+//                                        pic.setImageResource( R.drawable.pic_test2 );
+//                                        contentView.setText( "카페베네 망고스무디를 먹어땅" );
+//                                        pic.setOnClickListener( new View.OnClickListener() {
+//                                            @Override
+//                                            public void onClick(View v) {
+//                                                pic.setImageResource( R.drawable.pic_test1 );
+//                                            }
+//                                        } );
+//                                        back.setBackgroundColor( Color.parseColor("#C14D38") );
+
                                     }
                                 });
 
-                                StarBucks.setRenderEvent(new LocationNodeRender() {
+                                hoya.setRenderEvent(new LocationNodeRender() {
                                     @Override
                                     public void render(LocationNode node) {
-                                        View eView = exampleLayoutRenderable3.getView();
-                                        TextView distanceTextView = eView.findViewById(R.id.textView2);
-                                        TextView titleView = eView.findViewById(R.id.textView);
-                                        TextView contentView = eView.findViewById( R.id.content );
-                                        LinearLayout back = eView.findViewById( R.id.back );
-                                        distanceTextView.setText(node.getDistance() + "M");
-                                        titleView.setText( "스타벅스의 일기" );
-                                        contentView.setText( "스타벅스 아메리카노 맛이따" );
-                                        back.setBackgroundColor( Color.parseColor("#6CB972") );
+                                        View eView = diaryLayoutRenderable.getView();
+                                        TextView content = eView.findViewById( R.id.showContentTv );
+                                        ImageView pic = eView.findViewById( R.id.showPictureIv );
+                                        pic.setImageResource( R.drawable.icon_capsule );
+                                        content.setText( "오늘의 일기 \n 자외선 너무 세ㅠㅠ" );
+//                                        TextView distanceTextView = eView.findViewById(R.id.textView2);
+//                                        TextView titleView = eView.findViewById(R.id.textView);
+//                                        TextView contentView = eView.findViewById( R.id.content );
+//                                        LinearLayout back = eView.findViewById( R.id.back );
+//                                        distanceTextView.setText(node.getDistance() + "M");
+//                                        titleView.setText( "할리스의 일기" );
+//                                        contentView.setText( "나는 할리스에 자주간당" );
+//                                        back.setBackgroundColor( Color.parseColor("#B96CA7") );
                                     }
                                 });
 
-                                swu.setRenderEvent(new LocationNodeRender() {
+                                sejong.setRenderEvent(new LocationNodeRender() {
                                     @Override
                                     public void render(LocationNode node) {
-                                        View eView = exampleLayoutRenderable4.getView();
-                                        TextView distanceTextView = eView.findViewById(R.id.textView2);
-                                        TextView titleView = eView.findViewById(R.id.textView);
-                                        TextView contentView = eView.findViewById( R.id.content );
-                                        LinearLayout back = eView.findViewById( R.id.back );
-                                        distanceTextView.setText(node.getDistance() + "M");
-                                        titleView.setText( "서울여대의 일기" );
-                                        contentView.setText( "내일 휴강했으면..." );
-                                        back.setBackgroundColor( Color.parseColor("#C4D9FF") );
+                                        View eView = diaryLayoutRenderable.getView();
+                                        TextView content = eView.findViewById( R.id.showContentTv );
+                                        ImageView pic = eView.findViewById( R.id.showPictureIv );
+                                        pic.setImageResource( R.drawable.icon_capsule );
+                                        content.setText( "오늘의 일기 \n 후후후후훟ㅎㅎ" );
+//                                        TextView distanceTextView = eView.findViewById(R.id.textView2);
+//                                        TextView titleView = eView.findViewById(R.id.textView);
+//                                        TextView contentView = eView.findViewById( R.id.content );
+//                                        LinearLayout back = eView.findViewById( R.id.back );
+//                                        distanceTextView.setText(node.getDistance() + "M");
+//                                        titleView.setText( "스타벅스의 일기" );
+//                                        contentView.setText( "스타벅스 아메리카노 맛이따" );
+//                                        back.setBackgroundColor( Color.parseColor("#6CB972") );
                                     }
                                 });
 
                                 // Adding the marker
                                 // 마커를 ADD
                                 locationScene.mLocationMarkers.add(Caffebene);
-                                locationScene.mLocationMarkers.add(Hollys);
-                                locationScene.mLocationMarkers.add(StarBucks);
-                                locationScene.mLocationMarkers.add(swu);
+                                locationScene.mLocationMarkers.add(konkuk);
+                                locationScene.mLocationMarkers.add(hoya);
+                                locationScene.mLocationMarkers.add(sejong);
 
-                                // 나중에 캡슐 모양으로 대체
-                                // 지금은 안보임.
-                                // Adding a simple location marker of a 3D model
-                                locationScene.mLocationMarkers.add(
-                                        new LocationMarker(
-                                                -0.119677,
-                                                51.478494,
-                                                getAndy()));
+                                Toast.makeText( this, "레이아웃", Toast.LENGTH_SHORT ).show();
                             }
 
                             Frame frame = arSceneView.getArFrame();
@@ -506,46 +308,13 @@ public class MainActivity extends AppCompatActivity {
         ARLocationPermissionHelper.requestPermission(this);
     }
 
-    private Node getExampleView() {
+
+    private Node getDiaryView() {
         Node base = new Node();
-        base.setRenderable(exampleLayoutRenderable);
+        base.setRenderable(diaryLayoutRenderable);
 
         return base;
     }
-
-    private Node getExampleView2() {
-        Node base = new Node();
-        base.setRenderable(exampleLayoutRenderable2);
-
-        return base;
-    }
-
-    private Node getExampleView3() {
-        Node base = new Node();
-        base.setRenderable(exampleLayoutRenderable3);
-
-        return base;
-    }
-
-    private Node getExampleView4() {
-        Node base = new Node();
-        base.setRenderable(exampleLayoutRenderable4);
-
-        return base;
-    }
-
-    private Node getAndy() {
-        Node base = new Node();
-        base.setRenderable(andyRenderable);
-        Context c = this;
-        base.setOnTapListener((v, event) -> {
-            Toast.makeText(
-                    c, "Andy touched.", Toast.LENGTH_LONG)
-                    .show();
-        });
-        return base;
-    }
-
 
     @Override
     protected void onResume() {
@@ -600,12 +369,6 @@ public class MainActivity extends AppCompatActivity {
         arSceneView.destroy();
     }
 
-    private Node getDiaryView() {
-        Node base = new Node();
-        base.setRenderable(diaryLayoutRenderable);
-
-        return base;
-    }
 
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
@@ -817,24 +580,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected( item );
-    }
-
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            // Standard Android full-screen functionality.
-            getWindow()
-                    .getDecorView()
-                    .setSystemUiVisibility(
-                            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                                    | View.SYSTEM_UI_FLAG_FULLSCREEN
-                                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-            getWindow().addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        }
     }
 
     @OnClick(R.id.database)
