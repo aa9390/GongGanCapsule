@@ -1,10 +1,10 @@
 package capstone.gonggancapsule;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
-import android.opengl.GLES20;
-import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -18,40 +18,37 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.ar.core.Anchor;
-import com.google.ar.core.Camera;
-import com.google.ar.core.Config;
 import com.google.ar.core.Frame;
 import com.google.ar.core.Session;
 import com.google.ar.core.TrackingState;
 import com.google.ar.core.exceptions.CameraNotAvailableException;
-import com.google.ar.core.exceptions.UnavailableApkTooOldException;
-import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
-import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
+import com.google.ar.core.exceptions.UnavailableException;
+import com.google.ar.sceneform.ArSceneView;
+import com.google.ar.sceneform.Node;
+import com.google.ar.sceneform.rendering.ModelRenderable;
+import com.google.ar.sceneform.rendering.ViewRenderable;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-
-import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.opengles.GL10;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -59,41 +56,32 @@ import butterknife.OnClick;
 import capstone.gonggancapsule.database.DatabaseHelper;
 import uk.co.appoly.arcorelocation.LocationMarker;
 import uk.co.appoly.arcorelocation.LocationScene;
-import uk.co.appoly.arcorelocation.rendering.AnnotationRenderer;
-import uk.co.appoly.arcorelocation.rendering.ImageRenderer;
-import uk.co.appoly.arcorelocation.utils.Utils2D;
+import uk.co.appoly.arcorelocation.rendering.LocationNode;
+import uk.co.appoly.arcorelocation.rendering.LocationNodeRender;
+import uk.co.appoly.arcorelocation.utils.ARLocationPermissionHelper;
 
-// GLSurfaceView. Renderer가 생성될 때 호출되는 순서
-// onSurfaceCreated() -> onSurfaceChanged() -> onDrawFrame()
-public class MainActivity extends AppCompatActivity implements GLSurfaceView.Renderer {
+// ARCore 1.2Ver로 바뀜으로 인해 openGL코드 삭제
+public class MainActivity extends AppCompatActivity {
+    private boolean installRequested;
 
-    // Database 관련 코드
+    //------Database 관련 코드------
     // Database 임시 확인을 위한 버튼
     @BindView(R.id.database)
     ImageButton database;
     // Database Helper 선언
-    DatabaseHelper dbHelper = new DatabaseHelper(this, "capsule", null, 1);
+    DatabaseHelper dbHelper = new DatabaseHelper( this, "capsule", null, 1 );
 
-    // 카메라 프리뷰를 위한 surfaceView 선언
-    private GLSurfaceView surfaceView;
+    // ARSceneform 관련 코드 (라이브러리 사용)
+    private ArSceneView arSceneView;
 
-    // hello ar의 코드를 이용하기 위해 필요한 코드
-    private final BackgroundRenderer backgroundRenderer = new BackgroundRenderer();
-    private final PlaneRenderer planeRenderer = new PlaneRenderer();
-    private final PointCloudRenderer pointCloudRenderer = new PointCloudRenderer();
+    private ViewRenderable diaryLayoutRenderable;
+    private ViewRenderable exampleLayoutRenderable;
+    private ViewRenderable exampleLayoutRenderable2;
+    private ViewRenderable exampleLayoutRenderable3;
+    private ViewRenderable exampleLayoutRenderable4;
+    private ModelRenderable andyRenderable;
 
-    // 앵커 관련 코드
-//    private final ObjectRenderer virtualObject = new ObjectRenderer();
-//    private final ObjectRenderer virtualObjectShadow = new ObjectRenderer();
-    private final float[] anchorMatrix = new float[16];
-    private final ArrayList<Anchor> anchors = new ArrayList<>();
-
-    private TapHelper tapHelper;
-
-    // Session은 필요 유무에 따라 삭제
-    private Session session;
-    private GestureDetector gestureDetector;
-    private DisplayRotationHelper displayRotationHelper;
+    private LocationScene locationScene;
 
     // 메인화면 툴바, 작성 날짜를 위한 코드
     private Toolbar toolbar;
@@ -121,125 +109,509 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     private Uri mImageCaptureUri;
     public String absolutePath;
 
-    private boolean installRequested;
-    boolean permissionCheck = false;
-
-    LocationScene locationScene;
-
     @Override
+    @SuppressWarnings({"AndroidApiChecker", "FutureReturnValueIgnored"})
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_main );
         ButterKnife.bind( this );
 
+        arSceneView = findViewById(R.id.ar_scene_view);
+
         // 메인 화면 초기화
         initView();
 
-        GPSTracker mGPS = new GPSTracker(this);
+        GPSTracker mGPS = new GPSTracker( this );
 
         //위치 받아오는지 확인하기 위한 임시코드
-        TextView text = findViewById(R.id.longi);
-        TextView text2 = findViewById(R.id.lati);
+        TextView text = findViewById( R.id.longi );
+        TextView text2 = findViewById( R.id.lati );
 
-        if(mGPS.canGetLocation ){
+        if (mGPS.canGetLocation) {
             mGPS.getLocation();
-            text.setText("Lat"+mGPS.getLatitude());
-            text2.setText("Lon"+mGPS.getLongitude());
-        }else{
-            text.setText("Unabletofind");
-            System.out.println("Unable");
+            text.setText( "Lat" + mGPS.getLatitude() );
+            text2.setText( "Lon" + mGPS.getLongitude() );
+        } else {
+            text.setText( "Unabletofind" );
+            System.out.println( "Unable" );
         }
 
-        Exception exception = null;
-        String message = null;
-        try {
-            session = new Session(/* context= */ this);
-        } catch (UnavailableArcoreNotInstalledException e) {
-            message = "Please install ARCore";
-            exception = e;
-        } catch (UnavailableApkTooOldException e) {
-            message = "Please update ARCore";
-            exception = e;
-        } catch (UnavailableSdkTooOldException e) {
-            message = "Please update this app";
-            exception = e;
-        } catch (Exception e) {
-            message = "This device does not support AR";
-            exception = e;
-        }
+//        // 일기장 보여줄 레이아웃 임시 설정
+//        // 추후 새롭게 만든 레이아웃으로 교체
+//        CompletableFuture<ViewRenderable> diaryLayout =
+//                ViewRenderable.builder()
+//                        .setView(this, R.layout.activity_diary_test)
+//                        .build();
 
-        if (message != null) {
-            return;
-        }
+//        CompletableFuture.allOf(
+//                diaryLayout)
+//                .handle(
+//                        (notUsed, throwable) -> {
+//
+//                            if (throwable != null) {
+//                                DemoUtils.displayError(
+//                                        this, "Unable to load renderables", throwable);
+//                                return null;
+//                            }
+//
+//                            try {
+//                                diaryLayoutRenderable = diaryLayout.get();
+//                            } catch (InterruptedException | ExecutionException ex) {
+//                                DemoUtils.displayError(
+//                                        this, "Unable to load renderables", ex);
+//                            }
+//
+//                            return null;
+//                        });
 
-        // Create default config and check if supported.
-        Config config = new Config(session);
-        if (!session.isSupported(config)) {
-        }
-        session.configure(config);
+        CompletableFuture<ViewRenderable> exampleLayout =
+                ViewRenderable.builder()
+                        .setView(this, R.layout.example_layout)
+                        .build();
 
-        locationScene = new LocationScene( this, this, session );
+        CompletableFuture<ViewRenderable> exampleLayout2 =
+                ViewRenderable.builder()
+                        .setView(this, R.layout.example_layout)
+                        .build();
 
-        LocationMarker test1 = new LocationMarker(
-                127.091294, 37.628213, new AnnotationRenderer( "중앙도서관" ) );
-        LocationMarker test2 = new LocationMarker(
-                127.093161, 37.625952, new AnnotationRenderer( "서울여대 CU" ) );
-        LocationMarker test3 = new LocationMarker(
-                127.090576, 37.629215,  new ImageRenderer( "icon_capsule.png" ) );
-        LocationMarker test4 = new LocationMarker(
-                127.093703, 37.625757,   new ImageRenderer( "icon_capsule.png" ) );
+        CompletableFuture<ViewRenderable> exampleLayout3 =
+                ViewRenderable.builder()
+                        .setView(this, R.layout.example_layout)
+                        .build();
 
-        locationScene.mLocationMarkers.add( test1 );
-        locationScene.mLocationMarkers.add( test2 );
-        locationScene.mLocationMarkers.add( test3 );
-        locationScene.mLocationMarkers.add( test4 );
+        CompletableFuture<ViewRenderable> exampleLayout4 =
+                ViewRenderable.builder()
+                        .setView(this, R.layout.example_layout)
+                        .build();
 
-        // Renderer 설정
-        surfaceView.setPreserveEGLContextOnPause( true );
-        surfaceView.setEGLContextClientVersion( 2 );
-        surfaceView.setEGLConfigChooser( 8, 8, 8, 8, 16, 0 ); // Alpha used for plane blending.
-        surfaceView.setRenderer( this );
-        surfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+        CompletableFuture<ModelRenderable> andy = ModelRenderable.builder()
+                .setSource(this, R.raw.andy)
+                .build();
+
+        CompletableFuture.allOf(
+                exampleLayout, exampleLayout2, andy)
+                .handle(
+                        (notUsed, throwable) -> {
+
+                            if (throwable != null) {
+                                DemoUtils.displayError(
+                                        this, "Unable to load renderables", throwable);
+                                return null;
+                            }
+
+                            try {
+                                exampleLayoutRenderable = exampleLayout.get();
+                                exampleLayoutRenderable2 = exampleLayout2.get();
+                                exampleLayoutRenderable3 = exampleLayout3.get();
+                                exampleLayoutRenderable4 = exampleLayout4.get();
+//                                andyRenderable = andy.get();
+                            } catch (InterruptedException | ExecutionException ex) {
+                                DemoUtils.displayError(
+                                        this, "Unable to load renderables", ex);
+                            }
+
+                            return null;
+                        });
+
+
+        // Set an update listener on the Scene that will hide the loading message once a Plane is
+        // detected.
+//        arSceneView
+//                .getScene()
+//                .setOnUpdateListener(
+//                        frameTime -> {
+//                            if (locationScene == null) {
+//                                locationScene = new LocationScene(this, this, arSceneView);
+//
+//                                LocationMarker Caffebene = new LocationMarker(
+//                                        2.33, 86.0111,
+//                                        getDiaryView()
+//                                );
+//
+//                                // 건국대학교
+//                                LocationMarker konkuk = new LocationMarker(
+//                                        37.5407667,127.0771488,
+//                                        getDiaryView()
+//                                );
+//
+//                                // 건대 호야
+//                                LocationMarker hoya = new LocationMarker(
+//                                        37.5421674,127.0726771,
+//                                        getDiaryView()
+//                                );
+//
+//                                // 세종대학교
+//                                LocationMarker sejong = new LocationMarker(
+//                                        37.5490116,127.0713384,
+//                                        getDiaryView()
+//                                );
+//
+//                                Caffebene.setRenderEvent(new LocationNodeRender() {
+//                                    @Override
+//                                    public void render(LocationNode node) {
+//                                        View eView = diaryLayoutRenderable.getView();
+//                                        TextView content = eView.findViewById( R.id.showContentTv );
+//                                        ImageView pic = eView.findViewById( R.id.showPictureIv );
+//                                        pic.setImageResource( R.drawable.icon_capsule );
+//                                        content.setText( "오늘의 일기 \n 카페베네에에에에렝ㄹㅇ" );
+////                                        TextView distanceTextView = eView.findViewById(R.id.textView2);
+////                                        TextView titleView = eView.findViewById(R.id.textView);
+////                                        TextView contentView = eView.findViewById( R.id.content );
+////                                        LinearLayout back = eView.findViewById( R.id.back );
+////                                        ImageView pic = eView.findViewById( R.id.pic );
+////                                        distanceTextView.setText(node.getDistance() + "M");
+////                                        titleView.setText( "카페베네의 일기" );
+////                                        pic.setImageResource( R.drawable.pic_test2 );
+////                                        contentView.setText( "카페베네 망고스무디를 먹어땅" );
+////                                        pic.setOnClickListener( new View.OnClickListener() {
+////                                            @Override
+////                                            public void onClick(View v) {
+////                                                pic.setImageResource( R.drawable.pic_test1 );
+////                                            }
+////                                        } );
+////                                        back.setBackgroundColor( Color.parseColor("#C14D38") );
+//
+//                                    }
+//                                });
+//
+//                                konkuk.setRenderEvent(new LocationNodeRender() {
+//                                    @Override
+//                                    public void render(LocationNode node) {
+//                                        View eView = diaryLayoutRenderable.getView();
+//                                        TextView content = eView.findViewById( R.id.showContentTv );
+//                                        ImageView pic = eView.findViewById( R.id.showPictureIv );
+//                                        pic.setImageResource( R.drawable.icon_capsule );
+//                                        content.setText( "오늘의 일기 \n 오늘은 건대 탐탐에서 팀플을 했당" );
+////                                        TextView distanceTextView = eView.findViewById(R.id.textView2);
+////                                        TextView titleView = eView.findViewById(R.id.textView);
+////                                        TextView contentView = eView.findViewById( R.id.content );
+////                                        LinearLayout back = eView.findViewById( R.id.back );
+////                                        ImageView pic = eView.findViewById( R.id.pic );
+////                                        distanceTextView.setText(node.getDistance() + "M");
+////                                        titleView.setText( "카페베네의 일기" );
+////                                        pic.setImageResource( R.drawable.pic_test2 );
+////                                        contentView.setText( "카페베네 망고스무디를 먹어땅" );
+////                                        pic.setOnClickListener( new View.OnClickListener() {
+////                                            @Override
+////                                            public void onClick(View v) {
+////                                                pic.setImageResource( R.drawable.pic_test1 );
+////                                            }
+////                                        } );
+////                                        back.setBackgroundColor( Color.parseColor("#C14D38") );
+//
+//                                    }
+//                                });
+//
+//                                hoya.setRenderEvent(new LocationNodeRender() {
+//                                    @Override
+//                                    public void render(LocationNode node) {
+//                                        View eView = diaryLayoutRenderable.getView();
+//                                        TextView content = eView.findViewById( R.id.showContentTv );
+//                                        ImageView pic = eView.findViewById( R.id.showPictureIv );
+//                                        pic.setImageResource( R.drawable.icon_capsule );
+//                                        content.setText( "오늘의 일기 \n 자외선 너무 세ㅠㅠ" );
+////                                        TextView distanceTextView = eView.findViewById(R.id.textView2);
+////                                        TextView titleView = eView.findViewById(R.id.textView);
+////                                        TextView contentView = eView.findViewById( R.id.content );
+////                                        LinearLayout back = eView.findViewById( R.id.back );
+////                                        distanceTextView.setText(node.getDistance() + "M");
+////                                        titleView.setText( "할리스의 일기" );
+////                                        contentView.setText( "나는 할리스에 자주간당" );
+////                                        back.setBackgroundColor( Color.parseColor("#B96CA7") );
+//                                    }
+//                                });
+//
+//                                sejong.setRenderEvent(new LocationNodeRender() {
+//                                    @Override
+//                                    public void render(LocationNode node) {
+//                                        View eView = diaryLayoutRenderable.getView();
+//                                        TextView content = eView.findViewById( R.id.showContentTv );
+//                                        ImageView pic = eView.findViewById( R.id.showPictureIv );
+//                                        pic.setImageResource( R.drawable.icon_capsule );
+//                                        content.setText( "오늘의 일기 \n 후후후후훟ㅎㅎ" );
+////                                        TextView distanceTextView = eView.findViewById(R.id.textView2);
+////                                        TextView titleView = eView.findViewById(R.id.textView);
+////                                        TextView contentView = eView.findViewById( R.id.content );
+////                                        LinearLayout back = eView.findViewById( R.id.back );
+////                                        distanceTextView.setText(node.getDistance() + "M");
+////                                        titleView.setText( "스타벅스의 일기" );
+////                                        contentView.setText( "스타벅스 아메리카노 맛이따" );
+////                                        back.setBackgroundColor( Color.parseColor("#6CB972") );
+//                                    }
+//                                });
+//
+//                                // Adding the marker
+//                                // 마커를 ADD
+//                                locationScene.mLocationMarkers.add(Caffebene);
+//                                locationScene.mLocationMarkers.add(konkuk);
+//                                locationScene.mLocationMarkers.add(hoya);
+//                                locationScene.mLocationMarkers.add(sejong);
+//
+//                                Toast.makeText( this, "레이아웃", Toast.LENGTH_SHORT ).show();
+//                            }
+//
+//                            Frame frame = arSceneView.getArFrame();
+//
+//                            if (frame == null) {
+//                                return;
+//                            }
+//
+//                            if (frame.getCamera().getTrackingState() != TrackingState.TRACKING) {
+//                                return;
+//                            }
+//
+//                            if (locationScene != null) {
+//                                locationScene.processFrame(frame);
+//                            }
+//
+//                        });
+
+        arSceneView
+                .getScene()
+                .setOnUpdateListener(
+                        frameTime -> {
+                            if (locationScene == null) {
+                                locationScene = new LocationScene(this, this, arSceneView);
+
+                                // 충무로 카페베네 앞.
+                                LocationMarker Caffebene = new LocationMarker(
+                                        2.33, 86.0111,
+                                        getExampleView()
+                                );
+
+                                // 충무로 할리스
+                                LocationMarker Hollys = new LocationMarker(
+                                        -0.119677, 51.478494,
+                                        getExampleView2()
+                                );
+
+//                                37.561382, 126.993892
+                                // 충무로 스타벅스
+                                LocationMarker StarBucks = new LocationMarker(
+                                        37.561382, 126.993892,
+                                        getExampleView3()
+                                );
+
+                                // 서울여자대학교
+                                LocationMarker swu = new LocationMarker(
+                                        37.99999, 111.123124,
+                                        getExampleView4()
+                                );
+
+                                // textView에 일기 제목, textView2에 거리를 보여줌.
+                                // 거리가 이상하게 나오니 새로 만드는게 나을듯.
+                                Caffebene.setRenderEvent(new LocationNodeRender() {
+                                    @Override
+                                    public void render(LocationNode node) {
+                                        View eView = exampleLayoutRenderable.getView();
+                                        TextView distanceTextView = eView.findViewById(R.id.textView2);
+                                        TextView titleView = eView.findViewById(R.id.textView);
+                                        TextView contentView = eView.findViewById( R.id.content );
+                                        LinearLayout back = eView.findViewById( R.id.back );
+                                        ImageView pic = eView.findViewById( R.id.pic );
+                                        distanceTextView.setText(node.getDistance() + "M");
+                                        titleView.setText( "카페베네의 일기" );
+//                                        pic.setImageResource( R.drawable.pic_test1 );
+                                        contentView.setText( "카페베네 망고스무디를 먹어땅" );
+                                        pic.setOnClickListener( new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                pic.setImageResource( R.drawable.pic_test1 );
+                                            }
+                                        } );
+                                        back.setBackgroundColor( Color.parseColor("#C14D38") );
+
+                                    }
+                                });
+
+                                Hollys.setRenderEvent(new LocationNodeRender() {
+                                    @Override
+                                    public void render(LocationNode node) {
+                                        View eView = exampleLayoutRenderable2.getView();
+                                        TextView distanceTextView = eView.findViewById(R.id.textView2);
+                                        TextView titleView = eView.findViewById(R.id.textView);
+                                        TextView contentView = eView.findViewById( R.id.content );
+                                        LinearLayout back = eView.findViewById( R.id.back );
+                                        distanceTextView.setText(node.getDistance() + "M");
+                                        titleView.setText( "할리스의 일기" );
+                                        contentView.setText( "나는 할리스에 자주간당" );
+                                        back.setBackgroundColor( Color.parseColor("#B96CA7") );
+                                    }
+                                });
+
+                                StarBucks.setRenderEvent(new LocationNodeRender() {
+                                    @Override
+                                    public void render(LocationNode node) {
+                                        View eView = exampleLayoutRenderable3.getView();
+                                        TextView distanceTextView = eView.findViewById(R.id.textView2);
+                                        TextView titleView = eView.findViewById(R.id.textView);
+                                        TextView contentView = eView.findViewById( R.id.content );
+                                        LinearLayout back = eView.findViewById( R.id.back );
+                                        distanceTextView.setText(node.getDistance() + "M");
+                                        titleView.setText( "스타벅스의 일기" );
+                                        contentView.setText( "스타벅스 아메리카노 맛이따" );
+                                        back.setBackgroundColor( Color.parseColor("#6CB972") );
+                                    }
+                                });
+
+                                swu.setRenderEvent(new LocationNodeRender() {
+                                    @Override
+                                    public void render(LocationNode node) {
+                                        View eView = exampleLayoutRenderable4.getView();
+                                        TextView distanceTextView = eView.findViewById(R.id.textView2);
+                                        TextView titleView = eView.findViewById(R.id.textView);
+                                        TextView contentView = eView.findViewById( R.id.content );
+                                        LinearLayout back = eView.findViewById( R.id.back );
+                                        distanceTextView.setText(node.getDistance() + "M");
+                                        titleView.setText( "서울여대의 일기" );
+                                        contentView.setText( "내일 휴강했으면..." );
+                                        back.setBackgroundColor( Color.parseColor("#C4D9FF") );
+                                    }
+                                });
+
+                                // Adding the marker
+                                // 마커를 ADD
+                                locationScene.mLocationMarkers.add(Caffebene);
+                                locationScene.mLocationMarkers.add(Hollys);
+                                locationScene.mLocationMarkers.add(StarBucks);
+                                locationScene.mLocationMarkers.add(swu);
+
+                                // 나중에 캡슐 모양으로 대체
+                                // 지금은 안보임.
+                                // Adding a simple location marker of a 3D model
+                                locationScene.mLocationMarkers.add(
+                                        new LocationMarker(
+                                                -0.119677,
+                                                51.478494,
+                                                getAndy()));
+                            }
+
+                            Frame frame = arSceneView.getArFrame();
+
+                            if (frame == null) {
+                                return;
+                            }
+
+                            if (frame.getCamera().getTrackingState() != TrackingState.TRACKING) {
+                                return;
+                            }
+
+                            if (locationScene != null) {
+                                locationScene.processFrame(frame);
+                            }
+
+                        });
+
+// Lastly request CAMERA & fine location permission which is required by ARCore-Location.
+        ARLocationPermissionHelper.requestPermission(this);
     }
+
+    private Node getExampleView() {
+        Node base = new Node();
+        base.setRenderable(exampleLayoutRenderable);
+
+        return base;
+    }
+
+    private Node getExampleView2() {
+        Node base = new Node();
+        base.setRenderable(exampleLayoutRenderable2);
+
+        return base;
+    }
+
+    private Node getExampleView3() {
+        Node base = new Node();
+        base.setRenderable(exampleLayoutRenderable3);
+
+        return base;
+    }
+
+    private Node getExampleView4() {
+        Node base = new Node();
+        base.setRenderable(exampleLayoutRenderable4);
+
+        return base;
+    }
+
+    private Node getAndy() {
+        Node base = new Node();
+        base.setRenderable(andyRenderable);
+        Context c = this;
+        base.setOnTapListener((v, event) -> {
+            Toast.makeText(
+                    c, "Andy touched.", Toast.LENGTH_LONG)
+                    .show();
+        });
+        return base;
+    }
+
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        Toast.makeText( this, "on Resume", Toast.LENGTH_SHORT ).show();
-
-        if(locationScene!=null)
+        if (locationScene != null) {
             locationScene.resume();
+        }
 
-        if(session !=null) {
+        if (arSceneView.getSession() == null) {
+            // If the session wasn't created yet, don't resume rendering.
+            // This can happen if ARCore needs to be updated or permissions are not granted yet.
             try {
-                session.resume();
-            } catch (CameraNotAvailableException e) {
-                e.printStackTrace();
+                Session session = DemoUtils.createArSession(this, installRequested);
+                if (session == null) {
+                    installRequested = ARLocationPermissionHelper.hasPermission(this);
+                    return;
+                } else {
+                    arSceneView.setupSession(session);
+                }
+            } catch (UnavailableException e) {
+                DemoUtils.handleSessionException(this, e);
             }
         }
-        surfaceView.onResume();
-        displayRotationHelper.onResume();
 
+        try {
+            arSceneView.resume();
+        } catch (CameraNotAvailableException ex) {
+            DemoUtils.displayError(this, "Unable to get camera", ex);
+            finish();
+            return;
+        }
+
+        if (arSceneView.getSession() != null) {
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if(locationScene != null)
+
+        if (locationScene != null) {
             locationScene.pause();
-        if(displayRotationHelper!=null)
-            displayRotationHelper.onPause();
-        surfaceView.onPause();
-        if (session != null) {
-            session.pause();
         }
+
+        arSceneView.pause();
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        arSceneView.destroy();
+    }
+
+    private Node getDiaryView() {
+        Node base = new Node();
+        base.setRenderable(diaryLayoutRenderable);
+
+        return base;
+    }
+
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView parent, View view, int position, long id) {
-            selectItem(position);
+            selectItem( position );
         }
     }
 
@@ -248,9 +620,9 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         Bundle args = new Bundle();
 
         // update selected item and title, then close the drawer
-        mDrawerList.setItemChecked(position, true);
-        setTitle(mDatesTitles[position]);
-        mDrawerLayout.closeDrawer(mDrawerList);
+        mDrawerList.setItemChecked( position, true );
+        setTitle( mDatesTitles[position] );
+        mDrawerLayout.closeDrawer( mDrawerList );
     }
 
     View.OnClickListener clickListener = new View.OnClickListener() {
@@ -278,35 +650,35 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
         if (resultCode != RESULT_OK) return;
 
-        Intent goWriteIntent = new Intent(MainActivity.this, WriteDiary.class);
+        Intent goWriteIntent = new Intent( MainActivity.this, WriteDiary.class );
 
         switch (requestCode) {
-            case GALLERY_REQUEST_CODE :
+            case GALLERY_REQUEST_CODE:
                 mImageCaptureUri = data.getData();
-                goWriteIntent.putExtra("galleryCaptureUri", mImageCaptureUri);
+                goWriteIntent.putExtra( "galleryCaptureUri", mImageCaptureUri );
                 break;
 
-            case CAMERA_REQUEST_CODE :
+            case CAMERA_REQUEST_CODE:
                 //goWriteIntent.putExtra("mImageCaptureUri", mImageCaptureUri);
-                goWriteIntent.putExtra("cameraCaptureUri", mImageCaptureUri);
+                goWriteIntent.putExtra( "cameraCaptureUri", mImageCaptureUri );
                 String picturePath = mImageCaptureUri.getPath();
 
                 try {
-                    Bitmap photo = MediaStore.Images.Media.getBitmap(getContentResolver(), mImageCaptureUri);
-                    savePicture(photo, picturePath); //저장
+                    Bitmap photo = MediaStore.Images.Media.getBitmap( getContentResolver(), mImageCaptureUri );
+                    savePicture( photo, picturePath ); //저장
 
                 } catch (Exception e) {
-                    Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText( MainActivity.this, e.getMessage(), Toast.LENGTH_LONG ).show();
                 }
 
-                File f = new File(mImageCaptureUri.getPath());
-                if(f.exists()) {
+                File f = new File( mImageCaptureUri.getPath() );
+                if (f.exists()) {
                     f.delete();
                 }
 
                 break;
         }
-        startActivity(goWriteIntent);
+        startActivity( goWriteIntent );
 
     }
 
@@ -315,14 +687,14 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         File saveFile = null;
 
         try {
-            saveFile = new File(picturePath);
-            fos = new FileOutputStream(saveFile);
-            photo.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            saveFile = new File( picturePath );
+            fos = new FileOutputStream( saveFile );
+            photo.compress( Bitmap.CompressFormat.JPEG, 100, fos );
         } catch (Exception e) {
 
         } finally {
             try {
-                if(fos != null) {
+                if (fos != null) {
                     fos.close();
                 }
             } catch (Exception e) {
@@ -332,14 +704,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     }
 
     public void initView() {
-
-        // 카메라 뷰를 위한 surfaceview 선언
-        surfaceView = findViewById( R.id.surfaceview );
-        displayRotationHelper = new DisplayRotationHelper(/*context=*/ this );
-        tapHelper = new TapHelper(/*context=*/ this);
-
-        surfaceView.setOnTouchListener(tapHelper);
-
         // 플로팅 버튼 id 가져오기, 클릭 리스너 선언
         floatingBtn = findViewById( R.id.floatingBtn );
         cameraBtn = findViewById( R.id.cameraBtn );
@@ -357,35 +721,35 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         ArrayList<String> dateList = dbHelper.getDateList();
         int totalDiary = dbHelper.getDiaryCount();
 
-        totalTv = (TextView)findViewById(R.id.totalTv);
-        totalTv.setText("총 " + totalDiary + "개");
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        totalTv = (TextView) findViewById( R.id.totalTv );
+        totalTv.setText( "총 " + totalDiary + "개" );
+        mDrawerLayout = (DrawerLayout) findViewById( R.id.drawer_layout );
+        mDrawerList = (ListView) findViewById( R.id.left_drawer );
 
         //mDatesTitles = getResources().getStringArray(R.array.create_date_array);
         //mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, mDatesTitles));
-        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, dateList));
-        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+        mDrawerList.setAdapter( new ArrayAdapter<String>( this, R.layout.drawer_list_item, dateList ) );
+        mDrawerList.setOnItemClickListener( new DrawerItemClickListener() );
 
-        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
-                R.string.drawer_open, R.string.drawer_close) {
+        mDrawerToggle = new ActionBarDrawerToggle( this, mDrawerLayout,
+                R.string.drawer_open, R.string.drawer_close ) {
 
             //drawer가 닫혔을 때, 호출된다.
             public void onDrawerClosed(View view) {
-                super.onDrawerClosed(view);
+                super.onDrawerClosed( view );
                 //getActionBar().setTitle(mTitle);
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
 
-             // drawer가 열렸을 때, 호출된다.
+            // drawer가 열렸을 때, 호출된다.
             public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
+                super.onDrawerOpened( drawerView );
                 //getActionBar().setTitle(mDrawerTitle);
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
         };
         // DrawerListener로 drawer toggle을 설정.
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerLayout.setDrawerListener( mDrawerToggle );
 
 //        if (savedInstanceState == null) {
 //            selectItem(0);
@@ -410,25 +774,25 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
             @Override
             public void onClick(View v) {
                 // 카메라 호출
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                Intent intent = new Intent( MediaStore.ACTION_IMAGE_CAPTURE );
 
-                String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+                String timeStamp = new SimpleDateFormat( "yyyyMMddHHmmss" ).format( new Date() );
                 String url = "GongGanCapsule_" + timeStamp + ".jpg";
 
                 // 저장 경로에 파일 생성 - 촬영한 이미지 파일을 저장하기 위해 경로 설정
-                File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-                mImageCaptureUri = FileProvider.getUriForFile(getBaseContext(), "capstone.gonggancapsule.fileprovider",
-                        new File(storageDir + "/GongGanCapsule", url));
+                File storageDir = Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_PICTURES );
+                mImageCaptureUri = FileProvider.getUriForFile( getBaseContext(), "capstone.gonggancapsule.fileprovider",
+                        new File( storageDir + "/GongGanCapsule", url ) );
                 String dirPath = storageDir.getAbsolutePath() + "/GONGGANCAPSULE";
 
-                File directory_GONGGANCAPSULE = new File(dirPath);
-                if(!directory_GONGGANCAPSULE.exists())
+                File directory_GONGGANCAPSULE = new File( dirPath );
+                if (!directory_GONGGANCAPSULE.exists())
                     directory_GONGGANCAPSULE.mkdir();
 
-                Log.d("path", "path : " + mImageCaptureUri.toString());
+                Log.d( "path", "path : " + mImageCaptureUri.toString() );
 
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageCaptureUri);
-                startActivityForResult(intent, CAMERA_REQUEST_CODE);
+                intent.putExtra( MediaStore.EXTRA_OUTPUT, mImageCaptureUri );
+                startActivityForResult( intent, CAMERA_REQUEST_CODE );
             }
         } );
 
@@ -436,9 +800,9 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         galleryBtn.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_PICK);
-                intent.setType("image/*");
-                startActivityForResult(intent, GALLERY_REQUEST_CODE);
+                Intent intent = new Intent( Intent.ACTION_PICK );
+                intent.setType( "image/*" );
+                startActivityForResult( intent, GALLERY_REQUEST_CODE );
             }
         } );
     }
@@ -456,107 +820,20 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     }
 
     @Override
-    public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        GLES20.glClearColor( 0.1f, 0.1f, 0.1f, 1.0f );
-
-        try {
-            backgroundRenderer.createOnGlThread(/*context=*/ this );
-//            planeRenderer.createOnGlThread(/*context=*/ this, "models/trigrid.png" );
-//            pointCloudRenderer.createOnGlThread(/*context=*/ this);
-        } catch (IOException e) {
-        }
-
-    }
-
-    @Override
-    public void onSurfaceChanged(GL10 gl, int width, int height) {
-        displayRotationHelper.onSurfaceChanged( width, height );
-        GLES20.glViewport( 0, 0, width, height );
-
-    }
-
-    //    // GLSurfaceView가 생성되고 나면
-    //    // surface의 크기가 변경되지 않는 한 onDrawFrame이 반복 호출됨
-    //    // GLSurfaceView.onPause()가 호출되면 GLSurfaceView.Renderer interface의 abstract method 들의 호출이 중단되고,
-    //    // onResume()이 호출되면 onSurfaceCreated()부터 다시 호출이 된다.
-    //    // 즉, surface가 다시 생성된다.
-    @Override
-    public void onDrawFrame(GL10 gl) {
-        // Clear screen to notify driver it should not load any pixels from previous frame.
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-
-        if (session == null) {
-            return;
-        }
-        // Notify ARCore session that the view size changed so that the perspective matrix and
-        // the video background can be properly adjusted.
-        displayRotationHelper.updateSessionIfNeeded(session);
-
-        try {
-            session.setCameraTextureName(backgroundRenderer.getTextureId());
-
-            // Obtain the current frame from ARSession. When the configuration is set to
-            // UpdateMode.BLOCKING (it is by default), this will throttle the rendering to the
-            // camera framerate.
-            Frame frame = session.update();
-            Camera camera = frame.getCamera();
-
-            MotionEvent tap = tapHelper.poll();
-            if (tap != null && camera.getTrackingState() == TrackingState.TRACKING) {
-//                Log.i(TAG, "HITTEST: Got a tap and tracking");
-                Utils2D.handleTap(this, locationScene, frame, tap);
-            }
-            // Handle taps. Handling only one tap per frame, as taps are usually low frequency
-            // compared to frame rate.
-
-            // Draw background.
-            backgroundRenderer.draw(frame);
-            locationScene.draw(frame);
-
-            // If not tracking, don't draw 3d objects.
-            if (camera.getTrackingState() == TrackingState.PAUSED) {
-                return;
-            }
-
-            // Get projection matrix.
-            float[] projmtx = new float[16];
-            camera.getProjectionMatrix(projmtx, 0, 0.1f, 100.0f);
-
-            // Get camera matrix and draw.
-            float[] viewmtx = new float[16];
-            camera.getViewMatrix(viewmtx, 0);
-
-            // Compute lighting from average intensity of the image.
-            // The first three components are color scaling factors.
-            // The last one is the average pixel intensity in gamma space.
-            final float[] colorCorrectionRgba = new float[4];
-            frame.getLightEstimate().getColorCorrection(colorCorrectionRgba, 0);
-
-//            // Visualize tracked points.
-//            PointCloud pointCloud = frame.acquirePointCloud();
-//            pointCloudRenderer.update(pointCloud);
-//            pointCloudRenderer.draw(viewmtx, projmtx);
-
-//            // Application is responsible for releasing the point cloud resources after
-//            // using it.
-//            pointCloud.release();
-
-//            // Visualize planes.
-//            planeRenderer.drawPlanes(
-//                    session.getAllTrackables(Plane.class), camera.getDisplayOrientedPose(), projmtx);
-
-            // Visualize anchors created by touch.
-            float scaleFactor = 1.0f;
-            for (Anchor anchor : anchors) {
-                if (anchor.getTrackingState() != TrackingState.TRACKING) {
-                    continue;
-                }
-                // Get the current pose of an Anchor in world space. The Anchor pose is updated
-                // during calls to session.update() as ARCore refines its estimate of the world.
-                anchor.getPose().toMatrix(anchorMatrix, 0);
-            }
-
-        } catch (Throwable t) {
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            // Standard Android full-screen functionality.
+            getWindow()
+                    .getDecorView()
+                    .setSystemUiVisibility(
+                            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                                    | View.SYSTEM_UI_FLAG_FULLSCREEN
+                                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+            getWindow().addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
     }
 

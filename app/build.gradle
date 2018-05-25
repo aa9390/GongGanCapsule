@@ -16,8 +16,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
     productFlavors {
+    }
+    compileOptions {
+        targetCompatibility 1.8
+        sourceCompatibility 1.8
     }
 }
 
@@ -33,7 +36,9 @@ dependencies {
     // 권한 확인
     implementation 'gun0912.ted:tedpermission:2.1.1'
     // AR Core 라이브러리
-    implementation 'com.google.ar:core:1.1.0'
+    implementation 'com.google.ar:core:1.2.0'
+    implementation "com.google.ar.sceneform:core:1.0.0"
+    implementation "com.google.ar.sceneform.ux:sceneform-ux:1.0.0"
     // butterknife
     implementation 'com.jakewharton:butterknife:8.4.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
@@ -41,8 +46,10 @@ dependencies {
     // https://github.com/javagl/Obj
     implementation 'de.javagl:obj:0.2.1'
     // ARCore Location
-    implementation 'com.github.appoly:ARCore-Location:0.1.0'
+    implementation 'com.github.appoly:ARCore-Location:1.0.3'
     // Google Map
     implementation 'com.google.android.gms:play-services-maps:15.0.1'
     implementation 'com.google.android.gms:play-services-location:15.0.1'
 }
+// ARCore sceneform plugin
+apply plugin: 'com.google.ar.sceneform.plugin'
