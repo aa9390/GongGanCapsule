@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 public final class GPSTracker implements LocationListener {
 
@@ -222,8 +221,8 @@ public final class GPSTracker implements LocationListener {
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
 
-        Toast.makeText(mContext,"Lat: " + latitude, Toast.LENGTH_SHORT).show();
-        Toast.makeText(mContext,"Lon: " + longitude, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(mContext,"Lat: " + latitude, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(mContext,"Lon: " + longitude, Toast.LENGTH_SHORT).show();
 
     }
 

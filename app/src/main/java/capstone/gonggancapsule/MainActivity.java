@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
     private ViewRenderable diaryLayoutRenderable;
     private ViewRenderable diaryLayoutRenderable2;
     private ArrayList<ViewRenderable> diaryRenderableList = new ArrayList<ViewRenderable>(  );
-//    private ArrayList<Layout> diaryLayoutList = new ArrayList<Layout>(  );
+    //    private ArrayList<Layout> diaryLayoutList = new ArrayList<Layout>(  );
     private ArrayList<CompletableFuture<ViewRenderable>> diaryLayoutList = new ArrayList<CompletableFuture<ViewRenderable>>(  );
     private LocationScene locationScene;
 
@@ -106,8 +106,8 @@ public class MainActivity extends AppCompatActivity {
     public String absolutePath;
 
     // 캡슐 객체 관련 코드
-     ArrayList<Capsule> capsuleList;
-     final ArrayList<Capsule> capsuleRangeList = new ArrayList<>(  );
+    ArrayList<Capsule> capsuleList;
+    final ArrayList<Capsule> capsuleRangeList = new ArrayList<>(  );
     Capsule capsule;
 
     @Override
@@ -231,21 +231,21 @@ public class MainActivity extends AppCompatActivity {
 //                                            for (int i = 0; i < capsuleRangeList.size(); i++) {
 //                                                int finalI = i;
 
-                                                test.setRenderEvent( node -> {
-                                                    View eView = diaryRenderableList.get( 1 ).getView();
+                                            test.setRenderEvent( node -> {
+                                                View eView = diaryRenderableList.get( 1 ).getView();
 //                                                    View eView = diaryLayoutRenderable.getView();
-                                                    TextView content = eView.findViewById( R.id.showContentTv );
-                                                    ImageView pic = eView.findViewById( R.id.showPictureIv );
-                                                    pic.setImageResource( R.drawable.icon_capsule );
-                                                    content.setText( capsuleRangeList.get( 1 ).getContent() );
-                                                    TextView distanceTextView = eView.findViewById( R.id.distance );
-                                                    distanceTextView.setText( node.getDistance() + "M" );
-                                                } );
+                                                TextView content = eView.findViewById( R.id.showContentTv );
+                                                ImageView pic = eView.findViewById( R.id.showPictureIv );
+                                                pic.setImageResource( R.drawable.icon_capsule );
+                                                content.setText( capsuleRangeList.get( 1 ).getContent() );
+                                                TextView distanceTextView = eView.findViewById( R.id.distance );
+                                                distanceTextView.setText( node.getDistance() + "M" );
+                                            } );
 //                                            }
 
 
                                             test2.setRenderEvent( node -> {
-                                                    View eView = diaryRenderableList.get(2 ).getView();
+                                                View eView = diaryRenderableList.get(2 ).getView();
 //                                                View eView = diaryLayoutRenderable2.getView();
                                                 TextView content = eView.findViewById( R.id.showContentTv );
                                                 ImageView pic = eView.findViewById( R.id.showPictureIv );
@@ -519,110 +519,110 @@ public class MainActivity extends AppCompatActivity {
 //
 //                    }
 //                });
-                //
+        //
 
-                // 플로팅 버튼 id 가져오기, 클릭 리스너 선언
-                floatingBtn = findViewById( R.id.floatingBtn );
-                cameraBtn = findViewById( R.id.cameraBtn );
-            galleryBtn = findViewById( R.id.galleryBtn );
+        // 플로팅 버튼 id 가져오기, 클릭 리스너 선언
+        floatingBtn = findViewById( R.id.floatingBtn );
+        cameraBtn = findViewById( R.id.cameraBtn );
+        galleryBtn = findViewById( R.id.galleryBtn );
 
-            floatingBtn.setOnClickListener( clickListener );
-            cameraBtn.setOnClickListener( clickListener );
-            galleryBtn.setOnClickListener( clickListener );
+        floatingBtn.setOnClickListener( clickListener );
+        cameraBtn.setOnClickListener( clickListener );
+        galleryBtn.setOnClickListener( clickListener );
 
-            FabOpen = AnimationUtils.loadAnimation( this, R.anim.fab_open );
-            FabClose = AnimationUtils.loadAnimation( this, R.anim.fab_close );
+        FabOpen = AnimationUtils.loadAnimation( this, R.anim.fab_open );
+        FabClose = AnimationUtils.loadAnimation( this, R.anim.fab_close );
 
-            // 작성 날짜 및 개수 받아오기
-            //final DatabaseHelper dbHelper = new DatabaseHelper(MainActivity.this, "capsule", null, 1);
-            ArrayList<String> dateList = dbHelper.getDateList();
-            int totalDiary = dbHelper.getDiaryCount();
+        // 작성 날짜 및 개수 받아오기
+        //final DatabaseHelper dbHelper = new DatabaseHelper(MainActivity.this, "capsule", null, 1);
+        ArrayList<String> dateList = dbHelper.getDateList();
+        int totalDiary = dbHelper.getDiaryCount();
 
-            totalTv = (TextView) findViewById( R.id.totalTv );
-            totalTv.setText( "총 " + totalDiary + "개" );
-            mDrawerLayout = (DrawerLayout) findViewById( R.id.drawer_layout );
-            mDrawerList = (ListView) findViewById( R.id.left_drawer );
+        totalTv = (TextView) findViewById( R.id.totalTv );
+        totalTv.setText( "총 " + totalDiary + "개" );
+        mDrawerLayout = (DrawerLayout) findViewById( R.id.drawer_layout );
+        mDrawerList = (ListView) findViewById( R.id.left_drawer );
 
-            //mDatesTitles = getResources().getStringArray(R.array.create_date_array);
-            //mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, mDatesTitles));
-            mDrawerList.setAdapter( new ArrayAdapter<String>( this, R.layout.drawer_list_item, dateList ) );
-            mDrawerList.setOnItemClickListener( new DrawerItemClickListener() );
+        //mDatesTitles = getResources().getStringArray(R.array.create_date_array);
+        //mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, mDatesTitles));
+        mDrawerList.setAdapter( new ArrayAdapter<String>( this, R.layout.drawer_list_item, dateList ) );
+        mDrawerList.setOnItemClickListener( new DrawerItemClickListener() );
 
-            mDrawerToggle = new ActionBarDrawerToggle( this, mDrawerLayout,
-                    R.string.drawer_open, R.string.drawer_close ) {
+        mDrawerToggle = new ActionBarDrawerToggle( this, mDrawerLayout,
+                R.string.drawer_open, R.string.drawer_close ) {
 
-                //drawer가 닫혔을 때, 호출된다.
-                public void onDrawerClosed(View view) {
-                    super.onDrawerClosed( view );
-                    //getActionBar().setTitle(mTitle);
-                    invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-                }
+            //drawer가 닫혔을 때, 호출된다.
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed( view );
+                //getActionBar().setTitle(mTitle);
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
 
-                // drawer가 열렸을 때, 호출된다.
-                public void onDrawerOpened(View drawerView) {
-                    super.onDrawerOpened( drawerView );
-                    //getActionBar().setTitle(mDrawerTitle);
-                    invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-                }
-            };
-            // DrawerListener로 drawer toggle을 설정.
-            mDrawerLayout.setDrawerListener( mDrawerToggle );
+            // drawer가 열렸을 때, 호출된다.
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened( drawerView );
+                //getActionBar().setTitle(mDrawerTitle);
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+        };
+        // DrawerListener로 drawer toggle을 설정.
+        mDrawerLayout.setDrawerListener( mDrawerToggle );
 
 //        if (savedInstanceState == null) {
 //            selectItem(0);
 //        }
 
-            toolbar = (Toolbar) findViewById( R.id.toolbar );
-            drawerLayout = (DrawerLayout) findViewById( R.id.drawer_layout );
-            //navigationView = (NavigationView) findViewById( R.id.navigation_view );
+        toolbar = (Toolbar) findViewById( R.id.toolbar );
+        drawerLayout = (DrawerLayout) findViewById( R.id.drawer_layout );
+        //navigationView = (NavigationView) findViewById( R.id.navigation_view );
 
-            // 툴바 생성 및 세팅하는 부분
-            setSupportActionBar( toolbar );
-            ActionBar actionBar = getSupportActionBar();
-            actionBar.setHomeAsUpIndicator( R.drawable.open_save_data_btn );
-            actionBar.setDisplayHomeAsUpEnabled( true );
-            actionBar.setDisplayShowTitleEnabled( false );
+        // 툴바 생성 및 세팅하는 부분
+        setSupportActionBar( toolbar );
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setHomeAsUpIndicator( R.drawable.open_save_data_btn );
+        actionBar.setDisplayHomeAsUpEnabled( true );
+        actionBar.setDisplayShowTitleEnabled( false );
 
-            // 메인 진입을 확인하기 위한 임시 토스트 메시지
-            Toast.makeText( this, "메인진입", Toast.LENGTH_SHORT ).show();
+        // 메인 진입을 확인하기 위한 임시 토스트 메시지
+        Toast.makeText( this, "메인진입", Toast.LENGTH_SHORT ).show();
 
-            // 카메라 플로팅 버튼을 클릭했을 때
-            cameraBtn.setOnClickListener( new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // 카메라 호출
-                    Intent intent = new Intent( MediaStore.ACTION_IMAGE_CAPTURE );
+        // 카메라 플로팅 버튼을 클릭했을 때
+        cameraBtn.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 카메라 호출
+                Intent intent = new Intent( MediaStore.ACTION_IMAGE_CAPTURE );
 
-                    String timeStamp = new SimpleDateFormat( "yyyyMMddHHmmss" ).format( new Date() );
-                    String url = "GongGanCapsule_" + timeStamp + ".jpg";
+                String timeStamp = new SimpleDateFormat( "yyyyMMddHHmmss" ).format( new Date() );
+                String url = "GongGanCapsule_" + timeStamp + ".jpg";
 
-                    // 저장 경로에 파일 생성 - 촬영한 이미지 파일을 저장하기 위해 경로 설정
-                    File storageDir = Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_PICTURES );
-                    mImageCaptureUri = FileProvider.getUriForFile( getBaseContext(), "capstone.gonggancapsule.fileprovider",
-                            new File( storageDir + "/GongGanCapsule", url ) );
-                    String dirPath = storageDir.getAbsolutePath() + "/GONGGANCAPSULE";
+                // 저장 경로에 파일 생성 - 촬영한 이미지 파일을 저장하기 위해 경로 설정
+                File storageDir = Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_PICTURES );
+                mImageCaptureUri = FileProvider.getUriForFile( getBaseContext(), "capstone.gonggancapsule.fileprovider",
+                        new File( storageDir + "/GongGanCapsule", url ) );
+                String dirPath = storageDir.getAbsolutePath() + "/GONGGANCAPSULE";
 
-                    File directory_GONGGANCAPSULE = new File( dirPath );
-                    if (!directory_GONGGANCAPSULE.exists())
-                        directory_GONGGANCAPSULE.mkdir();
+                File directory_GONGGANCAPSULE = new File( dirPath );
+                if (!directory_GONGGANCAPSULE.exists())
+                    directory_GONGGANCAPSULE.mkdir();
 
-                    Log.d( "path", "path : " + mImageCaptureUri.toString() );
+                Log.d( "path", "path : " + mImageCaptureUri.toString() );
 
-                    intent.putExtra( MediaStore.EXTRA_OUTPUT, mImageCaptureUri );
-                    startActivityForResult( intent, CAMERA_REQUEST_CODE );
-                }
-            } );
+                intent.putExtra( MediaStore.EXTRA_OUTPUT, mImageCaptureUri );
+                startActivityForResult( intent, CAMERA_REQUEST_CODE );
+            }
+        } );
 
-            // 갤러리 플로팅 버튼을 클릭했을 때
-            galleryBtn.setOnClickListener( new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent( Intent.ACTION_PICK );
-                    intent.setType( "image/*" );
-                    startActivityForResult( intent, GALLERY_REQUEST_CODE );
-                }
-            } );
-        }
+        // 갤러리 플로팅 버튼을 클릭했을 때
+        galleryBtn.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent( Intent.ACTION_PICK );
+                intent.setType( "image/*" );
+                startActivityForResult( intent, GALLERY_REQUEST_CODE );
+            }
+        } );
+    }
 
 
     // *** 주영 5/28 추가코드

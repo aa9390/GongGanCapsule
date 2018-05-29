@@ -50,6 +50,7 @@ dependencies {
     // Google Map
     implementation 'com.google.android.gms:play-services-maps:15.0.1'
     implementation 'com.google.android.gms:play-services-location:15.0.1'
+
+    // ARCore sceneform plugin
+    apply plugin: 'com.google.ar.sceneform.plugin'
 }
-// ARCore sceneform plugin
-apply plugin: 'com.google.ar.sceneform.plugin'

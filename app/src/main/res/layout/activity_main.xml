@@ -58,62 +58,63 @@
                 android:id="@+id/ar_scene_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="50dp"
-                android:layout_gravity="top"/>
+                android:layout_gravity="top"
+                android:layout_marginTop="50dp" />
 
              <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|start"
-                android:background="#ffff"
-                android:layout_margin="15dp">
+                android:layout_margin="15dp"
+                android:background="#ffff">
 
                 <TextView
                     android:id="@+id/longi"
                     android:layout_width="250dp"
                     android:layout_height="wrap_content"
                     android:text="위도" />
+
                 <TextView
                     android:id="@+id/lati"
-                    android:layout_below="@+id/longi"
-                    android:text="경도"
-                    android:layout_gravity="end"
                     android:layout_width="250dp"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/longi"
+                    android:layout_gravity="end"
+                    android:text="경도" />
 
             </RelativeLayout>
 
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/cameraBtn"
-                android:layout_gravity="bottom|right"
-                android:layout_marginRight="16dp"
-                android:layout_marginBottom="152dp"
-                android:backgroundTint="#ff9100"
-                android:visibility="invisible"
-                android:src="@drawable/camera_btn"
                 android:layout_width="60dp"
-                android:layout_height="60dp" />
+                android:layout_height="60dp"
+                android:layout_gravity="bottom|right"
+                android:layout_marginBottom="152dp"
+                android:layout_marginRight="16dp"
+                android:backgroundTint="#ff9100"
+                android:src="@drawable/camera_btn"
+                android:visibility="invisible" />
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/galleryBtn"
-                android:layout_gravity="bottom|right"
-                android:layout_marginRight="16dp"
-                android:layout_marginBottom="85dp"
-                android:backgroundTint="#ff9100"
-                android:visibility="invisible"
-                android:src="@drawable/gallery_btn"
                 android:layout_width="60dp"
-                android:layout_height="60dp" />
+                android:layout_height="60dp"
+                android:layout_gravity="bottom|right"
+                android:layout_marginBottom="85dp"
+                android:layout_marginRight="16dp"
+                android:backgroundTint="#ff9100"
+                android:src="@drawable/gallery_btn"
+                android:visibility="invisible" />
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/floatingBtn"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:layout_gravity="bottom|right"
                 android:layout_margin="16dp"
                 android:backgroundTint="#ff9100"
-                android:src="@drawable/floating_btn"
-                android:layout_width="60dp"
-                android:layout_height="60dp" />
+                android:src="@drawable/floating_btn" />
 
         </android.support.design.widget.CoordinatorLayout>
 
