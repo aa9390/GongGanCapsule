@@ -10,6 +10,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
 
+import capstone.gonggancapsule.Capsule;
+
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     // Database Version
@@ -163,5 +165,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return dateList;
     }
+
+    // 모든 일기 받아오기
+    public ArrayList<Capsule> getAllDiary () {
+        ArrayList<Capsule> capsuleList = new ArrayList<>();
+        Capsule capsule;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM capsule", null);
+
+        while (cursor.moveToNext()) {
+            capsule = new Capsule();
+            capsule.setLatitude(cursor.getDouble(0));
+            capsule.setLongitude(cursor.getDouble(1));
+            capsule.setCreate_date(cursor.getString(2));
+            capsule.setContent(cursor.getString(3));
+            capsule.setPicture(cursor.getString(4));
+            capsuleList.add(capsule);
+        }
+        cursor.close();
+
+        return capsuleList;
+    }
+    //
 
 }
