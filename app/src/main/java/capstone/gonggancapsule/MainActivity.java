@@ -114,17 +114,17 @@ public class MainActivity extends AppCompatActivity {
         GPSTracker mGPS = new GPSTracker( this );
 
         //위치 받아오는지 확인하기 위한 임시코드
-        TextView text = findViewById( R.id.longi );
-        TextView text2 = findViewById( R.id.lati );
+//        TextView text = findViewById( R.id.longi );
+//        TextView text2 = findViewById( R.id.lati );
 
-        if (mGPS.canGetLocation) {
-            mGPS.getLocation();
-            text.setText( "Lat" + mGPS.getLatitude() );
-            text2.setText( "Lon" + mGPS.getLongitude() );
-        } else {
-            text.setText( "Unabletofind" );
-            System.out.println( "Unable" );
-        }
+//        if (mGPS.canGetLocation) {
+//            mGPS.getLocation();
+//            text.setText( "Lat" + mGPS.getLatitude() );
+//            text2.setText( "Lon" + mGPS.getLongitude() );
+//        } else {
+//            text.setText( "Unabletofind" );
+//            System.out.println( "Unable" );
+//        }
 
         // 일기장 보여줄 레이아웃 임시 설정
         // 추후 새롭게 만든 레이아웃으로 교체
