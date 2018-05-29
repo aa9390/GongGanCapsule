@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-<string-array name="range">
-    <item >50m</item>
-    <item >100m</item>
-    <item >200m</item>
-    <item >300m</item>
-</string-array>
+    <string-array name="range">
+        <item>50m</item>
+        <item>100m</item>
+        <item>200m</item>
+        <item>300m</item>
+    </string-array>
 </resources>

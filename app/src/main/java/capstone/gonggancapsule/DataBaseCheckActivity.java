@@ -7,6 +7,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 
@@ -18,8 +20,8 @@ public class DataBaseCheckActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate( savedInstanceState );
-        setContentView( R.layout.activity_database_check );
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_database_check);
 
         final DatabaseHelper dbHelper = new DatabaseHelper(getApplicationContext(), "capsule", null, 1);
 
@@ -62,7 +64,15 @@ public class DataBaseCheckActivity extends AppCompatActivity {
         select.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                result.setText(dbHelper.getDiary());
+                //result.setText(dbHelper.getDiary());
+
+                // getAllDiary()함수 테스트를 위한 코드
+                StringBuffer resultAll = new StringBuffer();
+                ArrayList<Capsule> capsuleList = dbHelper.getAllDiary();
+                for (int i = 0; i < capsuleList.size(); i++) {
+                    resultAll.append(capsuleList.get(i).toString());
+                }
+                result.setText(resultAll.toString());
             }
         });
 
