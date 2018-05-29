@@ -32,12 +32,14 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.ar.core.Frame;
 import com.google.ar.core.Session;
 import com.google.ar.core.TrackingState;
 import com.google.ar.core.exceptions.CameraNotAvailableException;
 import com.google.ar.core.exceptions.UnavailableException;
 import com.google.ar.sceneform.ArSceneView;
+import com.google.ar.sceneform.FrameTime;
 import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.rendering.ViewRenderable;
 
@@ -110,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
     final ArrayList<Capsule> capsuleRangeList = new ArrayList<>(  );
     Capsule capsule;
 
+    Glide glide;
     @Override
     @SuppressWarnings({"AndroidApiChecker", "FutureReturnValueIgnored"})
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,7 +144,6 @@ public class MainActivity extends AppCompatActivity {
                     if(capsuleRangeList != null) {
                         capsuleRangeList.clear();
                     }
-//                    Capsule capsule;
 
                     for (int i=0; i<capsuleList.size(); i++) {
                         capsule = capsuleList.get(i);
@@ -160,28 +162,34 @@ public class MainActivity extends AppCompatActivity {
 
                 // -------------------------------------------
                 // 일기장 보여줄 레이아웃 임시 설정
+
                 CompletableFuture<ViewRenderable> diaryLayout =
                         ViewRenderable.builder()
                                 .setView(getApplicationContext(), R.layout.activity_diary_test)
                                 .build();
 
-//                CompletableFuture<ViewRenderable> diaryLayout2 =
-//                        ViewRenderable.builder()
-//                                .setView(getApplicationContext(), R.layout.activity_diary_test)
-//                                .build();
-//
-//                CompletableFuture<ViewRenderable> diaryLayout3 =
-//                        ViewRenderable.builder()
-//                                .setView(getApplicationContext(), R.layout.activity_diary_test)
-//                                .build();
+                CompletableFuture<ViewRenderable> diaryLayout2 =
+                        ViewRenderable.builder()
+                                .setView(getApplicationContext(), R.layout.activity_diary_test)
+                                .build();
+
+                CompletableFuture<ViewRenderable> diaryLayout3 =
+                        ViewRenderable.builder()
+                                .setView(getApplicationContext(), R.layout.activity_diary_test)
+                                .build();
+
+//                ViewRenderable.builder()
+//                        .setView(context, R.layout.activity_diary_test)
+//                        .build()
+//                        .thenAccept(renderable -> diaryLayoutRenderable = renderable);
 
                 diaryLayoutList.add( diaryLayout );
-//                diaryLayoutList.add( diaryLayout2 );
-//                diaryLayoutList.add( diaryLayout3 );
+                diaryLayoutList.add( diaryLayout2 );
+                diaryLayoutList.add( diaryLayout3 );
 
 
                 CompletableFuture.allOf(
-                        diaryLayout/*diaryLayout2, diaryLayout3*/)
+                        diaryLayout, diaryLayout2, diaryLayout3)
                         .handle(
                                 (notUsed, throwable) -> {
                                     if (throwable != null) {
@@ -212,54 +220,98 @@ public class MainActivity extends AppCompatActivity {
                 arSceneView
                         .getScene()
                         .setOnUpdateListener(
-                                frameTime -> {
+                                (FrameTime frameTime) -> {
                                     if (locationScene == null) {
                                         locationScene = new LocationScene(context, activity, arSceneView);
 
-                                        if(capsuleRangeList.size()==3) {
-                                            Toast.makeText( getApplicationContext(), "불러올 데이터가" + capsuleRangeList.size() + "개 있습니다.", Toast.LENGTH_SHORT ).show();
+                                        Toast.makeText( getApplicationContext(), "불러올 데이터가" + capsuleRangeList.size() + "개 있습니다.", Toast.LENGTH_SHORT ).show();
 
+//                                        ArrayList<LocationMarker> locationMarker = new ArrayList<LocationMarker>();
+                                        LocationMarker [] locationMarker = new LocationMarker[10];
+
+//                                        if(capsuleRangeList.size()<=3) {
+                                            if(capsuleRangeList.size()==2) {
 
                                             // DB에서 값 받아와 출력
-                                            LocationMarker test = new LocationMarker(
-                                                    capsuleRangeList.get( 1 ).getLongitude(), capsuleRangeList.get( 1 ).getLatitude(), getDiaryView(1) );
+                                            locationMarker[0] = new LocationMarker( capsuleRangeList.get( 0 ).getLongitude(), capsuleRangeList.get( 0 ).getLatitude(), getDiaryView(0) );
 
-                                            LocationMarker test2 = new LocationMarker(
-                                                    capsuleRangeList.get( 2 ).getLongitude(), capsuleRangeList.get( 2 ).getLatitude(), getDiaryView(2) );
+                                            locationMarker[0].setRenderEvent( node -> {
+                                                View eView = diaryRenderableList.get( 0 ).getView();
+                                                TextView content = eView.findViewById( R.id.showContentTv );
+                                                ImageView pic = eView.findViewById( R.id.showPictureIv );
+                                                pic.setImageURI( Uri.parse( capsuleRangeList.get( 0 ).getPicture() ) );
+                                                content.setText( capsuleRangeList.get( 0 ).getContent() );
+                                                TextView distanceTextView = eView.findViewById( R.id.distance );
+                                                distanceTextView.setText( node.getDistance() + "M" );
+                                            } );
+
+                                            locationScene.mLocationMarkers.add( locationMarker[0] );
+
+                                                // DB에서 값 받아와 출력
+                                                locationMarker[1] = new LocationMarker( capsuleRangeList.get( 1 ).getLongitude(), capsuleRangeList.get( 1 ).getLatitude(), getDiaryView(1) );
+
+                                                locationMarker[1].setRenderEvent( node -> {
+                                                    View eView = diaryRenderableList.get( 1 ).getView();
+                                                    TextView content = eView.findViewById( R.id.showContentTv );
+                                                    ImageView pic = eView.findViewById( R.id.showPictureIv );
+//                                                    pic.setImageURI( Uri.parse( capsuleRangeList.get( 1 ).getPicture() ) );
+                                                    glide.with(context).load(Uri.parse( capsuleRangeList.get( 1 ).getPicture())).into(pic);
+                                                    content.setText( capsuleRangeList.get( 1 ).getContent() );
+                                                    TextView distanceTextView = eView.findViewById( R.id.distance );
+                                                    distanceTextView.setText( node.getDistance() + "M" );
+                                                } );
+
+                                                locationScene.mLocationMarkers.add( locationMarker[1] );
+
+//                                            // DB에서 값 받아와 출력
+//                                            locationMarker[0] = new LocationMarker( capsuleRangeList.get( 0 ).getLongitude(), capsuleRangeList.get( 0 ).getLatitude(), getDiaryView(0) );
+//                                            LocationMarker test = new LocationMarker(
+//                                                    capsuleRangeList.get( 0 ).getLongitude(), capsuleRangeList.get( 0 ).getLatitude(), getDiaryView(0) );
 //
-
-//                                            for (int i = 0; i < capsuleRangeList.size(); i++) {
-//                                                int finalI = i;
-
-                                            test.setRenderEvent( node -> {
-                                                View eView = diaryRenderableList.get( 1 ).getView();
-//                                                    View eView = diaryLayoutRenderable.getView();
-                                                TextView content = eView.findViewById( R.id.showContentTv );
-                                                ImageView pic = eView.findViewById( R.id.showPictureIv );
-                                                pic.setImageResource( R.drawable.icon_capsule );
-                                                content.setText( capsuleRangeList.get( 1 ).getContent() );
-                                                TextView distanceTextView = eView.findViewById( R.id.distance );
-                                                distanceTextView.setText( node.getDistance() + "M" );
-                                            } );
-//                                            }
+//                                            test.setRenderEvent( node -> {
+//                                                View eView = diaryRenderableList.get( 0 ).getView();
+//                                                TextView content = eView.findViewById( R.id.showContentTv );
+//                                                ImageView pic = eView.findViewById( R.id.showPictureIv );
+//                                                pic.setImageResource( R.drawable.icon_capsule );
+//                                                content.setText( capsuleRangeList.get( 0 ).getContent() );
+//                                                TextView distanceTextView = eView.findViewById( R.id.distance );
+//                                                distanceTextView.setText( node.getDistance() + "M" );
+//                                            } );
+//
+//                                            locationScene.mLocationMarkers.add( test );
 
 
-                                            test2.setRenderEvent( node -> {
-                                                View eView = diaryRenderableList.get(2 ).getView();
-//                                                View eView = diaryLayoutRenderable2.getView();
-                                                TextView content = eView.findViewById( R.id.showContentTv );
-                                                ImageView pic = eView.findViewById( R.id.showPictureIv );
-                                                pic.setImageResource( R.drawable.icon_capsule );
-                                                content.setText( capsuleRangeList.get( 2 ).getContent() );
-                                                TextView distanceTextView = eView.findViewById( R.id.distance );
-                                                distanceTextView.setText( node.getDistance() + "M" );
-                                            } );
 
-                                            locationScene.mLocationMarkers.add( test );
-                                            locationScene.mLocationMarkers.add( test2 );
+//                                            LocationMarker test1 = new LocationMarker(
+//                                                    capsuleRangeList.get( 1 ).getLongitude(), capsuleRangeList.get( 1 ).getLatitude(), getDiaryView(1) );
+//
+//                                            test1.setRenderEvent( node -> {
+//                                                View eView = diaryRenderableList.get( 1 ).getView();
+//                                                TextView content = eView.findViewById( R.id.showContentTv );
+//                                                ImageView pic = eView.findViewById( R.id.showPictureIv );
+//                                                pic.setImageResource( R.drawable.icon_capsule );
+//                                                content.setText( capsuleRangeList.get( 1 ).getContent() );
+//                                                TextView distanceTextView = eView.findViewById( R.id.distance );
+//                                                distanceTextView.setText( node.getDistance() + "M" );
+//                                            } );
+//
+//                                            locationScene.mLocationMarkers.add( test1 );
+//
+//                                            LocationMarker test2 = new LocationMarker(
+//                                                    capsuleRangeList.get( 2 ).getLongitude(), capsuleRangeList.get( 2 ).getLatitude(), getDiaryView(2) );
+//
+//                                            test2.setRenderEvent( node -> {
+//                                                View eView = diaryRenderableList.get( 2 ).getView();
+//                                                TextView content = eView.findViewById( R.id.showContentTv );
+//                                                ImageView pic = eView.findViewById( R.id.showPictureIv );
+//                                                pic.setImageResource( R.drawable.icon_capsule );
+//                                                content.setText( capsuleRangeList.get( 2 ).getContent() );
+//                                                TextView distanceTextView = eView.findViewById( R.id.distance );
+//                                                distanceTextView.setText( node.getDistance() + "M" );
+//                                            } );
+////
+//                                            locationScene.mLocationMarkers.add( test2 );
                                         }
-                                        else
-                                            Toast.makeText( getApplicationContext(), capsuleRangeList.size() + "개 있습니다.", Toast.LENGTH_SHORT ).show();
 
                                         Toast.makeText( activity, "레이아웃", Toast.LENGTH_SHORT ).show();
                                     }
@@ -290,17 +342,17 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //위치 받아오는지 확인하기 위한 임시코드
-        TextView text = findViewById( R.id.longi );
-        TextView text2 = findViewById( R.id.lati );
-
-        if (mGPS.canGetLocation) {
-            mGPS.getLocation();
-            text.setText( "Lat" + mGPS.getLatitude() );
-            text2.setText( "Lon" + mGPS.getLongitude() );
-        } else {
-            text.setText( "Unabletofind" );
-            System.out.println( "Unable" );
-        }
+//        TextView text = findViewById( R.id.longi );
+//        TextView text2 = findViewById( R.id.lati );
+//
+//        if (mGPS.canGetLocation) {
+//            mGPS.getLocation();
+//            text.setText( "Lat" + mGPS.getLatitude() );
+//            text2.setText( "Lon" + mGPS.getLongitude() );
+//        } else {
+//            text.setText( "Unabletofind" );
+//            System.out.println( "Unable" );
+//        }
     }
 
     private Node getDiaryView() {

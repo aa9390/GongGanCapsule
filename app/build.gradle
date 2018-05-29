@@ -50,7 +50,9 @@ dependencies {
     // Google Map
     implementation 'com.google.android.gms:play-services-maps:15.0.1'
     implementation 'com.google.android.gms:play-services-location:15.0.1'
-
     // ARCore sceneform plugin
     apply plugin: 'com.google.ar.sceneform.plugin'
+    // Glide
+    implementation 'com.github.bumptech.glide:glide:4.7.1'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.7.1'
 }

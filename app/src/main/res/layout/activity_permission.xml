@@ -6,6 +6,13 @@
     android:layout_height="match_parent"
     tools:context=".PermissionActivity">
 
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="30dp"
+        android:background="@drawable/back_color">
+
+    </android.support.constraint.ConstraintLayout>
     <TextView
         android:id="@+id/title"
         android:layout_width="match_parent"
@@ -14,8 +21,8 @@
         android:layout_marginTop="8dp"
         android:gravity="center"
         android:text="알려드립니다"
-        android:textColor="#000000"
-        android:textSize="20dp"
+        android:textColor="#ffffff"
+        android:textSize="25dp"
         app:layout_constraintBottom_toTopOf="@+id/content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -31,8 +38,9 @@
         android:layout_marginBottom="8dp"
         android:layout_marginTop="132dp"
         android:gravity="center"
+        android:textSize="16dp"
         android:text="공간캡슐에서는 원활한 서비스 제공을 위해 \n카메라, 위치, 저장소 권한이 필요합니다. \n 요청 화면이 뜨면 허용을 눌러주세요."
-        android:textColor="#000000"
+        android:textColor="#ffffff"
         app:layout_constraintBottom_toTopOf="@+id/permisson_btn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -47,7 +55,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/content"
         android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="15dp"
         android:layout_marginStart="15dp"
         android:layout_marginTop="15dp"
         android:gravity="center"
@@ -55,13 +63,14 @@
         app:layout_constraintBottom_toTopOf="@+id/permisson_btn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/content">
+        app:layout_constraintTop_toBottomOf="@+id/content"
+        android:alpha="0.75">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="10dp"
-            android:background="#e4e4e4"
+            android:background="#ffffff"
             android:orientation="horizontal">
 
             <LinearLayout
@@ -99,7 +108,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:padding="10dp"
-            android:background="#e4e4e4"
+            android:background="#ffffff"
             android:orientation="horizontal">
 
             <LinearLayout
@@ -131,7 +140,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:padding="10dp"
-            android:background="#e4e4e4"
+            android:background="#ffffff"
             android:orientation="horizontal">
 
             <LinearLayout
@@ -167,17 +176,19 @@
 
     <Button
         android:id="@+id/permisson_btn"
-        android:layout_width="362dp"
+        android:layout_width="350dp"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
         android:layout_margin="10dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="16dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="16dp"
         android:text="권한 허용하기"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        android:background="#ffffff"
+        />
 
 </android.support.constraint.ConstraintLayout>
