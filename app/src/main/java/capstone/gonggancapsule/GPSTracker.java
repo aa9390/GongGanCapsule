@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public final class GPSTracker implements LocationListener {
@@ -115,6 +114,8 @@ public final class GPSTracker implements LocationListener {
 
         return location;
     }
+
+
 
 
 //    public Location getLocation() {

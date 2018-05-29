@@ -2,14 +2,10 @@ package capstone.gonggancapsule;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.Location;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,7 +13,6 @@ import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -26,8 +21,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -116,14 +109,14 @@ public class WriteDiary extends AppCompatActivity {
         saveDiaryBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                GPSTracker gpsTracker = new GPSTracker(WriteDiary.this);
+                GPSTracker gpsTracker = new GPSTracker(WriteDiary.this);
 //
 //                Double latitude = 0.0;
 //                Double longitude = 0.0;
 
                 //DB 저장 테스트용
-                Double latitude = Math.random() * 100;
-                Double longitude = Math.random() * 100;
+//                Double latitude = Math.random() * 100;
+//                Double longitude = Math.random() * 100;
 
 
 //                if(gpsTracker.canGetLocation ){
@@ -207,6 +200,8 @@ public class WriteDiary extends AppCompatActivity {
 
         // 현재 위치 LocationTextView에 보여주기
         try{
+            latitude = currentGPS.getLatitude();
+            longitude = currentGPS.getLongitude();
             locationAddress = geocoder.getFromLocation(currentGPS.getLatitude(),currentGPS.getLongitude(),1);
         }catch(IOException ioException) {
             //지오코더 사용불가능일때

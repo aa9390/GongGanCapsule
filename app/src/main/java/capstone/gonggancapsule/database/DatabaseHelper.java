@@ -10,8 +10,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
 
+import capstone.gonggancapsule.Capsule;
+
 
 public class DatabaseHelper extends SQLiteOpenHelper {
+
     // Database Version
     private static final int DATABASE_VERSION = 1;
 
@@ -81,55 +84,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return result;
     }
 
-    // ----------------INDEX 추가한 getDiary() -----------------------
-//    public String getDiary() {
-//        // get readable database as we are not inserting anything
-//        SQLiteDatabase db = this.getReadableDatabase();
-//
-//        String result = " ";    //db확인하려고 쓰는 result입니다.
-//
-//        Cursor cursor = db.rawQuery("SELECT * FROM capsule", null);
-//        while (cursor.moveToNext()) {
-//            result += " 인덱스: "
-//                    + cursor.getInt(0)
-//                    + " 위도: "
-//                    + cursor.getDouble(1)
-//                    + " 경도: "
-//                    + cursor.getDouble(2)
-//                    + " 날짜: "
-//                    + cursor.getString(3)
-//                    + " 내용: "
-//                    + cursor.getString(4)
-//                    + " 사진: "
-//                    + cursor.getString(5)
-//                    + "\n";
-//        }
-//        return result;
-//    }
-
-
-
-//    public double getLongitude(int indexNum) {
-//        SQLiteDatabase db = this.getReadableDatabase();
-//        String Query = "SELECT " + CapsuleDB.COLUMN_LONGITUDE +" FROM " + CapsuleDB.TABLE_NAME + " WHERE " + CapsuleDB.COLUMN_INDEX + " = " + indexNum;
-//
-//        Cursor cursor = db.rawQuery(Query, null);
-//        double longitude = cursor.getDouble( 0 );
-//        cursor.close();
-//
-//        return longitude;
-//    }
-//
-//    public double getLatitude(int indexNum) {
-//        SQLiteDatabase db = this.getReadableDatabase();
-//        String Query = "SELECT " + CapsuleDB.COLUMN_LATITUDE +" FROM " + CapsuleDB.TABLE_NAME + " WHERE " + CapsuleDB.COLUMN_INDEX + " = " + indexNum;
-//
-//        Cursor cursor = db.rawQuery(Query, null);
-//        double latitude = cursor.getDouble( 0 );
-//        cursor.close();
-//
-//        return latitude;
-//    }
 
     public int getDiaryCount() {
         String countQuery = "SELECT  * FROM " + CapsuleDB.TABLE_NAME;
@@ -163,5 +117,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return dateList;
     }
+
+    // *** 5/29 주영 추가코드
+    public ArrayList<Capsule> getAllDiary () {
+        ArrayList<Capsule> capsuleList = new ArrayList<>();
+        Capsule capsule;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM capsule", null);
+
+        while (cursor.moveToNext()) {
+            capsule = new Capsule();
+            capsule.setLatitude(cursor.getDouble(0));
+            capsule.setLongitude(cursor.getDouble(1));
+            capsule.setCreate_date(cursor.getString(2));
+            capsule.setContent(cursor.getString(3));
+            capsule.setPicture(cursor.getString(4));
+            capsuleList.add(capsule);
+        }
+        cursor.close();
+
+        return capsuleList;
+    }
+    //
+
 
 }

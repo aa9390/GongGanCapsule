@@ -46,7 +46,7 @@ dependencies {
     // https://github.com/javagl/Obj
     implementation 'de.javagl:obj:0.2.1'
     // ARCore Location
-    implementation 'com.github.appoly:ARCore-Location:1.0.3'
+    implementation 'com.github.appoly:ARCore-Location:1.0.5'
     // Google Map
     implementation 'com.google.android.gms:play-services-maps:15.0.1'
     implementation 'com.google.android.gms:play-services-location:15.0.1'

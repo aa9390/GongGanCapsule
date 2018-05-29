@@ -6,6 +6,19 @@
     android:alpha="0.7"
     android:background="#ffffff">
 
+    <TextView
+        android:id="@+id/distance"
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:layout_above="@+id/showPictureIv"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="-50dp"
+        android:background="@drawable/textview_border"
+        android:gravity="center"
+        android:textSize="23dp"
+        android:text="거리"
+        android:textColor="#000000" />
+
     <ImageView
         android:layout_height="200dp"
         android:layout_width="300dp"
