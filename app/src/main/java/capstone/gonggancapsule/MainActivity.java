@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
 
                     for (int i=0; i<capsuleList.size(); i++) {
                         capsule = capsuleList.get(i);
-                        if(getDistance(mGPS.getLatitude(), mGPS.getLongitude(), capsule.getLatitude(), capsule.getLongitude()) < 1000) {
+                        if(getDistance(mGPS.getLatitude(), mGPS.getLongitude(), capsule.getLatitude(), capsule.getLongitude()) < range) {
                             capsuleRangeList.add(capsule);
                         }
                     }
@@ -239,7 +239,7 @@ public class MainActivity extends AppCompatActivity {
                                                 View eView = diaryRenderableList.get( 0 ).getView();
                                                 TextView content = eView.findViewById( R.id.showContentTv );
                                                 ImageView pic = eView.findViewById( R.id.showPictureIv );
-                                                pic.setImageURI( Uri.parse( capsuleRangeList.get( 0 ).getPicture() ) );
+                                                pic.setImageResource( R.drawable.sample_img1 );
                                                 content.setText( capsuleRangeList.get( 0 ).getContent() );
                                                 TextView distanceTextView = eView.findViewById( R.id.distance );
                                                 distanceTextView.setText( node.getDistance() + "M" );
@@ -254,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
                                                     View eView = diaryRenderableList.get( 1 ).getView();
                                                     TextView content = eView.findViewById( R.id.showContentTv );
                                                     ImageView pic = eView.findViewById( R.id.showPictureIv );
-//                                                    pic.setImageURI( Uri.parse( capsuleRangeList.get( 1 ).getPicture() ) );
+                                                    pic.setImageResource( R.drawable.sample_img2 );
                                                     glide.with(context).load(Uri.parse( capsuleRangeList.get( 1 ).getPicture())).into(pic);
                                                     content.setText( capsuleRangeList.get( 1 ).getContent() );
                                                     TextView distanceTextView = eView.findViewById( R.id.distance );
