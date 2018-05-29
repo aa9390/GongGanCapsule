@@ -119,12 +119,12 @@ public class WriteDiary extends AppCompatActivity {
 //                Double latitude = Math.random() * 100;
 //                Double longitude = Math.random() * 100;
 
-                if(gpsTracker.canGetLocation ){
-                    gpsTracker.getLocation();
-
-                    latitude = gpsTracker.getLatitude();
-                    longitude = gpsTracker.getLongitude();
-                }
+//                if(gpsTracker.canGetLocation ){
+//                    gpsTracker.getLocation();
+//
+//                    latitude = gpsTracker.getLatitude();
+//                    longitude = gpsTracker.getLongitude();
+//                }
 //                Double latitude = location.getLatitude();
 //                Double longitude = location.getLongitude();
                 String create_date = dateTv.getText().toString(); //작성 날짜

@@ -546,7 +546,7 @@ public class MainActivity extends AppCompatActivity {
         //mDatesTitles = getResources().getStringArray(R.array.create_date_array);
         //mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, mDatesTitles));
         mDrawerList.setAdapter( new ArrayAdapter<String>( this, R.layout.drawer_list_item, dateList ) );
-        mDrawerList.setOnItemClickListener( new DrawerItemClickListener() );
+        //mDrawerList.setOnItemClickListener( new DrawerItemClickListener() );
 
         mDrawerToggle = new ActionBarDrawerToggle( this, mDrawerLayout,
                 R.string.drawer_open, R.string.drawer_close ) {
