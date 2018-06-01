@@ -61,28 +61,29 @@
                 android:layout_gravity="top"
                 android:layout_marginTop="50dp" />
 
-             <!--<RelativeLayout-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_gravity="bottom|start"-->
-                <!--android:layout_margin="15dp"-->
-                <!--android:background="#ffff">-->
+             <RelativeLayout
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|start"
+                android:layout_margin="15dp"
+                 android:alpha="0.9"
+                android:background="#ffff">
 
-                <!--<TextView-->
-                    <!--android:id="@+id/longi"-->
-                    <!--android:layout_width="250dp"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:text="위도" />-->
+                <TextView
+                    android:id="@+id/longi"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="위도" />
 
-                <!--<TextView-->
-                    <!--android:id="@+id/lati"-->
-                    <!--android:layout_width="250dp"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:layout_below="@+id/longi"-->
-                    <!--android:layout_gravity="end"-->
-                    <!--android:text="경도" />-->
+                <TextView
+                    android:id="@+id/lati"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/longi"
+                    android:layout_gravity="end"
+                    android:text="경도" />
 
-            <!--</RelativeLayout>-->
+            </RelativeLayout>
 
 
             <android.support.design.widget.FloatingActionButton

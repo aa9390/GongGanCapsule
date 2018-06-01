@@ -19,9 +19,10 @@ android {
     productFlavors {
     }
     compileOptions {
-        targetCompatibility 1.8
-        sourceCompatibility 1.8
+        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_1_8
     }
+    buildToolsVersion '27.0.3'
 }
 
 
@@ -37,8 +38,8 @@ dependencies {
     implementation 'gun0912.ted:tedpermission:2.1.1'
     // AR Core 라이브러리
     implementation 'com.google.ar:core:1.2.0'
-    implementation "com.google.ar.sceneform:core:1.0.0"
-    implementation "com.google.ar.sceneform.ux:sceneform-ux:1.0.0"
+    implementation 'com.google.ar.sceneform:core:1.0.0'
+    implementation 'com.google.ar.sceneform.ux:sceneform-ux:1.0.0'
     // butterknife
     implementation 'com.jakewharton:butterknife:8.4.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
