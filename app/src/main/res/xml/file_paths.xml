@@ -5,6 +5,7 @@
 <paths
     xmlns:android="http://schemas.android.com/apk/res/android">
     <external-path
-        name="storage/emulated"
-        path="."/>
+        name="hidden"
+        path="GongGanCapsule"
+        />
 </paths>

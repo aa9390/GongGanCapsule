@@ -3,8 +3,12 @@ package capstone.gonggancapsule;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.location.Location;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -46,6 +50,7 @@ import com.google.ar.sceneform.rendering.ViewRenderable;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -106,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
     public final static int CAMERA_REQUEST_CODE = 1;
     public final static int GALLERY_REQUEST_CODE = 2;
     private Uri mImageCaptureUri;
-    public String absolutePath;
+    public String mCurrentPhotoPath;
 
     // 캡슐 객체 관련 코드
     ArrayList<Capsule> capsuleList;
@@ -127,7 +132,6 @@ public class MainActivity extends AppCompatActivity {
         // 메인 화면 초기화
         initView();
 
-        // *** 주영 5/28 추가코드
         GPSTracker mGPS = new GPSTracker( this );
         Spinner spinner = (Spinner)findViewById(R.id.spinner);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -219,9 +223,7 @@ public class MainActivity extends AppCompatActivity {
                                         if (locationScene == null) {
                                             locationScene = new LocationScene( context, activity, arSceneView );
 
-                                            Toast.makeText( getApplicationContext(),
-                                                    "불러올 데이터가" + capsuleRangeList.size() + "개 있습니다.", Toast.LENGTH_SHORT ).show();
-
+                                            Toast.makeText( getApplicationContext(),"불러올 데이터가" + capsuleRangeList.size() + "개 있습니다.", Toast.LENGTH_SHORT ).show();
                                             LocationMarker[] locationMarker = new LocationMarker[100];
 
                                                 for (int i = 0; i < capsuleRangeList.size(); i++) {
@@ -240,10 +242,11 @@ public class MainActivity extends AppCompatActivity {
                                                         // DB에서 날짜, 내용등을 불러와 diary에 띄움.
                                                         View eView = diaryRenderableList.get( finalI ).getView();
                                                         TextView content = eView.findViewById( R.id.showContentTv );
+
                                                         ImageView pic = eView.findViewById( R.id.showPictureIv );
                                                         TextView date = eView.findViewById(R.id.showDateTv);
                                                         date.setText(capsuleRangeList.get( finalI ).getCreate_date());
-                                                        pic.setImageResource( R.drawable.sample_img1 );
+                                                        Glide.with(MainActivity.this).load(capsuleRangeList.get(finalI).getPicture()).into(pic);
                                                         content.setText( capsuleRangeList.get( finalI ).getContent() );
                                                         TextView distanceTextView = eView.findViewById( R.id.distance );
                                                         distanceTextView.setText( node.getDistance() + "M" );
@@ -406,109 +409,40 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult( requestCode, resultCode, data );
+        super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode != RESULT_OK) return;
 
-        Intent goWriteIntent = new Intent( MainActivity.this, WriteDiary.class );
+        Intent goWriteIntent = new Intent(MainActivity.this, WriteDiary.class);
 
         switch (requestCode) {
             case GALLERY_REQUEST_CODE:
                 mImageCaptureUri = data.getData();
-                goWriteIntent.putExtra( "galleryCaptureUri", mImageCaptureUri );
+                String galleryPath = getPath(mImageCaptureUri);
+                goWriteIntent.putExtra("galleryPath", galleryPath);
                 break;
 
             case CAMERA_REQUEST_CODE:
-                //goWriteIntent.putExtra("mImageCaptureUri", mImageCaptureUri);
-                goWriteIntent.putExtra( "cameraCaptureUri", mImageCaptureUri );
-                String picturePath = mImageCaptureUri.getPath();
-
-                try {
-                    Bitmap photo = MediaStore.Images.Media.getBitmap( getContentResolver(), mImageCaptureUri );
-                    savePicture( photo, picturePath ); //저장
-
-                } catch (Exception e) {
-                    Toast.makeText( MainActivity.this, e.getMessage(), Toast.LENGTH_LONG ).show();
-                }
-
-                File f = new File( mImageCaptureUri.getPath() );
-                if (f.exists()) {
-                    f.delete();
-                }
-
+                String cameraPath = mCurrentPhotoPath;
+                Log.d("path", cameraPath);
+                goWriteIntent.putExtra("cameraPath", cameraPath);
                 break;
         }
-        startActivity( goWriteIntent );
+        startActivity(goWriteIntent);
 
     }
 
-    private void savePicture(Bitmap photo, String picturePath) {
-        FileOutputStream fos = null;
-        File saveFile = null;
-
-        try {
-            saveFile = new File( picturePath );
-            fos = new FileOutputStream( saveFile );
-            photo.compress( Bitmap.CompressFormat.JPEG, 100, fos );
-        } catch (Exception e) {
-
-        } finally {
-            try {
-                if (fos != null) {
-                    fos.close();
-                }
-            } catch (Exception e) {
-
-            }
-        }
+    // 갤러리 사진 경로 변환
+    public String getPath(Uri uri) {
+        String[] projection = {MediaStore.Images.Media.DATA};
+        Cursor cursor = managedQuery(uri, projection, null, null, null);
+        startManagingCursor(cursor);
+        int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        cursor.moveToFirst();
+        return cursor.getString(columnIndex);
     }
 
     public void initView() {
-//                // *** 주영 5/28 추가코드
-//                GPSTracker GPS = new GPSTracker( this );
-//    //            ArrayList<Capsule> capsuleRangeList = new ArrayList<>();  // 반경에 해당하는 일기만 담은 ArrayList
-//                Spinner spinner = (Spinner)findViewById(R.id.spinner);
-//                spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//                    @Override
-//                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//                        int range = 50;
-//                        switch (position) {
-//                            case 0 : range = 50; break;
-//                            case 1 : range = 100; break;
-//                            case 2 : range = 200; break;
-//                            case 3 : range = 300; break;
-//                        }
-//
-//                        ArrayList<Capsule> capsuleList = dbHelper.getAllDiary();  // 모든 일기를 담은 ArrayList
-//                        if (capsuleList != null) {
-//                            if(capsuleRangeList != null) {
-//                                capsuleRangeList.clear();
-//                            }
-//                            Capsule capsule;
-//                            for (int i=0; i<capsuleList.size(); i++) {
-//                                capsule = capsuleList.get(i);
-//                                if(getDistance(GPS.getLatitude(), GPS.getLongitude(), capsule.getLatitude(), capsule.getLongitude())
-//                                        < range) {
-//                                    capsuleRangeList.add(capsule);
-//                                }
-//                            }
-//                        }
-//
-//                        // 반경에 해당하는 일기를 확인하기 위한 테스트 코드
-//                        StringBuffer sb = new StringBuffer();
-//                        for (int i=0; i<capsuleRangeList.size(); i++) {
-//                            sb.append(capsuleRangeList.get(i).toString());
-//                        }
-//                        Toast.makeText(MainActivity.this, sb, Toast.LENGTH_LONG).show();
-//
-//                    }
-//
-//                    @Override
-//                    public void onNothingSelected(AdapterView<?> parent) {
-//
-//                    }
-//                });
-        //
 
         // 플로팅 버튼 id 가져오기, 클릭 리스너 선언
         floatingBtn = findViewById( R.id.floatingBtn );
@@ -523,7 +457,6 @@ public class MainActivity extends AppCompatActivity {
         FabClose = AnimationUtils.loadAnimation( this, R.anim.fab_close );
 
         // 작성 날짜 및 개수 받아오기
-        //final DatabaseHelper dbHelper = new DatabaseHelper(MainActivity.this, "capsule", null, 1);
         ArrayList<String> dateList = dbHelper.getDateList();
         int totalDiary = dbHelper.getDiaryCount();
 
@@ -532,8 +465,6 @@ public class MainActivity extends AppCompatActivity {
         mDrawerLayout = (DrawerLayout) findViewById( R.id.drawer_layout );
         mDrawerList = (ListView) findViewById( R.id.left_drawer );
 
-        //mDatesTitles = getResources().getStringArray(R.array.create_date_array);
-        //mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, mDatesTitles));
         mDrawerList.setAdapter( new ArrayAdapter<String>( this, R.layout.drawer_list_item, dateList ) );
         //mDrawerList.setOnItemClickListener( new DrawerItemClickListener() );
 
@@ -582,23 +513,18 @@ public class MainActivity extends AppCompatActivity {
                 // 카메라 호출
                 Intent intent = new Intent( MediaStore.ACTION_IMAGE_CAPTURE );
 
-                String timeStamp = new SimpleDateFormat( "yyyyMMddHHmmss" ).format( new Date() );
-                String url = "GongGanCapsule_" + timeStamp + ".jpg";
+                File pictureFile = null;
+                try {
+                    pictureFile = createImageFile();
+                } catch (IOException e) {
+                    Toast.makeText(MainActivity.this, "pictureFile 에러", Toast.LENGTH_LONG).show();
+                }
 
-                // 저장 경로에 파일 생성 - 촬영한 이미지 파일을 저장하기 위해 경로 설정
-                File storageDir = Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_PICTURES );
-                mImageCaptureUri = FileProvider.getUriForFile( getBaseContext(), "capstone.gonggancapsule.fileprovider",
-                        new File( storageDir + "/GongGanCapsule", url ) );
-                String dirPath = storageDir.getAbsolutePath() + "/GONGGANCAPSULE";
-
-                File directory_GONGGANCAPSULE = new File( dirPath );
-                if (!directory_GONGGANCAPSULE.exists())
-                    directory_GONGGANCAPSULE.mkdir();
-
-                Log.d( "path", "path : " + mImageCaptureUri.toString() );
-
-                intent.putExtra( MediaStore.EXTRA_OUTPUT, mImageCaptureUri );
-                startActivityForResult( intent, CAMERA_REQUEST_CODE );
+                if(pictureFile != null) {
+                    mImageCaptureUri = FileProvider.getUriForFile(MainActivity.this, "capstone.gonggancapsule.fileprovider", pictureFile);
+                    intent.putExtra( MediaStore.EXTRA_OUTPUT, mImageCaptureUri );
+                    startActivityForResult( intent, CAMERA_REQUEST_CODE );
+                }
             }
         } );
 
@@ -613,8 +539,22 @@ public class MainActivity extends AppCompatActivity {
         } );
     }
 
+    private File createImageFile() throws IOException {
+        //Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "GongGanCapsule_" + timeStamp + ".jpg";
+        File storageDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/GongGanCapsule/" + imageFileName);
 
-    // *** 주영 5/28 추가코드
+        File directory_GONGGANCAPSULE = new File( Environment.getExternalStorageDirectory().getAbsolutePath() + "/GongGanCapsule" );
+        if (!directory_GONGGANCAPSULE.exists())
+            directory_GONGGANCAPSULE.mkdir();
+
+        //Save a file
+        mCurrentPhotoPath = storageDir.getAbsolutePath(); //현재 사용중인 사진의 경로(디바이스 내 파일 경로)
+        Log.i("path", mCurrentPhotoPath);
+        return storageDir;
+    }
+
     public double getDistance(double lat1, double lon1, double lat2, double lon2) {
         double distance;
 
@@ -630,7 +570,7 @@ public class MainActivity extends AppCompatActivity {
 
         return distance;
     }
-    //
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -648,4 +588,5 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent( this, DataBaseCheckActivity.class );
         startActivity( intent );
     }
+
 }

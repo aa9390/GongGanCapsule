@@ -3,6 +3,7 @@ package capstone.gonggancapsule;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.location.Address;
 import android.location.Geocoder;
@@ -41,12 +42,7 @@ public class WriteDiary extends AppCompatActivity {
     Button saveDiaryBtn;
 
     public String dateString;
-    public Uri galleryCaptureUri;
-    public Uri cameraCaptureUri;
     public String path;
-
-    int exifOrientation;
-    int exifDegree;
 
     Geocoder geocoder = new Geocoder(this);
     List<Address> locationAddress;
@@ -70,13 +66,13 @@ public class WriteDiary extends AppCompatActivity {
         changeLocationBtn = (ImageButton) findViewById(R.id.changeLocationBtn);
 
         Intent intent = getIntent();
-        galleryCaptureUri = intent.getParcelableExtra("galleryCaptureUri");
-        cameraCaptureUri = intent.getParcelableExtra("cameraCaptureUri");
+        String galleryPath = intent.getStringExtra("galleryPath");
+        String cameraPath = intent.getStringExtra("cameraPath");
 
-        if(galleryCaptureUri != null && cameraCaptureUri == null) {
-            setGalleryPicture(galleryCaptureUri);
-        } else if(galleryCaptureUri == null && cameraCaptureUri != null) {
-            setCameraPicture(cameraCaptureUri);
+        if (galleryPath != null && cameraPath == null) {
+            setPicture(galleryPath);
+        } else if (galleryPath == null && cameraPath != null) {
+            setPicture(cameraPath);
         }
 
         setDate(); // 날짜 세팅
@@ -104,29 +100,11 @@ public class WriteDiary extends AppCompatActivity {
             }
         });
 
-
         // save 버튼을 누르면 DB에 데이터 저장 (INSERT)
         saveDiaryBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 GPSTracker gpsTracker = new GPSTracker(WriteDiary.this);
-//
-//                Double latitude = 0.0;
-//                Double longitude = 0.0;
-
-
-                //DB 저장 테스트용
-//                Double latitude = Math.random() * 100;
-//                Double longitude = Math.random() * 100;
-
-//                if(gpsTracker.canGetLocation ){
-//                    gpsTracker.getLocation();
-//
-//                    latitude = gpsTracker.getLatitude();
-//                    longitude = gpsTracker.getLongitude();
-//                }
-//                Double latitude = location.getLatitude();
-//                Double longitude = location.getLongitude();
                 String create_date = dateTv.getText().toString(); //작성 날짜
                 String content = writeContentEt.getText().toString(); //내용
                 dbHelper.insertDiary(latitude, longitude, create_date, content, path);
@@ -139,23 +117,12 @@ public class WriteDiary extends AppCompatActivity {
 
     }
 
-    public void setGalleryPicture(Uri galleryCaptureUri) {
+    public void setPicture(String path) {
         try {
-            Bitmap picture = MediaStore.Images.Media.getBitmap(getContentResolver(), galleryCaptureUri);
-            selectedPictureIv.setImageBitmap(picture);
-            path = galleryCaptureUri.getPath();
-        } catch (Exception e) {
-            Toast.makeText(WriteDiary.this, "오류 : " + e.getMessage(), Toast.LENGTH_LONG).show();
-        }
-    }
-
-    // 원래 코드
-    public void setCameraPicture(Uri cameraCaptureUri) {
-        try {
-            Bitmap picture = MediaStore.Images.Media.getBitmap(getContentResolver(), cameraCaptureUri);
-            selectedPictureIv.setImageBitmap(rotate(picture));
-            path = cameraCaptureUri.getPath();
-
+            int degree = getExifOrientation(path);
+            Bitmap picture = BitmapFactory.decodeFile(path);
+            selectedPictureIv.setImageBitmap(getRotatedBitmap(picture, degree));
+            this.path = path;
         } catch (Exception e) {
             Toast.makeText(WriteDiary.this, "오류 : " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
@@ -229,15 +196,26 @@ public class WriteDiary extends AppCompatActivity {
         });
     }
 
-    // 사진을 띄울 때 회전되지 않게 보여주기 위함(exifOrientationToDegrees, rotate 함수)
-    // 상수를 받아 각도로 변환시켜주는 메소드
-    private int exifOrientationToDegrees(int exifOrientation) {
-        if(exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) {
-            return 90;
-        } else if(exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {
-            return 180;
-        } else if(exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {
-            return 270;
+    private int getExifOrientation(String path) {
+        ExifInterface exif = null;
+
+        try {
+            exif = new ExifInterface(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if(exif != null) {
+            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_NORMAL);
+
+            if(orientation != -1) {
+                switch (orientation) {
+                    case ExifInterface.ORIENTATION_ROTATE_90: return 90;
+                    case ExifInterface.ORIENTATION_ROTATE_180: return 180;
+                    case ExifInterface.ORIENTATION_ROTATE_270: return 270;
+                }
+            }
         }
         return 0;
     }
@@ -245,57 +223,21 @@ public class WriteDiary extends AppCompatActivity {
     private Bitmap getRotatedBitmap(Bitmap bitmap, int degree) {
         if(degree != 0 && bitmap != null) {
             Matrix matrix = new Matrix();
-            matrix.setRotate(degree, (float)bitmap.getWidth() / 2, (float)bitmap.getHeight() / 2);
+            matrix.setRotate(degree, (float)bitmap.getWidth()/2, (float)bitmap.getHeight()/2);
 
             try {
-                Bitmap tmpBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
-                        bitmap.getHeight(), matrix, true);
+                Bitmap tmpBitmap = Bitmap.createBitmap(bitmap, 0, 0,
+                        bitmap.getWidth(), bitmap.getHeight(), matrix, true);
 
                 if(bitmap != tmpBitmap) {
                     bitmap.recycle();
                     bitmap = tmpBitmap;
                 }
-            } catch (OutOfMemoryError e) {
+            }catch (OutOfMemoryError e) {
                 e.printStackTrace();
             }
         }
         return bitmap;
-    }
-
-//    private int exifOrientationToDegrees(int exifOrientation) {
-//        if(exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) {
-//            return 90;
-//        } else if(exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {
-//            return 180;
-//        } else if(exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {
-//            return 270;
-//        }
-//        return 0;
-//    }
-
-//    public Bitmap rotate(Bitmap bitmap, int degrees) {
-//        if(degrees != 0 && bitmap != null) {
-//            Matrix m = new Matrix();
-//            m.setRotate(degrees, (float)bitmap.getWidth() / 2, (float)bitmap.getHeight() / 2);
-//
-//            try {
-//                Bitmap converted = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), m, true);
-//                if(bitmap != converted) {
-//                    bitmap.recycle();
-//                    bitmap = converted;
-//                }
-//            } catch (OutOfMemoryError e) {
-//                Toast.makeText(WriteDiary.this, "오류 : " + e.getMessage(), Toast.LENGTH_LONG).show();
-//            }
-//        }
-//        return  bitmap;
-//    }
-
-    // 무조건 90도 회전만
-    private Bitmap rotate(Bitmap bitmap) {
-        Matrix matrix = new Matrix();
-        matrix.postRotate(90);
-        return Bitmap.createBitmap(bitmap, 0,0,bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
 
     @Override
