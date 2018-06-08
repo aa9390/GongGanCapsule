@@ -1,0 +1,87 @@
+{
+   materials: [
+      {
+         name: "DefaultMaterial",
+         parameters: [
+            {
+               baseColor: null,
+            },
+            {
+               baseColorTint: [
+                  0.87843099999999996,
+                  0.87843099999999996,
+                  0.87843099999999996,
+                  1,
+               ],
+            },
+            {
+               metallic: 0,
+            },
+            {
+               roughness: 1,
+            },
+            {
+               opacity: null,
+            },
+         ],
+         source: "build/sceneform_sdk/default_materials/obj_material.sfm",
+      },
+      {
+         name: "White",
+         parameters: [
+            {
+               baseColor: "icon_capsule_5",
+            },
+            {
+               baseColorTint: [
+                  1,
+                  1,
+                  1,
+                  1,
+               ],
+            },
+            {
+               metallic: 0,
+            },
+            {
+               roughness: 1,
+            },
+            {
+               opacity: null,
+            },
+         ],
+         source: "build/sceneform_sdk/default_materials/obj_material.sfm",
+      },
+   ],
+   model: {
+      attributes: [
+         "Position",
+         "TexCoord",
+         "Orientation",
+      ],
+      file: "sampledata/obj_capsule_6.obj",
+      name: "obj_capsule_6",
+      scale: 0.041738999999999998,
+      suggested_collision: {
+         center: {
+            x: 0,
+            y: 0,
+            z: 0,
+         },
+         size: {
+            x: 1,
+            y: 1,
+            z: 1,
+         },
+         type: "Box",
+      },
+   },
+    samplers: [
+         {
+            file: "sampledata\\icon_capsule_5.png",
+            name: "icon_capsule_5",
+            pipeline_name: "icon_capsule_5.png",
+         },
+      ],
+   version: "0.51:1",
+}

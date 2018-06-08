@@ -27,5 +27,10 @@
 
     <string name="app_not_available">Sorry, there\'s no web browser available</string>
     <string name="title_activity_permission">PermissionActivity</string>
+    <string name="diary_1">나는 안네의 모습에 감동 받았다.
+        내가 여기 이런 상황에 있을 때는 나는 어떻게 지낼까 하는 생각이 계속 들었다.
+        아마 나는 겁에 질려 오들오들 떨면서 밥만 먹고, 말도 하지 않고, 겁에만 질려있었을 것이다.
+        하지만 안네는 달랐다. 그 어떤 극한의 상황에서도 서로 도와가며 웃음을 잃지 않았다.
+        이런 안네의 용기, 서로를 아끼는 마음, 이 모든 것이 우리의 생활에 본받아야 할 것이다.</string>
 
 </resources>
