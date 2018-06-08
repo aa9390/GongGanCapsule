@@ -14,7 +14,7 @@ buildscript {
         // in the individual module build.gradle files
         classpath 'com.google.gms:google-services:3.2.0'
         // ARCore sceneform plugin
-        classpath 'com.google.ar.sceneform:plugin:1.0.0'
+        classpath 'com.google.ar.sceneform:plugin:1.0.1'
     }
 }
 

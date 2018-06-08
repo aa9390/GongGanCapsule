@@ -28,6 +28,7 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    //noinspection GradleCompatible
     implementation 'com.android.support:appcompat-v7:27.1.0'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     testImplementation 'junit:junit:4.12'
@@ -57,3 +58,26 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.7.1'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.7.1'
 }
+
+apply plugin: 'com.google.ar.sceneform.plugin'
+
+sceneform.asset('sampledata/obj_capsule_2.obj',
+        'default',
+        'sampledata/obj_capsule_2.sfa',
+        'src/main/res/raw/obj_capsule_2')
+
+
+sceneform.asset('sampledata/obj_capsule_5.obj',
+        'default',
+        'sampledata/obj_capsule_5.sfa',
+        'src/main/res/raw/obj_capsule_5')
+
+sceneform.asset('sampledata/obj_capsule_6.obj',
+        'default',
+        'sampledata/obj_capsule_6.sfa',
+        'src/main/res/raw/obj_capsule_6')
+
+sceneform.asset('sampledata/obj_capsule_7.obj',
+        'default',
+        'sampledata/obj_capsule_7.sfa',
+        'src/main/res/raw/obj_capsule_7')
