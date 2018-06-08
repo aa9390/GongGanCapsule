@@ -106,7 +106,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 //        Cursor cursor = db.rawQuery("SELECT create_date FROM " + CapsuleDB.TABLE_NAME, null);
 //        Cursor cursor = db.rawQuery("SELECT DISTINCT create_date FROM " + CapsuleDB.TABLE_NAME, null); // 중복 제거
-        Cursor cursor = db.rawQuery("SELECT create_date FROM " + CapsuleDB.TABLE_NAME + " ORDER BY create_date DESC",
+        Cursor cursor = db.rawQuery("SELECT DISTINCT create_date FROM " + CapsuleDB.TABLE_NAME + " ORDER BY create_date DESC",
                 null);
 
         while (cursor.moveToNext()) {

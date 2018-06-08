@@ -156,7 +156,7 @@ public class WriteDiary extends AppCompatActivity {
         long now = System.currentTimeMillis();
         Date date = new Date(now);
 
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy년 M월 dd일");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy년 M월 d일");
         return simpleDateFormat.format(date);
     }
 
