@@ -4,11 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.location.Location;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -49,7 +45,6 @@ import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.rendering.ViewRenderable;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -243,6 +238,18 @@ public class MainActivity extends AppCompatActivity {
                                                     int finalI = i;
                                                     AtomicBoolean touched = new AtomicBoolean( false );
 
+                                                    // Renderable 터치 시 이벤트 구현
+                                                    base.setOnTapListener( (hitTestResult, motionEvent) -> {
+                                                        if(!touched.get()) {
+                                                            base.setRenderable( diaryRenderableList.get( finalI ) );
+                                                            touched.set( true );
+                                                        }
+                                                        else if (touched.get()) {
+                                                            base.setRenderable( capsuleRenderableList.get( finalI ) );
+                                                            touched.set( false );
+                                                        }
+                                                    } );
+
                                                     locationMarker[i].setRenderEvent( node -> {
                                                         // DB에서 날짜, 내용등을 불러와 diary에 띄움.
                                                         View eView = diaryRenderableList.get( finalI ).getView();
@@ -256,17 +263,7 @@ public class MainActivity extends AppCompatActivity {
                                                         TextView distanceTextView = eView.findViewById( R.id.distance );
                                                         distanceTextView.setText( node.getDistance() + "M" );
 
-                                                        // Renderable 터치 시 이벤트 구현
-                                                        base.setOnTapListener( (hitTestResult, motionEvent) -> {
-                                                            if(!touched.get()) {
-                                                                base.setRenderable( diaryRenderableList.get( finalI ) );
-                                                                touched.set( true );
-                                                            }
-                                                            else if (touched.get()) {
-                                                               base.setRenderable( capsuleRenderableList.get( finalI ) );
-                                                                touched.set( false );
-                                                            }
-                                                        } );
+
                                                     }
                                                     );
 
