@@ -1,7 +1,33 @@
 {
    materials: [
       {
-         name: "DefaultMaterial",
+         name: "White",
+         parameters: [
+            {
+               baseColor: null,
+            },
+            {
+               baseColorTint: [
+                  1,
+                  1,
+                  1,
+                  1,
+               ],
+            },
+            {
+               metallic: 0,
+            },
+            {
+               roughness: 1,
+            },
+            {
+               opacity: null,
+            },
+         ],
+         source: "build/sceneform_sdk/default_materials/obj_material.sfm",
+      },
+      {
+         name: "White_0",
          parameters: [
             {
                baseColor: null,
@@ -27,10 +53,10 @@
          source: "build/sceneform_sdk/default_materials/obj_material.sfm",
       },
       {
-         name: "White",
+         name: "White_1",
          parameters: [
             {
-               baseColor: "icon_capsule_5",
+               baseColor: "icon_capsule_texture",
             },
             {
                baseColorTint: [
@@ -59,12 +85,12 @@
          "TexCoord",
          "Orientation",
       ],
-      file: "sampledata/obj_capsule_6.obj",
-      name: "obj_capsule_6",
-      scale: 0.041738999999999998,
+      file: "sampledata/obj_capsule.obj",
+      name: "obj_capsule",
+      scale: 0.041681999999999997,
       suggested_collision: {
          center: {
-            x: 0,
+            x: 2,
             y: 0,
             z: 0,
          },
@@ -76,12 +102,12 @@
          type: "Box",
       },
    },
-    samplers: [
-         {
-            file: "sampledata\\icon_capsule_5.png",
-            name: "icon_capsule_5",
-            pipeline_name: "icon_capsule_5.png",
-         },
-      ],
+   samplers: [
+      {
+         file: "sampledata\\icon_capsule_texture.png",
+         name: "icon_capsule_texture",
+         pipeline_name: "icon_capsule_texture.png",
+      },
+   ],
    version: "0.51:1",
 }

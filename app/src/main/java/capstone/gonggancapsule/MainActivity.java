@@ -41,6 +41,7 @@ import com.google.ar.core.exceptions.UnavailableException;
 import com.google.ar.sceneform.ArSceneView;
 import com.google.ar.sceneform.FrameTime;
 import com.google.ar.sceneform.Node;
+import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.rendering.ViewRenderable;
 
@@ -75,12 +76,14 @@ public class MainActivity extends AppCompatActivity {
     // Database Helper 선언
     DatabaseHelper dbHelper = new DatabaseHelper(this, "capsule", null, 1);
 
-    // ARSceneform 관련 코드 (라이브러리 사용)
+    // ARSceneform 관련 코드
     private ArSceneView arSceneView;
     private ArrayList<ViewRenderable> diaryRenderableList = new ArrayList<>(  );
     private ArrayList<ModelRenderable> capsuleRenderableList = new ArrayList<>(  );
+    private ArrayList<ViewRenderable> infoCapsuleRenderableList = new ArrayList<>(  );
     private ArrayList<CompletableFuture<ViewRenderable>> diaryLayoutList = new ArrayList<>(  );
     private ArrayList<CompletableFuture<ModelRenderable>> objCapsuleList = new ArrayList<>(  );
+    private ArrayList<CompletableFuture<ViewRenderable>> infoLayoutList = new ArrayList<>(  );
     private LocationScene locationScene;
 
     // 메인화면 툴바, 작성 날짜, FAB를 위한 코드
@@ -111,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
     // 캡슐 객체 관련 코드
     ArrayList<Capsule> capsuleList;
     final ArrayList<Capsule> capsuleRangeList = new ArrayList<>();
+    ArrayList<Capsule> capsuleRangeSameList = new ArrayList<>();
     Capsule capsule;
 
     Glide glide;
@@ -154,10 +158,22 @@ public class MainActivity extends AppCompatActivity {
                     if (capsuleRangeList != null) {
                         capsuleRangeList.clear();
                     }
+                    // 선택한 반경 안의 캡슐만 list에 add
                     for (int i = 0; i < capsuleList.size(); i++) {
                         capsule = capsuleList.get(i);
                         if (getDistance(mGPS.getLatitude(), mGPS.getLongitude(), capsule.getLatitude(), capsule.getLongitude()) < range) {
                             capsuleRangeList.add(capsule);
+                        }
+                    }
+
+                    for(int i=0; i<capsuleRangeList.size(); i++) {
+                        for (int j = 0; j < capsuleRangeList.size(); j++) {
+                            Capsule capsuleTempOne = capsuleRangeList.get( i );
+                            Capsule capsuleTempTwo = capsuleRangeList.get( j );
+
+                            if (capsuleTempOne.getLatitude() == capsuleTempTwo.getLatitude() && capsuleTempOne.getLongitude() == capsuleTempTwo.getLongitude()) {
+                                capsuleRangeSameList.add( capsule );
+                            }
                         }
                     }
                 }
@@ -173,24 +189,25 @@ public class MainActivity extends AppCompatActivity {
                 if (capsuleRangeList.size() != 0) {
 
                     // 반경 안에 있는 일기장 개수 만큼
-                    // ArrayList인 diaryLayoutList에 ViewRenderable을, objCapsuleList에 ModelRenderable을 add함.
+                    // diaryLayoutList, objCapsuleList, infoLayoutList 생성
                     for (int i = 0; i < capsuleRangeList.size(); i++) {
-
                         diaryLayoutList.add( ViewRenderable.builder().setView( context, R.layout.item_diary ).build() );
-                        objCapsuleList.add( ModelRenderable.builder().setSource(context, R.raw.obj_capsule_7).build() );
+                        objCapsuleList.add( ModelRenderable.builder().setSource(context, Uri.parse("obj_capsule.sfb")).build() );
+                        infoLayoutList.add( ViewRenderable.builder().setView( context, R.layout.item_capsule_top ).build());
                     }
 
                     CompletableFuture<ViewRenderable> diary = new CompletableFuture<>();
                     CompletableFuture<ModelRenderable> objCapsule = new CompletableFuture<>();
+                    CompletableFuture<ViewRenderable> infoCapsule = new CompletableFuture<>();
 
                     for (int i = 0; i < capsuleRangeList.size(); i++) {
-
                         diary = diaryLayoutList.get( i );
                         objCapsule = objCapsuleList.get( i );
+                        infoCapsule = infoLayoutList.get( i );
                     }
 
                     CompletableFuture
-                            .allOf( diary , objCapsule)
+                            .allOf( diary , objCapsule, infoCapsule)
                             .handle(
                                     (notUsed, throwable) -> {
                                         if (throwable != null) {
@@ -201,10 +218,10 @@ public class MainActivity extends AppCompatActivity {
 
                                         try {
                                             if (capsuleRangeList.size() != 0) {
-
                                                 for (int i = 0; i < capsuleRangeList.size(); i++) {
                                                     diaryRenderableList.add( diaryLayoutList.get( i ).get() );
                                                     capsuleRenderableList.add( objCapsuleList.get( i ).get() );
+                                                    infoCapsuleRenderableList.add( infoLayoutList.get( i ).get() );
                                                 }
                                             }
 
@@ -224,12 +241,18 @@ public class MainActivity extends AppCompatActivity {
                                             locationScene = new LocationScene(context, activity, arSceneView);
 
                                             Toast.makeText( getApplicationContext(),"불러올 데이터가" + capsuleRangeList.size() + "개 있습니다.", Toast.LENGTH_SHORT ).show();
+
                                             LocationMarker[] locationMarker = new LocationMarker[100];
 
                                                 for (int i = 0; i < capsuleRangeList.size(); i++) {
-                                                    // node를 default로 capsuleRenderable로 설정.
+                                                    // node 객체 생성
                                                     Node base = new Node();
                                                     base.setRenderable(capsuleRenderableList.get( i ));
+
+                                                    Node info = new Node();
+                                                    info.setRenderable( infoCapsuleRenderableList.get( i ) );
+                                                    info.setParent( base );
+                                                    info.setLocalPosition( new Vector3( 0.0f, 0.5f, 0.0f ));
 
                                                     // DB에서 위도, 경도를 받아와 location Marker에 저장.
                                                     locationMarker[i] = new LocationMarker(
@@ -261,6 +284,10 @@ public class MainActivity extends AppCompatActivity {
                                                         content.setText( capsuleRangeList.get( finalI ).getContent() );
                                                         TextView distanceTextView = eView.findViewById( R.id.distance );
                                                         distanceTextView.setText( node.getDistance() + "M" );
+
+                                                        View infoView = infoCapsuleRenderableList.get( finalI ).getView();
+                                                        TextView distance = infoView.findViewById( R.id.distance );
+                                                        distance.setText( node.getDistance() + "M" );
                                                     }
                                                     );
 

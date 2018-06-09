@@ -61,23 +61,23 @@ dependencies {
 
 apply plugin: 'com.google.ar.sceneform.plugin'
 
-sceneform.asset('sampledata/obj_capsule_2.obj',
-        'default',
-        'sampledata/obj_capsule_2.sfa',
-        'src/main/res/raw/obj_capsule_2')
-
-
-sceneform.asset('sampledata/obj_capsule_5.obj',
-        'default',
-        'sampledata/obj_capsule_5.sfa',
-        'src/main/res/raw/obj_capsule_5')
-
-sceneform.asset('sampledata/obj_capsule_6.obj',
-        'default',
-        'sampledata/obj_capsule_6.sfa',
-        'src/main/res/raw/obj_capsule_6')
-
 sceneform.asset('sampledata/obj_capsule_7.obj',
         'default',
         'sampledata/obj_capsule_7.sfa',
         'src/main/res/raw/obj_capsule_7')
+
+
+sceneform.asset('sampledata/obj_capsule_bottom.obj',
+        'default',
+        'sampledata/obj_capsule_bottom.sfa',
+        'src/main/assets/obj_capsule_bottom')
+
+sceneform.asset('sampledata/obj_capsule_top.obj',
+        'default',
+        'sampledata/obj_capsule_top.sfa',
+        'src/main/assets/obj_capsule_top')
+
+sceneform.asset('sampledata/obj_capsule.obj',
+        'default',
+        'sampledata/obj_capsule.sfa',
+        'src/main/assets/obj_capsule')

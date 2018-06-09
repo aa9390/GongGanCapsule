@@ -142,5 +142,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return capsuleList;
     }
+//
+//    public ArrayList<Capsule> getSameLocationDiary() {
+//
+//    }
 
 }

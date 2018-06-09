@@ -2,14 +2,19 @@
 
 newmtl White
 Kd 1.000000 1.000000 1.000000
-map_Kd icon_capsule_5.png
 
-newmtl
+newmtl White_0
 Kd 0.878431 0.878431 0.878431
 
 newmtl White
 Kd 1.000000 1.000000 1.000000
-map_Kd icon_capsule_5.png
 
-newmtl
+newmtl White_0
 Kd 0.878431 0.878431 0.878431
+
+newmtl White
+Kd 1.000000 1.000000 1.000000
+
+newmtl White_1
+Kd 1.000000 1.000000 1.000000
+map_Kd icon_capsule_4.png
