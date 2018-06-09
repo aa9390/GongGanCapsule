@@ -14,7 +14,6 @@ import capstone.gonggancapsule.Capsule;
 
 
 public class DatabaseHelper extends SQLiteOpenHelper {
-
     // Database Version
     private static final int DATABASE_VERSION = 1;
 
@@ -44,12 +43,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void insertDiary(Double latitude, Double longitude, String create_date, String content, String picture) {
+    public void insertDiary(/*int capsule_id, */Double latitude, Double longitude, String create_date, String content, String picture) {
         // 읽고 쓰기가 가능하게 DB 열기
         SQLiteDatabase db = getWritableDatabase();
 
         ContentValues values = new ContentValues();
 
+//        values.put(CapsuleDB.COLUMN_CAPSULEID, capsule_id);
         values.put(CapsuleDB.COLUMN_LATITUDE, latitude);
         values.put(CapsuleDB.COLUMN_LONGITUDE, longitude);
         values.put(CapsuleDB.COLUMN_CREATEDATE, create_date);
@@ -57,7 +57,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(CapsuleDB.COLUMN_PICTURE, picture);
 
         // DB에 입력한 값으로 행 추가
-        db.execSQL("INSERT INTO capsule VALUES(" + latitude +  ", " + longitude + ", '" + create_date + "', '" + content + "', '" + picture + "');" );
+        db.execSQL("INSERT INTO capsule VALUES("+ null + ", " + latitude +  ", " + longitude + ", '" + create_date + "', '" + content + "', '" + picture + "');" );
         db.close();
     }
 
@@ -69,16 +69,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         Cursor cursor = db.rawQuery("SELECT * FROM capsule", null);
         while (cursor.moveToNext()) {
-            result += " 위도: "
+            result += " 아이디: "
                     + cursor.getDouble(0)
-                    + " 경도: "
+                    + " 위도: "
                     + cursor.getDouble(1)
+                    + " 경도: "
+                    + cursor.getDouble(2)
                     + " 날짜: "
-                    + cursor.getString(2)
-                    + " 내용: "
                     + cursor.getString(3)
-                    + " 사진: "
+                    + " 내용: "
                     + cursor.getString(4)
+                    + " 사진: "
+                    + cursor.getString(5)
                     + "\n";
         }
         return result;
@@ -128,15 +130,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         while (cursor.moveToNext()) {
             capsule = new Capsule();
-            capsule.setLatitude(cursor.getDouble(0));
-            capsule.setLongitude(cursor.getDouble(1));
-            capsule.setCreate_date(cursor.getString(2));
-            capsule.setContent(cursor.getString(3));
-            capsule.setPicture(cursor.getString(4));
+            capsule.setCapsule_id( cursor.getInt( 0 ) );
+            capsule.setLatitude(cursor.getDouble(1));
+            capsule.setLongitude(cursor.getDouble(2));
+            capsule.setCreate_date(cursor.getString(3));
+            capsule.setContent(cursor.getString(4));
+            capsule.setPicture(cursor.getString(5));
             capsuleList.add(capsule);
         }
         cursor.close();
 
         return capsuleList;
     }
+
 }

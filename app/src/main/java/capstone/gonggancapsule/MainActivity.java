@@ -254,7 +254,6 @@ public class MainActivity extends AppCompatActivity {
                                                         // DB에서 날짜, 내용등을 불러와 diary에 띄움.
                                                         View eView = diaryRenderableList.get( finalI ).getView();
                                                         TextView content = eView.findViewById( R.id.showContentTv );
-
                                                         ImageView pic = eView.findViewById( R.id.showPictureIv );
                                                         TextView date = eView.findViewById(R.id.showDateTv);
                                                         date.setText(capsuleRangeList.get( finalI ).getCreate_date());
@@ -262,8 +261,6 @@ public class MainActivity extends AppCompatActivity {
                                                         content.setText( capsuleRangeList.get( finalI ).getContent() );
                                                         TextView distanceTextView = eView.findViewById( R.id.distance );
                                                         distanceTextView.setText( node.getDistance() + "M" );
-
-
                                                     }
                                                     );
 
