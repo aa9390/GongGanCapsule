@@ -166,11 +166,11 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
 
+                    // 저장된 위치가 같은 캡슐 찾아내기
                     for(int i=0; i<capsuleRangeList.size(); i++) {
+                        Capsule capsuleTempOne = capsuleRangeList.get( i );
                         for (int j = 0; j < capsuleRangeList.size(); j++) {
-                            Capsule capsuleTempOne = capsuleRangeList.get( i );
                             Capsule capsuleTempTwo = capsuleRangeList.get( j );
-
                             if (capsuleTempOne.getLatitude() == capsuleTempTwo.getLatitude() && capsuleTempOne.getLongitude() == capsuleTempTwo.getLongitude()) {
                                 capsuleRangeSameList.add( capsule );
                             }
@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
                     // 반경 안에 있는 일기장 개수 만큼
                     // diaryLayoutList, objCapsuleList, infoLayoutList 생성
                     for (int i = 0; i < capsuleRangeList.size(); i++) {
-                        diaryLayoutList.add( ViewRenderable.builder().setView( context, R.layout.item_diary ).build() );
+                        diaryLayoutList.add( ViewRenderable.builder().setView( context, R.layout.item_diary_3 ).build() );
                         objCapsuleList.add( ModelRenderable.builder().setSource(context, Uri.parse("obj_capsule.sfb")).build() );
                         infoLayoutList.add( ViewRenderable.builder().setView( context, R.layout.item_capsule_top ).build());
                     }

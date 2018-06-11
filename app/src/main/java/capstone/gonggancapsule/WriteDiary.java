@@ -50,9 +50,9 @@ public class WriteDiary extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_write_diary);
+        setContentView(R.layout.activity_write_diary_2);
 
-        // DB
+        // DB9
         final DatabaseHelper dbHelper = new DatabaseHelper(WriteDiary.this, "capsule", null, 1);
 
         selectedPictureIv = (ImageView) findViewById(R.id.selectedPictureIv);
