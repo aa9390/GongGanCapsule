@@ -28,7 +28,6 @@ public class CapsuleDB {
                     + COLUMN_CREATEDATE + " STRING, "
                     + COLUMN_CONTENT + " TEXT, "
                     + COLUMN_PICTURE + " STRING"
-//                    + " PRIMARY KEY(" + COLUMN_CAPSULEID + ")"
                     + ");";
 
     public CapsuleDB(){

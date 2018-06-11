@@ -265,10 +265,12 @@ public class MainActivity extends AppCompatActivity {
                                                     base.setOnTapListener( (hitTestResult, motionEvent) -> {
                                                         if(!touched.get()) {
                                                             base.setRenderable( diaryRenderableList.get( finalI ) );
+                                                            info.setEnabled( false );
                                                             touched.set( true );
                                                         }
                                                         else if (touched.get()) {
                                                             base.setRenderable( capsuleRenderableList.get( finalI ) );
+                                                            info.setEnabled( true );
                                                             touched.set( false );
                                                         }
                                                     } );
@@ -293,6 +295,7 @@ public class MainActivity extends AppCompatActivity {
 
                                                     locationScene.mLocationMarkers.add( locationMarker[i] );
 
+
                                                 }
                                             }
 
@@ -307,6 +310,7 @@ public class MainActivity extends AppCompatActivity {
                                         }
 
                                         if (locationScene != null) {
+                                            locationScene.setAnchorRefreshInterval (60);
                                             locationScene.processFrame(frame);
                                         }
 

@@ -142,8 +142,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return capsuleList;
     }
+
+//    public ArrayList<Capsule> getSameLocationDiary(double latitude, double longitude) {
+//        ArrayList<Capsule> capsuleList = new ArrayList<>();
+//        Capsule capsule;
 //
-//    public ArrayList<Capsule> getSameLocationDiary() {
+//        SQLiteDatabase db = this.getReadableDatabase();
+//        Cursor cursor = db.rawQuery("SELECT * FROM capsule WHERE CapsuleDB.COLUMN_LATITUDE = latitude AND CapsuleDB.COLUMN_LONGITUDE = longitude", null);
+//
+//        while (cursor.moveToNext()) {
+//            capsule = new Capsule();
+//            capsule.setCapsule_id( cursor.getInt( 0 ) );
+//            capsule.setLatitude(cursor.getDouble(1));
+//            capsule.setLongitude(cursor.getDouble(2));
+//            capsule.setCreate_date(cursor.getString(3));
+//            capsule.setContent(cursor.getString(4));
+//            capsule.setPicture(cursor.getString(5));
+//            capsuleList.add(capsule);
+//        }
+//        cursor.close();
+//
+//        return capsuleList;
+//
 //
 //    }
 

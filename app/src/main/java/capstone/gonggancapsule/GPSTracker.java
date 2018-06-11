@@ -1,6 +1,5 @@
 package capstone.gonggancapsule;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -11,7 +10,6 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 public final class GPSTracker implements LocationListener {
 
@@ -33,7 +31,8 @@ public final class GPSTracker implements LocationListener {
     double longitude; // longitude
 
     // The minimum distance to change Updates in meters
-    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 0;
+    // 마커 고정 위해 거리를 0에서 1로 조정
+    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 1;
 
     // The minimum time between updates in milliseconds
     private static final long MIN_TIME_BW_UPDATES = 1000 * 20; // 20초
