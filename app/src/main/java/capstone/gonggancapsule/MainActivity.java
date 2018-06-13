@@ -1,9 +1,6 @@
 package capstone.gonggancapsule;
 
 import android.app.Activity;
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -21,14 +18,12 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -265,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
                                         if (locationScene == null) {
                                             locationScene = new LocationScene(context, activity, arSceneView);
 
-                                            Toast.makeText(getApplicationContext(), "불러올 데이터가" + capsuleRangeList.size() + "개 있습니다.", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(getApplicationContext(), "내 주변에 캡슐이 " + capsuleRangeList.size() + "개 있습니다.", Toast.LENGTH_SHORT).show();
 
                                             LocationMarker[] locationMarker = new LocationMarker[100];
 
@@ -307,9 +302,11 @@ public class MainActivity extends AppCompatActivity {
                                                             TextView content = eView.findViewById( R.id.showContentTv );
                                                             ImageView pic = eView.findViewById( R.id.showPictureIv );
                                                             TextView date = eView.findViewById(R.id.showDateTv);
+                                                            TextView title = eView.findViewById( R.id.showTitleTv );
                                                             date.setText(capsuleRangeList.get( finalI ).getCreate_date());
                                                             Glide.with(MainActivity.this).load(capsuleRangeList.get(finalI).getPicture()).into(pic);
                                                             content.setText( capsuleRangeList.get( finalI ).getContent() );
+                                                            title.setText( capsuleRangeList.get( finalI ).getTitle() );
                                                             TextView distanceTextView = eView.findViewById( R.id.distance );
                                                             distanceTextView.setText( node.getDistance() + "M" );
 
@@ -546,8 +543,6 @@ public class MainActivity extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowTitleEnabled(false);
 
-        // 메인 진입을 확인하기 위한 임시 토스트 메시지
-        Toast.makeText(this, "메인진입", Toast.LENGTH_SHORT).show();
 
         // 카메라 플로팅 버튼을 클릭했을 때
         cameraBtn.setOnClickListener(new View.OnClickListener() {

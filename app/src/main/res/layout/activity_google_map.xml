@@ -12,32 +12,16 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:background="#f4f4f4"
-            android:layout_centerHorizontal="true">
+        <!--<android.support.v7.widget.Toolbar-->
+            <!--android:id="@+id/toolbar"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="50dp"-->
+            <!--android:background="#f4f4f4"-->
+            <!--android:layout_centerHorizontal="true">-->
 
-        </android.support.v7.widget.Toolbar>
-        <TextView
-            android:id="@+id/map_title"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_gravity="center"
-            android:text = "Google Map"/>
+        <!--</android.support.v7.widget.Toolbar>-->
 
-        <ImageButton
-            android:id="@+id/check_btn"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginRight="10dp"
-            android:scaleType="fitXY"
-            android:src="@drawable/checked_btn"
-            android:background="@null"
-            app:layout_constraintBottom_toBottomOf="@+id/toolbar"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+
 
     </android.support.constraint.ConstraintLayout>
 
@@ -48,11 +32,51 @@
 
         <fragment
             android:id="@+id/map"
-            android:layout_marginTop="50dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             class="com.google.android.gms.maps.MapFragment" />
 
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/title_gradient_10"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:alpha="0.8"
+            android:elevation="5dp">
+
+        </android.support.v7.widget.Toolbar>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center|top"
+            android:layout_marginTop="15dp"
+            android:textSize="15dp"
+            android:textColor="#ffffff"
+            android:elevation="5dp"
+            android:text="위치 선택"/>
+
+        <Button
+            android:id="@+id/check_btn"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/btn_check_2"
+            android:elevation="5dp"
+            android:textColor="#ffffff"
+            app:layout_anchor="@+id/map"
+            app:layout_anchorGravity="bottom|center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
 
     </android.support.design.widget.CoordinatorLayout>
+
+
 </android.support.v4.widget.DrawerLayout>
