@@ -115,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Capsule> capsuleList;
     final ArrayList<Capsule> capsuleRangeList = new ArrayList<>();
     ArrayList<Capsule> capsuleRangeSameList = new ArrayList<>();
+    ArrayList<Capsule> capsuleRangeNotSameList = new ArrayList<>();
     Capsule capsule;
 
     Glide glide;
@@ -167,14 +168,26 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     // 저장된 위치가 같은 캡슐 찾아내기
-                    for(int i=0; i<capsuleRangeList.size(); i++) {
-                        Capsule capsuleTempOne = capsuleRangeList.get( i );
-                        for (int j = 0; j < capsuleRangeList.size(); j++) {
-                            Capsule capsuleTempTwo = capsuleRangeList.get( j );
-                            if (capsuleTempOne.getLatitude() == capsuleTempTwo.getLatitude() && capsuleTempOne.getLongitude() == capsuleTempTwo.getLongitude()) {
-                                capsuleRangeSameList.add( capsule );
+                    for (int i = 0; i < capsuleRangeList.size(); i++) {
+                        boolean yes = false;
+                        for (int j = i + 1; j < capsuleRangeList.size(); j++) {
+                            if (capsuleRangeList.get( i ).getLatitude() == capsuleRangeList.get( j ).getLatitude()
+                                    && capsuleRangeList.get( i ).getLongitude() == capsuleRangeList.get( j ).getLongitude()) {
+                                yes = true;
+                                if (capsuleRangeSameList.get( i ).equals( capsuleList )) {
+                                    break;
+                                } else capsuleRangeSameList.add( capsuleRangeList.get( j ) );
+                                break;
+                            } else {
+                                continue;
                             }
                         }
+                        if (i != 0) {
+                            if (!yes && !capsuleRangeNotSameList.get( i ).equals( capsuleRangeList ))
+                                capsuleRangeNotSameList.add( capsuleRangeList.get( i ) );
+                        }
+                        if (yes)
+                            capsuleRangeSameList.add( capsuleRangeList.get( i ) );
                     }
                 }
 
@@ -244,60 +257,60 @@ public class MainActivity extends AppCompatActivity {
 
                                             LocationMarker[] locationMarker = new LocationMarker[100];
 
-                                                for (int i = 0; i < capsuleRangeList.size(); i++) {
-                                                    // node 객체 생성
-                                                    Node base = new Node();
-                                                    base.setRenderable(capsuleRenderableList.get( i ));
+                                            for (int i = 0; i < capsuleRangeList.size(); i++) {
+                                                // node 객체 생성
+                                                Node base = new Node();
+                                                base.setRenderable(capsuleRenderableList.get( i ));
 
-                                                    Node info = new Node();
-                                                    info.setRenderable( infoCapsuleRenderableList.get( i ) );
-                                                    info.setParent( base );
-                                                    info.setLocalPosition( new Vector3( 0.0f, 0.5f, 0.0f ));
+                                                Node info = new Node();
+                                                info.setRenderable( infoCapsuleRenderableList.get( i ) );
+                                                info.setParent( base );
+                                                info.setLocalPosition( new Vector3( 0.0f, 0.5f, 0.0f ));
 
-                                                    // DB에서 위도, 경도를 받아와 location Marker에 저장.
-                                                    locationMarker[i] = new LocationMarker(
-                                                            capsuleRangeList.get( i ).getLongitude(), capsuleRangeList.get( i ).getLatitude(), base );
+                                                // DB에서 위도, 경도를 받아와 location Marker에 저장.
+                                                locationMarker[i] = new LocationMarker(
+                                                        capsuleRangeList.get( i ).getLongitude(), capsuleRangeList.get( i ).getLatitude(), base );
 
-                                                    int finalI = i;
-                                                    AtomicBoolean touched = new AtomicBoolean( false );
+                                                int finalI = i;
+                                                AtomicBoolean touched = new AtomicBoolean( false );
 
-                                                    // Renderable 터치 시 이벤트 구현
-                                                    base.setOnTapListener( (hitTestResult, motionEvent) -> {
-                                                        if(!touched.get()) {
-                                                            base.setRenderable( diaryRenderableList.get( finalI ) );
-                                                            info.setEnabled( false );
-                                                            touched.set( true );
-                                                        }
-                                                        else if (touched.get()) {
-                                                            base.setRenderable( capsuleRenderableList.get( finalI ) );
-                                                            info.setEnabled( true );
-                                                            touched.set( false );
-                                                        }
-                                                    } );
-
-                                                    locationMarker[i].setRenderEvent( node -> {
-                                                        // DB에서 날짜, 내용등을 불러와 diary에 띄움.
-                                                        View eView = diaryRenderableList.get( finalI ).getView();
-                                                        TextView content = eView.findViewById( R.id.showContentTv );
-                                                        ImageView pic = eView.findViewById( R.id.showPictureIv );
-                                                        TextView date = eView.findViewById(R.id.showDateTv);
-                                                        date.setText(capsuleRangeList.get( finalI ).getCreate_date());
-                                                        Glide.with(MainActivity.this).load(capsuleRangeList.get(finalI).getPicture()).into(pic);
-                                                        content.setText( capsuleRangeList.get( finalI ).getContent() );
-                                                        TextView distanceTextView = eView.findViewById( R.id.distance );
-                                                        distanceTextView.setText( node.getDistance() + "M" );
-
-                                                        View infoView = infoCapsuleRenderableList.get( finalI ).getView();
-                                                        TextView distance = infoView.findViewById( R.id.distance );
-                                                        distance.setText( node.getDistance() + "M" );
+                                                // Renderable 터치 시 이벤트 구현
+                                                base.setOnTapListener( (hitTestResult, motionEvent) -> {
+                                                    if(!touched.get()) {
+                                                        base.setRenderable( diaryRenderableList.get( finalI ) );
+                                                        info.setEnabled( false );
+                                                        touched.set( true );
                                                     }
-                                                    );
+                                                    else if (touched.get()) {
+                                                        base.setRenderable( capsuleRenderableList.get( finalI ) );
+                                                        info.setEnabled( true );
+                                                        touched.set( false );
+                                                    }
+                                                } );
 
-                                                    locationScene.mLocationMarkers.add( locationMarker[i] );
+                                                locationMarker[i].setRenderEvent( node -> {
+                                                            // DB에서 날짜, 내용등을 불러와 diary에 띄움.
+                                                            View eView = diaryRenderableList.get( finalI ).getView();
+                                                            TextView content = eView.findViewById( R.id.showContentTv );
+                                                            ImageView pic = eView.findViewById( R.id.showPictureIv );
+                                                            TextView date = eView.findViewById(R.id.showDateTv);
+                                                            date.setText(capsuleRangeList.get( finalI ).getCreate_date());
+                                                            Glide.with(MainActivity.this).load(capsuleRangeList.get(finalI).getPicture()).into(pic);
+                                                            content.setText( capsuleRangeList.get( finalI ).getContent() );
+                                                            TextView distanceTextView = eView.findViewById( R.id.distance );
+                                                            distanceTextView.setText( node.getDistance() + "M" );
+
+                                                            View infoView = infoCapsuleRenderableList.get( finalI ).getView();
+                                                            TextView distance = infoView.findViewById( R.id.distance );
+                                                            distance.setText( node.getDistance() + "M" );
+                                                        }
+                                                );
+
+                                                locationScene.mLocationMarkers.add( locationMarker[i] );
 
 
-                                                }
                                             }
+                                        }
 
                                         Frame frame = arSceneView.getArFrame();
 
@@ -326,18 +339,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        위치 받아오는지 확인하기 위한 임시코드
-        TextView text = findViewById(R.id.longi);
-        TextView text2 = findViewById(R.id.lati);
-
-        if (mGPS.canGetLocation) {
-            mGPS.getLocation();
-            text.setText( "Lat" + mGPS.getLatitude() );
-            text2.setText( "Lon" + mGPS.getLongitude() );
-        } else {
-            text.setText( "Unable to find" );
-            System.out.println( "Unable" );
-        }
 
     }
 
@@ -523,7 +524,7 @@ public class MainActivity extends AppCompatActivity {
         // 툴바 생성 및 세팅하는 부분
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setHomeAsUpIndicator(R.drawable.open_save_data_btn);
+        actionBar.setHomeAsUpIndicator(R.drawable.btn_menu_2);
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowTitleEnabled(false);
 

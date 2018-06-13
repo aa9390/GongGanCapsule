@@ -10,9 +10,11 @@
     <android.support.constraint.ConstraintLayout
         android:id="@+id/constraintLayout3"
         android:layout_width="match_parent"
-        android:layout_height="47dp"
-        android:layout_marginBottom="8dp"
-        android:background="@drawable/title_gradient"
+        android:layout_height="50dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:background="@drawable/title_gradient_7"
         app:layout_constraintBottom_toTopOf="@+id/constraintLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -22,7 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:textSize="20dp"
+            android:textSize="15dp"
             android:textColor="#ffffff"
             android:text="일기 작성"/>
 
@@ -30,8 +32,8 @@
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/constraintLayout6"
-        android:layout_width="382dp"
-        android:layout_height="375dp"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/constraintLayout3">
@@ -39,11 +41,11 @@
         <ImageView
             android:id="@+id/selectedPictureIv"
             android:layout_width="354dp"
-            android:layout_height="236dp"
+            android:layout_height="200dp"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="10dp"
             android:scaleType="fitCenter"
             app:layout_constraintBottom_toTopOf="@+id/constraintLayout7"
             app:layout_constraintEnd_toEndOf="parent"
@@ -54,8 +56,8 @@
             android:id="@+id/constraintLayout7"
             android:layout_width="372dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginStart="12dp"
             android:gravity="center"
             android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -88,8 +90,8 @@
 
                     <ImageButton
                         android:id="@+id/changeDateBtn"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
                         android:background="@null"
                         android:scaleType="fitXY"
                         android:src="@drawable/ic_date_range_black_24dp"
@@ -119,8 +121,8 @@
 
                     <ImageButton
                         android:id="@+id/changeLocationBtn"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
                         android:layout_marginBottom="8dp"
                         android:background="@null"
                         android:scaleType="fitXY"

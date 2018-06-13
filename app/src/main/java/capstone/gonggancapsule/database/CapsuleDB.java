@@ -1,7 +1,5 @@
 package capstone.gonggancapsule.database;
 
-
-
 public class CapsuleDB {
     public static final String TABLE_NAME = "capsule";
 

@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="54dp"
         android:layout_marginBottom="8dp"
-        android:background="@drawable/title_gradient"
+        android:background="@drawable/title_gradient_2"
         app:layout_constraintBottom_toTopOf="@+id/constraintLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -86,12 +86,13 @@
         <android.support.constraint.ConstraintLayout
             android:id="@+id/constraintLayout5"
             android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:layout_marginBottom="200dp"
+            android:layout_height="32dp"
+            android:layout_marginTop="236dp"
             android:background="@drawable/content_gradient_2"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/constraintLayout4">
 
         </android.support.constraint.ConstraintLayout>
 
@@ -124,7 +125,7 @@
             app:layout_constraintHorizontal_bias="0.495"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintVertical_bias="0.388" />
 
         <TextView
             android:id="@+id/showTitleTv"
