@@ -1,6 +1,9 @@
 package capstone.gonggancapsule;
 
 import android.app.Activity;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -18,6 +21,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -61,6 +65,7 @@ import capstone.gonggancapsule.database.DatabaseHelper;
 import uk.co.appoly.arcorelocation.LocationMarker;
 import uk.co.appoly.arcorelocation.LocationScene;
 import uk.co.appoly.arcorelocation.utils.ARLocationPermissionHelper;
+
 
 // ARCore 1.2Ver로 바뀜으로 인해 openGL코드 삭제
 public class MainActivity extends AppCompatActivity {
@@ -168,27 +173,27 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     // 저장된 위치가 같은 캡슐 찾아내기
-                    for (int i = 0; i < capsuleRangeList.size(); i++) {
-                        boolean yes = false;
-                        for (int j = i + 1; j < capsuleRangeList.size(); j++) {
-                            if (capsuleRangeList.get( i ).getLatitude() == capsuleRangeList.get( j ).getLatitude()
-                                    && capsuleRangeList.get( i ).getLongitude() == capsuleRangeList.get( j ).getLongitude()) {
-                                yes = true;
-                                if (capsuleRangeSameList.get( i ).equals( capsuleList )) {
-                                    break;
-                                } else capsuleRangeSameList.add( capsuleRangeList.get( j ) );
-                                break;
-                            } else {
-                                continue;
-                            }
-                        }
-                        if (i != 0) {
-                            if (!yes && !capsuleRangeNotSameList.get( i ).equals( capsuleRangeList ))
-                                capsuleRangeNotSameList.add( capsuleRangeList.get( i ) );
-                        }
-                        if (yes)
-                            capsuleRangeSameList.add( capsuleRangeList.get( i ) );
-                    }
+//                    for (int i = 0; i < capsuleRangeList.size(); i++) {
+//                        boolean yes = false;
+//                        for (int j = i + 1; j < capsuleRangeList.size(); j++) {
+//                            if (capsuleRangeList.get( i ).getLatitude() == capsuleRangeList.get( j ).getLatitude()
+//                                    && capsuleRangeList.get( i ).getLongitude() == capsuleRangeList.get( j ).getLongitude()) {
+//                                yes = true;
+//                                if (capsuleRangeSameList.get( i ).equals( capsuleList )) {
+//                                    break;
+//                                } else capsuleRangeSameList.add( capsuleRangeList.get( j ) );
+//                                break;
+//                            } else {
+//                                continue;
+//                            }
+//                        }
+//                        if (i != 0) {
+//                            if (!yes && !capsuleRangeNotSameList.get( i ).equals( capsuleRangeList ))
+//                                capsuleRangeNotSameList.add( capsuleRangeList.get( i ) );
+//                        }
+//                        if (yes)
+//                            capsuleRangeSameList.add( capsuleRangeList.get( i ) );
+//                    }
                 }
 
                 // 반경에 해당하는 일기를 확인하기 위한 테스트 코드
@@ -338,7 +343,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
 
     }
 

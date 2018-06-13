@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
-    android:background="@drawable/title_gradient_2"
+    android:background="@drawable/title_gradient_9"
     android:layout_height="50dp">
 
     <TextView
@@ -16,7 +16,7 @@
         android:layout_marginTop="8dp"
         android:text="000M"
         android:textColor="#ffffff"
-        android:textSize="30dp"
+        android:textSize="26dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
