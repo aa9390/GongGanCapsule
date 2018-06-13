@@ -323,7 +323,7 @@ public class MainActivity extends AppCompatActivity {
                                         }
 
                                         if (locationScene != null) {
-                                            locationScene.setAnchorRefreshInterval (60);
+//                                            locationScene.setAnchorRefreshInterval (60);
                                             locationScene.processFrame(frame);
                                         }
 
