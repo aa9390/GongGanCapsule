@@ -1,6 +1,9 @@
 package capstone.gonggancapsule;
 
 import android.app.Activity;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -18,6 +21,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -61,6 +65,7 @@ import capstone.gonggancapsule.database.DatabaseHelper;
 import uk.co.appoly.arcorelocation.LocationMarker;
 import uk.co.appoly.arcorelocation.LocationScene;
 import uk.co.appoly.arcorelocation.utils.ARLocationPermissionHelper;
+
 
 // ARCore 1.2Ver로 바뀜으로 인해 openGL코드 삭제
 public class MainActivity extends AppCompatActivity {
@@ -338,7 +343,6 @@ public class MainActivity extends AppCompatActivity {
             text.setText( "Unable to find" );
             System.out.println( "Unable" );
         }
-
     }
 
     @Override
