@@ -23,7 +23,7 @@ public class DataBaseCheckActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_database_check);
 
-        final DatabaseHelper dbHelper = new DatabaseHelper(getApplicationContext(), "capsule", null, 1);
+        final DatabaseHelper dbHelper = new DatabaseHelper(getApplicationContext(), "capsule", null, 2);
 
         // 테이블에 있는 모든 데이터 출력
         final TextView result = findViewById(R.id.result);
@@ -53,7 +53,7 @@ public class DataBaseCheckActivity extends AppCompatActivity {
                 String content = etContent.getText().toString();
                 String picture = etPicture.getText().toString();
 
-                dbHelper.insertDiary(latitude, longitude, create_date, content, picture);
+                dbHelper.insertDiary(latitude, longitude, create_date, content, picture, "제목");
 
                 result.setText(dbHelper.getDiary());
             }

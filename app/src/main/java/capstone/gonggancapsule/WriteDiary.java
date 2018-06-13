@@ -38,6 +38,7 @@ public class WriteDiary extends AppCompatActivity {
     TextView locationTv;
     EditText writeContentEt;
     Button saveDiaryBtn;
+    EditText title_editText;
 
     public String dateString;
     public String path;
@@ -53,7 +54,7 @@ public class WriteDiary extends AppCompatActivity {
         setContentView(R.layout.activity_write_diary_2);
 
         // DB9
-        final DatabaseHelper dbHelper = new DatabaseHelper(WriteDiary.this, "capsule", null, 1);
+        final DatabaseHelper dbHelper = new DatabaseHelper(WriteDiary.this, "capsule", null, 2);
 
         selectedPictureIv = (ImageView) findViewById(R.id.selectedPictureIv);
         dateTv = (TextView) findViewById(R.id.dateTv);
@@ -62,6 +63,7 @@ public class WriteDiary extends AppCompatActivity {
         saveDiaryBtn = (Button) findViewById(R.id.saveDiaryBtn);
         changeDateBtn = (ImageButton) findViewById(R.id.changeDateBtn);
         changeLocationBtn = (ImageButton) findViewById(R.id.changeLocationBtn);
+        title_editText = (EditText) findViewById(R.id.title_editText);
 
         Intent intent = getIntent();
         String galleryPath = intent.getStringExtra("galleryPath");
@@ -118,9 +120,15 @@ public class WriteDiary extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 GPSTracker gpsTracker = new GPSTracker(WriteDiary.this);
+                String title = title_editText.getText().toString(); //제목
                 String create_date = dateTv.getText().toString(); //작성 날짜
                 String content = writeContentEt.getText().toString(); //내용
-                dbHelper.insertDiary(latitude, longitude, create_date, content, path);
+                dbHelper.insertDiary(latitude, longitude, create_date, content, path, title);
+
+                if(MainActivity.activity2 != null) {
+                    MainActivity activity2 = (MainActivity)MainActivity.activity2;
+                    activity2.finish();
+                }
 
                 Intent intent = new Intent(WriteDiary.this, MainActivity.class);
                 startActivity(intent);

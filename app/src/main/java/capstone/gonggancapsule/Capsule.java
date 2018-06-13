@@ -64,6 +64,7 @@ public class Capsule {
     private String create_date;
     private String content;
     private String picture;
+    private String title;
 
     @Override
     public String toString() {
@@ -123,5 +124,13 @@ public class Capsule {
 
     public void setPicture(String picture) {
         this.picture = picture;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

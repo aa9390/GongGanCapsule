@@ -67,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
     Activity activity = this;
     Context context = this;
 
+    public static MainActivity activity2 = null;
+
     private boolean installRequested;
 
     // Database 임시 확인을 위한 버튼
@@ -74,16 +76,16 @@ public class MainActivity extends AppCompatActivity {
     ImageButton database;
 
     // Database Helper 선언
-    DatabaseHelper dbHelper = new DatabaseHelper(this, "capsule", null, 1);
+    DatabaseHelper dbHelper = new DatabaseHelper(this, "capsule", null, 2);
 
     // ARSceneform 관련 코드
     private ArSceneView arSceneView;
-    private ArrayList<ViewRenderable> diaryRenderableList = new ArrayList<>(  );
-    private ArrayList<ModelRenderable> capsuleRenderableList = new ArrayList<>(  );
-    private ArrayList<ViewRenderable> infoCapsuleRenderableList = new ArrayList<>(  );
-    private ArrayList<CompletableFuture<ViewRenderable>> diaryLayoutList = new ArrayList<>(  );
-    private ArrayList<CompletableFuture<ModelRenderable>> objCapsuleList = new ArrayList<>(  );
-    private ArrayList<CompletableFuture<ViewRenderable>> infoLayoutList = new ArrayList<>(  );
+    private ArrayList<ViewRenderable> diaryRenderableList = new ArrayList<>();
+    private ArrayList<ModelRenderable> capsuleRenderableList = new ArrayList<>();
+    private ArrayList<ViewRenderable> infoCapsuleRenderableList = new ArrayList<>();
+    private ArrayList<CompletableFuture<ViewRenderable>> diaryLayoutList = new ArrayList<>();
+    private ArrayList<CompletableFuture<ModelRenderable>> objCapsuleList = new ArrayList<>();
+    private ArrayList<CompletableFuture<ViewRenderable>> infoLayoutList = new ArrayList<>();
     private LocationScene locationScene;
 
     // 메인화면 툴바, 작성 날짜, FAB를 위한 코드
@@ -112,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
     public String mCurrentPhotoPath;
 
     // 캡슐 객체 관련 코드
-    ArrayList<Capsule> capsuleList;
+    public ArrayList<Capsule> capsuleList = null;
     final ArrayList<Capsule> capsuleRangeList = new ArrayList<>();
     ArrayList<Capsule> capsuleRangeSameList = new ArrayList<>();
     Capsule capsule;
@@ -126,18 +128,21 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+        activity2 = this;
+
         arSceneView = findViewById(R.id.ar_scene_view);
         capsuleList = dbHelper.getAllDiary();
 
         // 메인 화면 초기화
         initView();
 
-        GPSTracker mGPS = new GPSTracker( this );
+        GPSTracker mGPS = new GPSTracker(this);
 
         Spinner spinner = (Spinner) findViewById(R.id.spinner);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                capsuleList = dbHelper.getAllDiary();
                 int range = 50;
                 switch (position) {
                     case 0:
@@ -167,12 +172,12 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     // 저장된 위치가 같은 캡슐 찾아내기
-                    for(int i=0; i<capsuleRangeList.size(); i++) {
-                        Capsule capsuleTempOne = capsuleRangeList.get( i );
+                    for (int i = 0; i < capsuleRangeList.size(); i++) {
+                        Capsule capsuleTempOne = capsuleRangeList.get(i);
                         for (int j = 0; j < capsuleRangeList.size(); j++) {
-                            Capsule capsuleTempTwo = capsuleRangeList.get( j );
+                            Capsule capsuleTempTwo = capsuleRangeList.get(j);
                             if (capsuleTempOne.getLatitude() == capsuleTempTwo.getLatitude() && capsuleTempOne.getLongitude() == capsuleTempTwo.getLongitude()) {
-                                capsuleRangeSameList.add( capsule );
+                                capsuleRangeSameList.add(capsule);
                             }
                         }
                     }
@@ -183,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
                 for (int i = 0; i < capsuleRangeList.size(); i++) {
                     sb.append(capsuleRangeList.get(i).toString());
                 }
-                Toast.makeText(MainActivity.this, sb, Toast.LENGTH_LONG).show();
+                //Toast.makeText(MainActivity.this, sb, Toast.LENGTH_LONG).show();
 
                 // 일기장 보여줄 레이아웃 설정
                 if (capsuleRangeList.size() != 0) {
@@ -191,9 +196,9 @@ public class MainActivity extends AppCompatActivity {
                     // 반경 안에 있는 일기장 개수 만큼
                     // diaryLayoutList, objCapsuleList, infoLayoutList 생성
                     for (int i = 0; i < capsuleRangeList.size(); i++) {
-                        diaryLayoutList.add( ViewRenderable.builder().setView( context, R.layout.item_diary_3 ).build() );
-                        objCapsuleList.add( ModelRenderable.builder().setSource(context, Uri.parse("obj_capsule.sfb")).build() );
-                        infoLayoutList.add( ViewRenderable.builder().setView( context, R.layout.item_capsule_top ).build());
+                        diaryLayoutList.add(ViewRenderable.builder().setView(context, R.layout.item_diary_3).build());
+                        objCapsuleList.add(ModelRenderable.builder().setSource(context, Uri.parse("obj_capsule.sfb")).build());
+                        infoLayoutList.add(ViewRenderable.builder().setView(context, R.layout.item_capsule_top).build());
                     }
 
                     CompletableFuture<ViewRenderable> diary = new CompletableFuture<>();
@@ -201,13 +206,13 @@ public class MainActivity extends AppCompatActivity {
                     CompletableFuture<ViewRenderable> infoCapsule = new CompletableFuture<>();
 
                     for (int i = 0; i < capsuleRangeList.size(); i++) {
-                        diary = diaryLayoutList.get( i );
-                        objCapsule = objCapsuleList.get( i );
-                        infoCapsule = infoLayoutList.get( i );
+                        diary = diaryLayoutList.get(i);
+                        objCapsule = objCapsuleList.get(i);
+                        infoCapsule = infoLayoutList.get(i);
                     }
 
                     CompletableFuture
-                            .allOf( diary , objCapsule, infoCapsule)
+                            .allOf(diary, objCapsule, infoCapsule)
                             .handle(
                                     (notUsed, throwable) -> {
                                         if (throwable != null) {
@@ -219,9 +224,9 @@ public class MainActivity extends AppCompatActivity {
                                         try {
                                             if (capsuleRangeList.size() != 0) {
                                                 for (int i = 0; i < capsuleRangeList.size(); i++) {
-                                                    diaryRenderableList.add( diaryLayoutList.get( i ).get() );
-                                                    capsuleRenderableList.add( objCapsuleList.get( i ).get() );
-                                                    infoCapsuleRenderableList.add( infoLayoutList.get( i ).get() );
+                                                    diaryRenderableList.add(diaryLayoutList.get(i).get());
+                                                    capsuleRenderableList.add(objCapsuleList.get(i).get());
+                                                    infoCapsuleRenderableList.add(infoLayoutList.get(i).get());
                                                 }
                                             }
 
@@ -240,64 +245,61 @@ public class MainActivity extends AppCompatActivity {
                                         if (locationScene == null) {
                                             locationScene = new LocationScene(context, activity, arSceneView);
 
-                                            Toast.makeText( getApplicationContext(),"불러올 데이터가" + capsuleRangeList.size() + "개 있습니다.", Toast.LENGTH_SHORT ).show();
+                                            Toast.makeText(getApplicationContext(), "불러올 데이터가" + capsuleRangeList.size() + "개 있습니다.", Toast.LENGTH_SHORT).show();
 
                                             LocationMarker[] locationMarker = new LocationMarker[100];
 
-                                                for (int i = 0; i < capsuleRangeList.size(); i++) {
-                                                    // node 객체 생성
-                                                    Node base = new Node();
-                                                    base.setRenderable(capsuleRenderableList.get( i ));
+                                            for (int i = 0; i < capsuleRangeList.size(); i++) {
+                                                // node 객체 생성
+                                                Node base = new Node();
+                                                base.setRenderable(capsuleRenderableList.get(i));
 
-                                                    Node info = new Node();
-                                                    info.setRenderable( infoCapsuleRenderableList.get( i ) );
-                                                    info.setParent( base );
-                                                    info.setLocalPosition( new Vector3( 0.0f, 0.5f, 0.0f ));
+                                                Node info = new Node();
+                                                info.setRenderable(infoCapsuleRenderableList.get(i));
+                                                info.setParent(base);
+                                                info.setLocalPosition(new Vector3(0.0f, 0.5f, 0.0f));
 
-                                                    // DB에서 위도, 경도를 받아와 location Marker에 저장.
-                                                    locationMarker[i] = new LocationMarker(
-                                                            capsuleRangeList.get( i ).getLongitude(), capsuleRangeList.get( i ).getLatitude(), base );
+                                                // DB에서 위도, 경도를 받아와 location Marker에 저장.
+                                                locationMarker[i] = new LocationMarker(
+                                                        capsuleRangeList.get(i).getLongitude(), capsuleRangeList.get(i).getLatitude(), base);
 
-                                                    int finalI = i;
-                                                    AtomicBoolean touched = new AtomicBoolean( false );
+                                                int finalI = i;
+                                                AtomicBoolean touched = new AtomicBoolean(false);
 
-                                                    // Renderable 터치 시 이벤트 구현
-                                                    base.setOnTapListener( (hitTestResult, motionEvent) -> {
-                                                        if(!touched.get()) {
-                                                            base.setRenderable( diaryRenderableList.get( finalI ) );
-                                                            info.setEnabled( false );
-                                                            touched.set( true );
-                                                        }
-                                                        else if (touched.get()) {
-                                                            base.setRenderable( capsuleRenderableList.get( finalI ) );
-                                                            info.setEnabled( true );
-                                                            touched.set( false );
-                                                        }
-                                                    } );
-
-                                                    locationMarker[i].setRenderEvent( node -> {
-                                                        // DB에서 날짜, 내용등을 불러와 diary에 띄움.
-                                                        View eView = diaryRenderableList.get( finalI ).getView();
-                                                        TextView content = eView.findViewById( R.id.showContentTv );
-                                                        ImageView pic = eView.findViewById( R.id.showPictureIv );
-                                                        TextView date = eView.findViewById(R.id.showDateTv);
-                                                        date.setText(capsuleRangeList.get( finalI ).getCreate_date());
-                                                        Glide.with(MainActivity.this).load(capsuleRangeList.get(finalI).getPicture()).into(pic);
-                                                        content.setText( capsuleRangeList.get( finalI ).getContent() );
-                                                        TextView distanceTextView = eView.findViewById( R.id.distance );
-                                                        distanceTextView.setText( node.getDistance() + "M" );
-
-                                                        View infoView = infoCapsuleRenderableList.get( finalI ).getView();
-                                                        TextView distance = infoView.findViewById( R.id.distance );
-                                                        distance.setText( node.getDistance() + "M" );
+                                                // Renderable 터치 시 이벤트 구현
+                                                base.setOnTapListener((hitTestResult, motionEvent) -> {
+                                                    if (!touched.get()) {
+                                                        base.setRenderable(diaryRenderableList.get(finalI));
+                                                        info.setEnabled(false);
+                                                        touched.set(true);
+                                                    } else if (touched.get()) {
+                                                        base.setRenderable(capsuleRenderableList.get(finalI));
+                                                        info.setEnabled(true);
+                                                        touched.set(false);
                                                     }
-                                                    );
+                                                });
 
-                                                    locationScene.mLocationMarkers.add( locationMarker[i] );
+                                                locationMarker[i].setRenderEvent(node -> {
+                                                            // DB에서 날짜, 내용등을 불러와 diary에 띄움.
+                                                            View eView = diaryRenderableList.get(finalI).getView();
+                                                            TextView content = eView.findViewById(R.id.showContentTv);
+                                                            ImageView pic = eView.findViewById(R.id.showPictureIv);
+                                                            TextView date = eView.findViewById(R.id.showDateTv);
+                                                            date.setText(capsuleRangeList.get(finalI).getCreate_date());
+                                                            Glide.with(MainActivity.this).load(capsuleRangeList.get(finalI).getPicture()).into(pic);
+                                                            content.setText(capsuleRangeList.get(finalI).getContent());
+                                                            TextView distanceTextView = eView.findViewById(R.id.distance);
+                                                            distanceTextView.setText(node.getDistance() + "M");
 
+                                                            View infoView = infoCapsuleRenderableList.get(finalI).getView();
+                                                            TextView distance = infoView.findViewById(R.id.distance);
+                                                            distance.setText(node.getDistance() + "M");
+                                                        }
+                                                );
 
-                                                }
+                                                locationScene.mLocationMarkers.add(locationMarker[i]);
                                             }
+                                        }
 
                                         Frame frame = arSceneView.getArFrame();
 
@@ -310,7 +312,7 @@ public class MainActivity extends AppCompatActivity {
                                         }
 
                                         if (locationScene != null) {
-                                            locationScene.setAnchorRefreshInterval (60);
+                                            locationScene.setAnchorRefreshInterval(60);
                                             locationScene.processFrame(frame);
                                         }
 
@@ -332,11 +334,11 @@ public class MainActivity extends AppCompatActivity {
 
         if (mGPS.canGetLocation) {
             mGPS.getLocation();
-            text.setText( "Lat" + mGPS.getLatitude() );
-            text2.setText( "Lon" + mGPS.getLongitude() );
+            text.setText("Lat" + mGPS.getLatitude());
+            text2.setText("Lon" + mGPS.getLongitude());
         } else {
-            text.setText( "Unable to find" );
-            System.out.println( "Unable" );
+            text.setText("Unable to find");
+            System.out.println("Unable");
         }
 
     }
@@ -400,17 +402,21 @@ public class MainActivity extends AppCompatActivity {
         public void onItemClick(AdapterView parent, View view, int position, long id) {
             selectItem(position);
         }
+
+        private void selectItem(int position) {
+            // update the main content by replacing fragments
+//            Bundle args = new Bundle();
+//
+//            // update selected item and title, then close the drawer
+//            mDrawerList.setItemChecked(position, true);
+//            setTitle(mDatesTitles[position]);
+//            mDrawerLayout.closeDrawer(mDrawerList);
+
+            Log.d("position", "position : " + position);
+            mDrawerLayout.closeDrawer(mDrawerList);
+        }
     }
 
-    private void selectItem(int position) {
-        // update the main content by replacing fragments
-        Bundle args = new Bundle();
-
-        // update selected item and title, then close the drawer
-        mDrawerList.setItemChecked(position, true);
-        setTitle(mDatesTitles[position]);
-        mDrawerLayout.closeDrawer(mDrawerList);
-    }
 
     View.OnClickListener clickListener = new View.OnClickListener() {
         @Override
@@ -482,15 +488,16 @@ public class MainActivity extends AppCompatActivity {
 
         // 작성 날짜 및 개수 받아오기
         ArrayList<String> dateList = dbHelper.getDateList();
-        int totalDiary = dbHelper.getDiaryCount();
-
         totalTv = (TextView) findViewById(R.id.totalTv);
-        totalTv.setText("총 " + totalDiary + "개");
+        setTotalCount();
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
-        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, dateList));
-        //mDrawerList.setOnItemClickListener( new DrawerItemClickListener() );
+//        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, dateList));
+//        mDrawerList.setOnItemClickListener( new DrawerItemClickListener() );
+
+        TitleAdapter titleAdapter = new TitleAdapter(MainActivity.this, capsuleList);
+        mDrawerList.setAdapter(titleAdapter);
 
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 R.string.drawer_open, R.string.drawer_close) {
@@ -499,6 +506,7 @@ public class MainActivity extends AppCompatActivity {
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
                 //getActionBar().setTitle(mTitle);
+                //Toast.makeText(MainActivity.this, capsuleRangeList.size() + " / " + capsuleList.size(), Toast.LENGTH_SHORT).show();
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
 
@@ -613,4 +621,8 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void setTotalCount() {
+        int totalDiary = dbHelper.getDiaryCount();
+        totalTv.setText("총 " + totalDiary + "개");
+    }
 }

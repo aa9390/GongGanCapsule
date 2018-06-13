@@ -1,7 +1,5 @@
 package capstone.gonggancapsule.database;
 
-
-
 public class CapsuleDB {
     public static final String TABLE_NAME = "capsule";
 
@@ -11,6 +9,7 @@ public class CapsuleDB {
     public static final String COLUMN_CREATEDATE = "create_date";
     public static final String COLUMN_CONTENT = "content";
     public static final String COLUMN_PICTURE = "picture";
+    public static final String COLUMN_TITLE = "title";
 
     private int capsule_id;
     private double latitude;
@@ -18,6 +17,7 @@ public class CapsuleDB {
     private String create_date;
     private String content;
     private String picture;
+    private String title;
 
     //create table SQL query
     public static final String CREATE_TABLE =
@@ -27,19 +27,21 @@ public class CapsuleDB {
                     + COLUMN_LONGITUDE + " DOUBLE NOT NULL, "
                     + COLUMN_CREATEDATE + " STRING, "
                     + COLUMN_CONTENT + " TEXT, "
-                    + COLUMN_PICTURE + " STRING"
+                    + COLUMN_PICTURE + " STRING, "
+                    + COLUMN_TITLE + " STRING"
                     + ");";
 
     public CapsuleDB(){
     }
 
-    public CapsuleDB(int capsule_id, double latitude, double longitude, String create_date, String content, String picture) {
+    public CapsuleDB(int capsule_id, double latitude, double longitude, String create_date, String content, String picture, String title) {
         this.capsule_id = capsule_id;
         this.latitude = latitude;
         this.longitude = longitude;
         this.create_date = create_date;
         this.content = content;
         this.picture = picture;
+        this.title = title;
     }
 
     //get()

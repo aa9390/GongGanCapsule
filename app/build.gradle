@@ -57,6 +57,8 @@ dependencies {
     // Glide
     implementation 'com.github.bumptech.glide:glide:4.7.1'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.7.1'
+    // dialog
+    implementation 'com.github.andyxialm:ColorDialog:1.0.0'
 }
 
 apply plugin: 'com.google.ar.sceneform.plugin'

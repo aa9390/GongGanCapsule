@@ -134,7 +134,7 @@
 
         <TextView
             android:textColor="#ffffff"
-            android:text="작성 날짜"
+            android:text="작성 리스트"
             android:gravity="center"
             android:textSize="20sp"
             android:layout_width="match_parent"
@@ -151,11 +151,11 @@
 
         <ListView
             android:id="@+id/left_drawer"
+            android:divider="@null"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:choiceMode="singleChoice" />
 
     </LinearLayout>
-
 
 </android.support.v4.widget.DrawerLayout>
