@@ -54,7 +54,7 @@ public class WriteDiary extends AppCompatActivity {
         setContentView(R.layout.activity_write_diary_2);
 
         // DB9
-        final DatabaseHelper dbHelper = new DatabaseHelper(WriteDiary.this, "capsule", null, 2);
+        final DatabaseHelper dbHelper = new DatabaseHelper(WriteDiary.this, "capsule", null, 3);
 
         selectedPictureIv = (ImageView) findViewById(R.id.selectedPictureIv);
         dateTv = (TextView) findViewById(R.id.dateTv);

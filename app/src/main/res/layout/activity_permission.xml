@@ -63,14 +63,13 @@
         app:layout_constraintBottom_toTopOf="@+id/permisson_btn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/content"
-        android:alpha="0.75">
+        app:layout_constraintTop_toBottomOf="@+id/content">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="10dp"
-            android:background="#ffffff"
+            android:background="@drawable/title_gradient_3"
             android:orientation="horizontal">
 
             <LinearLayout
@@ -98,6 +97,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginStart="10dp"
+                android:textColor="#ffffff"
                 android:gravity="left|center_vertical"
                 android:text="카메라 \n공간캡슐에 사진을 첨부하기 위해 필요합니다. " />
 
@@ -108,7 +108,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:padding="10dp"
-            android:background="#ffffff"
+            android:background="@drawable/title_gradient_3"
             android:orientation="horizontal">
 
             <LinearLayout
@@ -131,6 +131,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="left|center_vertical"
                 android:layout_marginStart="10dp"
+                android:textColor="#ffffff"
                 android:text="위치\n내 주변의 공간캡슐을 찾고 \n거리를 측정하기 위해 필요합니다." />
 
         </LinearLayout>
@@ -140,7 +141,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:padding="10dp"
-            android:background="#ffffff"
+            android:background="@drawable/title_gradient_3"
             android:orientation="horizontal">
 
             <LinearLayout
@@ -169,6 +170,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="left|center_vertical"
                 android:layout_marginStart="10dp"
+                android:textColor="#ffffff"
                 android:text="저장소 \n공간캡슐에 사진을 첨부할 경우 \n갤러리에 사진을 저장하기 위해 필요합니다." />
 
         </LinearLayout>
@@ -176,7 +178,7 @@
 
     <Button
         android:id="@+id/permisson_btn"
-        android:layout_width="350dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
@@ -185,10 +187,12 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="16dp"
         android:text="권한 허용하기"
+        app:layout_constraintTop_toBottomOf="@+id/permissionList"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:background="#ffffff"
+        android:background="@drawable/title_gradient_4"
+        android:elevation="5dp"
         />
 
 </android.support.constraint.ConstraintLayout>

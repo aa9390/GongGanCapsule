@@ -91,7 +91,7 @@ public class TitleAdapter extends BaseAdapter {
     }
 
     public void removeData(int idx) {
-        DatabaseHelper dbHelper = new DatabaseHelper(mContext, "capsule", null, 2);
+        DatabaseHelper dbHelper = new DatabaseHelper(mContext, "capsule", null, 3);
         dbHelper.delete(idx);
         --titleCount;
         notifyDataSetChanged();

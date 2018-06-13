@@ -23,7 +23,7 @@ public class DataBaseCheckActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_database_check);
 
-        final DatabaseHelper dbHelper = new DatabaseHelper(getApplicationContext(), "capsule", null, 2);
+        final DatabaseHelper dbHelper = new DatabaseHelper(getApplicationContext(), "capsule", null, 3);
 
         // 테이블에 있는 모든 데이터 출력
         final TextView result = findViewById(R.id.result);
