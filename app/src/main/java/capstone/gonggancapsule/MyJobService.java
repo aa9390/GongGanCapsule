@@ -28,6 +28,9 @@ public class MyJobService extends JobService {
     final ArrayList<Capsule> capsuleRangeList = new ArrayList<>();
     Capsule capsule;
 
+    public boolean isGPSEnabled = false;
+    boolean isNetworkEnabled = false;
+
     Location location; // location
     double latitude = 0; // latitude
     double longitude = 0; // longitude
@@ -60,11 +63,16 @@ public class MyJobService extends JobService {
             //GPSTracker mGPS = new GPSTracker( MyJobService.this );
             capsuleList = dbHelper.getAllDiary();
 
+            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
-            LocationManager locationManager;
+            if(isGPSEnabled) {
+                location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            }else if(isNetworkEnabled){
+                location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            }
 
-            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             latitude = location.getLatitude();
             longitude = location.getLongitude();
 
