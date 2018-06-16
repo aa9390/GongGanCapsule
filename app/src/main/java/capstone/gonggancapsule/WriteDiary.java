@@ -100,21 +100,6 @@ public class WriteDiary extends AppCompatActivity {
             }
         });
 
-//        // save 버튼을 누르면 DB에 데이터 저장 (INSERT)
-//        saveDiaryBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                GPSTracker gpsTracker = new GPSTracker(WriteDiary.this);
-//                String create_date = dateTv.getText().toString(); //작성 날짜
-//                String content = writeContentEt.getText().toString(); //내용
-//                dbHelper.insertDiary(latitude, longitude, create_date, content, path);
-//
-//                Intent intent = new Intent(WriteDiary.this, MainActivity.class);
-//                startActivity(intent);
-//                finish();
-//            }
-//        });
-
         // save 버튼을 누르면 DB에 데이터 저장 (INSERT)
         saveDiaryBtn.setOnClickListener(new View.OnClickListener() {
             @Override
