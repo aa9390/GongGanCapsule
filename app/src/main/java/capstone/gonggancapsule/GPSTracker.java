@@ -30,12 +30,11 @@ public final class GPSTracker implements LocationListener {
     double latitude; // latitude
     double longitude; // longitude
 
-    // The minimum distance to change Updates in meters
     // 마커 고정 위해 거리를 0에서 1로 조정
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 1;
 
-    // The minimum time between updates in milliseconds
-    private static final long MIN_TIME_BW_UPDATES = 1000 * 20; // 20초
+    // 20초 마다 업데이트
+    private static final long MIN_TIME_BW_UPDATES = 1000 * 20;
 
     // Declaring a Location Manager
     protected LocationManager locationManager;
@@ -114,7 +113,6 @@ public final class GPSTracker implements LocationListener {
                 }
             }
 
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -168,17 +166,8 @@ public final class GPSTracker implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
-        // 6/8 주영 삭제 코드
-        // double latitude = location.getLatitude();
-        // double longitude = location.getLongitude();
-
-        // 6/8 주영 추가 코드
         latitude = location.getLatitude();
         longitude = location.getLongitude();
-
-//        Toast.makeText(mContext,"Lat: " + latitude, Toast.LENGTH_SHORT).show();
-//        Toast.makeText(mContext,"Lon: " + longitude, Toast.LENGTH_SHORT).show();
-
     }
 
     @Override
