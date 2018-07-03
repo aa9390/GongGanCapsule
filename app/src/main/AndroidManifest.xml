@@ -23,7 +23,8 @@
 
     <application
         android:name=".NotificationChannel"
-        android:allowBackup="true"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
         android:icon="@drawable/icon_capsule_5"
         android:label="@string/app_name"
         android:roundIcon="@drawable/icon_capsule_5"

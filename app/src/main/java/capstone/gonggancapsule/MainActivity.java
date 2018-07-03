@@ -61,8 +61,6 @@ import uk.co.appoly.arcorelocation.LocationMarker;
 import uk.co.appoly.arcorelocation.LocationScene;
 import uk.co.appoly.arcorelocation.utils.ARLocationPermissionHelper;
 
-
-// ARCore 1.2Ver로 바뀜으로 인해 openGL코드 삭제
 public class MainActivity extends AppCompatActivity {
     Activity activity = this;
     Context context = this;
@@ -116,10 +114,7 @@ public class MainActivity extends AppCompatActivity {
     // 캡슐 객체 관련 코드
     public ArrayList<Capsule> capsuleList = null;
     final ArrayList<Capsule> capsuleRangeList = new ArrayList<>();
-    ArrayList<Capsule> capsuleRangeSameList = new ArrayList<>();
-    ArrayList<Capsule> capsuleRangeNotSameList = new ArrayList<>();
     Capsule capsule;
-
     Glide glide;
 
     @Override
@@ -184,7 +179,6 @@ public class MainActivity extends AppCompatActivity {
                     capsuleRangeList.add(capsule);
                 }
             }
-
         }
 
         // 일기장 보여줄 레이아웃 설정
