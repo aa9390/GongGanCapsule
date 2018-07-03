@@ -34,7 +34,7 @@
     <android.support.constraint.ConstraintLayout
         android:id="@+id/constraintLayout6"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_height="320dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/constraintLayout3">
@@ -42,11 +42,10 @@
         <ImageView
             android:id="@+id/selectedPictureIv"
             android:layout_width="354dp"
-            android:layout_height="200dp"
+            android:layout_height="190dp"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginBottom="8dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="8dp"
             android:scaleType="fitCenter"
             app:layout_constraintBottom_toTopOf="@+id/constraintLayout7"
             app:layout_constraintEnd_toEndOf="parent"
@@ -55,7 +54,7 @@
 
         <android.support.constraint.ConstraintLayout
             android:id="@+id/constraintLayout7"
-            android:layout_width="372dp"
+            android:layout_width="360dp"
             android:layout_height="wrap_content"
             android:layout_margin="12dp"
             android:gravity="center"
@@ -91,8 +90,8 @@
 
                     <ImageButton
                         android:id="@+id/changeDateBtn"
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
                         android:background="@null"
                         android:scaleType="fitXY"
                         android:src="@drawable/ic_date_range_black_24dp"
@@ -122,8 +121,8 @@
 
                     <ImageButton
                         android:id="@+id/changeLocationBtn"
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
                         android:background="@null"
                         android:scaleType="fitXY"
                         android:src="@drawable/location_btn"
