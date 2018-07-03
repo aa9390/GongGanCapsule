@@ -3,7 +3,6 @@ package capstone.gonggancapsule;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,9 +10,6 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.ar.core.exceptions.CameraNotAvailableException;
-
-import java.time.LocalDate;
 import java.util.ArrayList;
 
 import capstone.gonggancapsule.database.DatabaseHelper;
@@ -29,6 +25,7 @@ public class TitleAdapter extends BaseAdapter {
     public TitleAdapter(Context context, ArrayList<Capsule> titleList) {
         this.mContext = context;
         this.titleList = titleList;
+        //titleCount = this.titleList.size();
     }
 
     @Override
@@ -76,7 +73,7 @@ public class TitleAdapter extends BaseAdapter {
                         @Override
                         public void onClick(ColorDialog dialog) {
                             Toast.makeText(mContext, "삭제!", Toast.LENGTH_SHORT).show();
-                            removeData(capsuleData);
+                            removeData(capsuleData.getCapsule_id());
                             dialog.dismiss();
                         }
                     });
@@ -93,9 +90,9 @@ public class TitleAdapter extends BaseAdapter {
         return convertView;
     }
 
-    public void removeData(Capsule capsule) {
+    public void removeData(int idx) {
         DatabaseHelper dbHelper = new DatabaseHelper(mContext, "capsule", null, 3);
-        dbHelper.delete(capsule.getCapsule_id());
+        dbHelper.delete(idx);
         --titleCount;
         notifyDataSetChanged();
 
@@ -103,8 +100,8 @@ public class TitleAdapter extends BaseAdapter {
         titleList = dbHelper.getAllDiary();
 
         ((MainActivity)mContext).setTotalCount();
-        notifyDataSetChanged();
-        //((MainActivity)mContext).capsuleList.clear();
-        //((MainActivity)mContext).capsuleList = dbHelper.getAllDiary();
+        //((MainActivity)mContext).capsuleList = titleList;
+
     }
+
 }

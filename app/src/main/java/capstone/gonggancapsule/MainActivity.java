@@ -130,11 +130,12 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         activity2 = this;
+
         arSceneView = findViewById(R.id.ar_scene_view);
+        capsuleList = dbHelper.getAllDiary();
 
         // 메인 화면 초기화
         initView();
-        capsuleList = dbHelper.getAllDiary();
 
         GPSTracker mGPS = new GPSTracker(this);
 
@@ -142,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
+                capsuleList = dbHelper.getAllDiary();
                 int range = 50;
                 switch (position) {
                     case 0:
@@ -160,10 +161,9 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if (capsuleList != null) {
-
-                    //if (capsuleRangeList != null) {
+                    if (capsuleRangeList != null) {
                         capsuleRangeList.clear();
-                    //}
+                    }
                     // 선택한 반경 안의 캡슐만 list에 add
                     for (int i = 0; i < capsuleList.size(); i++) {
                         capsule = capsuleList.get(i);
@@ -317,6 +317,8 @@ public class MainActivity extends AppCompatActivity {
                                                 );
 
                                                 locationScene.mLocationMarkers.add( locationMarker[i] );
+
+
                                             }
                                         }
 
@@ -493,6 +495,7 @@ public class MainActivity extends AppCompatActivity {
         FabClose = AnimationUtils.loadAnimation(this, R.anim.fab_close);
 
         // 작성 날짜 및 개수 받아오기
+        ArrayList<String> dateList = dbHelper.getDateList();
         totalTv = (TextView) findViewById(R.id.totalTv);
         setTotalCount();
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -501,7 +504,6 @@ public class MainActivity extends AppCompatActivity {
 //        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, dateList));
 //        mDrawerList.setOnItemClickListener( new DrawerItemClickListener() );
 
-        capsuleList = dbHelper.getAllDiary();
         TitleAdapter titleAdapter = new TitleAdapter(MainActivity.this, capsuleList);
         mDrawerList.setAdapter(titleAdapter);
 
