@@ -3,6 +3,7 @@ package capstone.gonggancapsule;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,7 +73,7 @@ public class TitleAdapter extends BaseAdapter {
                     dialog.setPositiveListener("YES", new ColorDialog.OnPositiveListener() {
                         @Override
                         public void onClick(ColorDialog dialog) {
-                            Toast.makeText(mContext, "삭제!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(mContext, "캡슐이 삭제되었습니다!", Toast.LENGTH_SHORT).show();
                             removeData(capsuleData.getCapsule_id());
                             dialog.dismiss();
                         }
@@ -101,5 +102,6 @@ public class TitleAdapter extends BaseAdapter {
 
         ((MainActivity)mContext).setTotalCount();
         notifyDataSetChanged();
+
     }
 }

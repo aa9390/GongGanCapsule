@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
 
     // 캡슐 객체 관련 코드
     public ArrayList<Capsule> capsuleList = null;
-    final ArrayList<Capsule> capsuleRangeList = new ArrayList<>();
+    public ArrayList<Capsule> capsuleRangeList = null;
     Capsule capsule;
     Glide glide;
 
@@ -123,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+        capsuleRangeList = new ArrayList<>();
         activity2 = this;
         arSceneView = findViewById(R.id.ar_scene_view);
 
