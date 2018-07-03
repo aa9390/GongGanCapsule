@@ -55,7 +55,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import capstone.gonggancapsule.database.DatabaseHelper;
 import uk.co.appoly.arcorelocation.LocationMarker;
 import uk.co.appoly.arcorelocation.LocationScene;
@@ -166,12 +165,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void renderable(int range, ArrayList<Capsule> capsuleList, GPSTracker mGPS) {
         if (capsuleList != null) {
-//            capsuleList.clear();
-//            capsuleList = dbHelper.getAllDiary();
-
-            //if (capsuleRangeList != null) {
             capsuleRangeList.clear();
-            //}
             // 선택한 반경 안의 캡슐만 list에 add
             for (int i = 0; i < capsuleList.size(); i++) {
                 capsule = capsuleList.get(i);
@@ -211,7 +205,6 @@ public class MainActivity extends AppCompatActivity {
                                             getApplicationContext(), "Unable to load renderables", throwable);
                                     return null;
                                 }
-
                                 try {
                                     if (capsuleRangeList.size() != 0) {
                                         for (int i = 0; i < capsuleRangeList.size(); i++) {
@@ -220,12 +213,10 @@ public class MainActivity extends AppCompatActivity {
                                             infoCapsuleRenderableList.add(infoLayoutList.get(i).get());
                                         }
                                     }
-
                                 } catch (InterruptedException | ExecutionException ex) {
                                     DemoUtils.displayError(
                                             getApplicationContext(), "Unable to load renderables", ex);
                                 }
-
                                 return null;
                             });
 
@@ -307,8 +298,6 @@ public class MainActivity extends AppCompatActivity {
                                 }
 
                                 if (locationScene != null) {
-
-//                                            locationScene.setAnchorRefreshInterval (60);
                                     locationScene.processFrame(frame);
                                 }
 
@@ -330,8 +319,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (arSceneView.getSession() == null) {
-            // If the session wasn't created yet, don't resume rendering.
-            // This can happen if ARCore needs to be updated or permissions are not granted yet.
             try {
                 Session session = DemoUtils.createArSession(this, installRequested);
                 if (session == null) {
@@ -382,14 +369,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         private void selectItem(int position) {
-            // update the main content by replacing fragments
-//            Bundle args = new Bundle();
-//
-//            // update selected item and title, then close the drawer
-//            mDrawerList.setItemChecked(position, true);
-//            setTitle(mDatesTitles[position]);
-//            mDrawerLayout.closeDrawer(mDrawerList);
-
             Log.d("position", "position : " + position);
             mDrawerLayout.closeDrawer(mDrawerList);
         }
@@ -451,7 +430,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void initView() {
-
         // 플로팅 버튼 id 가져오기, 클릭 리스너 선언
         floatingBtn = findViewById(R.id.floatingBtn);
         cameraBtn = findViewById(R.id.cameraBtn);
@@ -470,9 +448,6 @@ public class MainActivity extends AppCompatActivity {
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
-//        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, dateList));
-//        mDrawerList.setOnItemClickListener( new DrawerItemClickListener() );
-
         capsuleList = dbHelper.getAllDiary();
         TitleAdapter titleAdapter = new TitleAdapter(MainActivity.this, capsuleList);
         mDrawerList.setAdapter(titleAdapter);
@@ -483,28 +458,20 @@ public class MainActivity extends AppCompatActivity {
             //drawer가 닫혔을 때, 호출된다.
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
-                //getActionBar().setTitle(mTitle);
-                //Toast.makeText(MainActivity.this, capsuleRangeList.size() + " / " + capsuleList.size(), Toast.LENGTH_SHORT).show();
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+                invalidateOptionsMenu();
             }
 
             // drawer가 열렸을 때, 호출된다.
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-                //getActionBar().setTitle(mDrawerTitle);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+                invalidateOptionsMenu();
             }
         };
         // DrawerListener로 drawer toggle을 설정.
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
-//        if (savedInstanceState == null) {
-//            selectItem(0);
-//        }
-
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        //navigationView = (NavigationView) findViewById( R.id.navigation_view );
 
         // 툴바 생성 및 세팅하는 부분
         setSupportActionBar(toolbar);
@@ -591,11 +558,11 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @OnClick(R.id.database)
-    public void onViewClicked() {
-        Intent intent = new Intent(this, DataBaseCheckActivity.class);
-        startActivity(intent);
-    }
+//    @OnClick(R.id.database)
+//    public void onViewClicked() {
+//        Intent intent = new Intent(this, DataBaseCheckActivity.class);
+//        startActivity(intent);
+//    }
 
     public void setTotalCount() {
         int totalDiary = dbHelper.getDiaryCount();
