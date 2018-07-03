@@ -61,8 +61,6 @@ import uk.co.appoly.arcorelocation.LocationMarker;
 import uk.co.appoly.arcorelocation.LocationScene;
 import uk.co.appoly.arcorelocation.utils.ARLocationPermissionHelper;
 
-
-// ARCore 1.2Ver로 바뀜으로 인해 openGL코드 삭제
 public class MainActivity extends AppCompatActivity {
     Activity activity = this;
     Context context = this;
@@ -116,10 +114,7 @@ public class MainActivity extends AppCompatActivity {
     // 캡슐 객체 관련 코드
     public ArrayList<Capsule> capsuleList = null;
     final ArrayList<Capsule> capsuleRangeList = new ArrayList<>();
-    ArrayList<Capsule> capsuleRangeSameList = new ArrayList<>();
-    ArrayList<Capsule> capsuleRangeNotSameList = new ArrayList<>();
     Capsule capsule;
-
     Glide glide;
 
     @Override
@@ -171,31 +166,6 @@ public class MainActivity extends AppCompatActivity {
                             capsuleRangeList.add(capsule);
                         }
                     }
-
-                    // 저장된 위치가 같은 캡슐 찾아내기
-
-//                    for (int i = 0; i < capsuleRangeList.size(); i++) {
-//                        boolean yes = false;
-//                        for (int j = i + 1; j < capsuleRangeList.size(); j++) {
-//                            if (capsuleRangeList.get( i ).getLatitude() == capsuleRangeList.get( j ).getLatitude()
-//                                    && capsuleRangeList.get( i ).getLongitude() == capsuleRangeList.get( j ).getLongitude()) {
-//                                yes = true;
-//                                if (capsuleRangeSameList.get( i ).equals( capsuleList )) {
-//                                    break;
-//                                } else capsuleRangeSameList.add( capsuleRangeList.get( j ) );
-//                                break;
-//                            } else {
-//                                continue;
-//                            }
-//                        }
-//                        if (i != 0) {
-//                            if (!yes && !capsuleRangeNotSameList.get( i ).equals( capsuleRangeList ))
-//                                capsuleRangeNotSameList.add( capsuleRangeList.get( i ) );
-//                        }
-//                        if (yes)
-//                            capsuleRangeSameList.add( capsuleRangeList.get( i ) );
-//                    }
-
                 }
 
                 // 반경에 해당하는 일기를 확인하기 위한 테스트 코드
@@ -203,7 +173,6 @@ public class MainActivity extends AppCompatActivity {
                 for (int i = 0; i < capsuleRangeList.size(); i++) {
                     sb.append(capsuleRangeList.get(i).toString());
                 }
-                //Toast.makeText(MainActivity.this, sb, Toast.LENGTH_LONG).show();
 
                 // 일기장 보여줄 레이아웃 설정
                 if (capsuleRangeList.size() != 0) {
@@ -315,10 +284,7 @@ public class MainActivity extends AppCompatActivity {
                                                             distance.setText( node.getDistance() + "M" );
                                                         }
                                                 );
-
                                                 locationScene.mLocationMarkers.add( locationMarker[i] );
-
-
                                             }
                                         }
 
@@ -341,6 +307,9 @@ public class MainActivity extends AppCompatActivity {
                                     });
 
                     ARLocationPermissionHelper.requestPermission(MainActivity.this);
+                }
+                else if (capsuleRangeList.size() == 0) {
+                    return;
                 }
             }
 
