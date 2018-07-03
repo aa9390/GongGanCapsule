@@ -100,12 +100,6 @@ public class TitleAdapter extends BaseAdapter {
         titleList = dbHelper.getAllDiary();
 
         ((MainActivity)mContext).setTotalCount();
-<<<<<<< HEAD
         notifyDataSetChanged();
-=======
-        //((MainActivity)mContext).capsuleList = titleList;
-
->>>>>>> a27c4a61f7075466bcfcaecc89120f034f4119be
     }
-
 }

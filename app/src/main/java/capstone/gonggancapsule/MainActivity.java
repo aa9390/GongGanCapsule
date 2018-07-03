@@ -171,6 +171,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void renderable(int range, ArrayList<Capsule> capsuleList, GPSTracker mGPS) {
         if (capsuleList != null) {
+//            capsuleList.clear();
+//            capsuleList = dbHelper.getAllDiary();
 
             //if (capsuleRangeList != null) {
             capsuleRangeList.clear();
@@ -319,6 +321,9 @@ public class MainActivity extends AppCompatActivity {
                             });
 
             ARLocationPermissionHelper.requestPermission(MainActivity.this);
+
+        } else if(capsuleRangeList.size() == 0) {
+            return;
         }
     }
 
