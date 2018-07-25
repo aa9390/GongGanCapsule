@@ -55,6 +55,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import capstone.gonggancapsule.database.DatabaseHelper;
 import uk.co.appoly.arcorelocation.LocationMarker;
 import uk.co.appoly.arcorelocation.LocationScene;
@@ -564,6 +565,12 @@ public class MainActivity extends AppCompatActivity {
 //        Intent intent = new Intent(this, DataBaseCheckActivity.class);
 //        startActivity(intent);
 //    }
+//
+    @OnClick(R.id.database)
+    public void onViewClicked() {
+        Intent intent = new Intent(this, DeveloperActivity.class);
+        startActivity(intent);
+    }
 
     public void setTotalCount() {
         int totalDiary = dbHelper.getDiaryCount();
