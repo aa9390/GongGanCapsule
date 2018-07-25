@@ -5,7 +5,7 @@ import android.app.NotificationManager;
 import android.os.Build;
 
 public class NotificationChannel extends Application {
-    public static final String CHANNEL_1_ID = "channel1";
+    public static final String CHANNEL_1_ID = "capsule";
 
     @Override
     public void onCreate() {
@@ -16,15 +16,15 @@ public class NotificationChannel extends Application {
 
     private void createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            android.app.NotificationChannel channel1 = new android.app.NotificationChannel(
+            android.app.NotificationChannel capsule = new android.app.NotificationChannel(
                     CHANNEL_1_ID,
-                    "Channel 1",
+                    "capsule",
                     NotificationManager.IMPORTANCE_HIGH
             );
-            channel1.setDescription("This is Channel 1");
+            capsule.setDescription("공간캡슐");
 
             NotificationManager manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(channel1);
+            manager.createNotificationChannel(capsule);
         }
     }
 }
