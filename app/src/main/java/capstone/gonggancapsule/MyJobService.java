@@ -60,7 +60,6 @@ public class MyJobService extends JobService {
         @Override
         protected Void doInBackground(Void... params) {
             DatabaseHelper dbHelper = new DatabaseHelper(getApplicationContext(), "capsule", null, 3);
-            //GPSTracker mGPS = new GPSTracker( MyJobService.this );
             capsuleList = dbHelper.getAllDiary();
 
             LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -73,8 +72,10 @@ public class MyJobService extends JobService {
                 location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             }
 
-            latitude = location.getLatitude();
-            longitude = location.getLongitude();
+            if(location != null) {
+                latitude = location.getLatitude();
+                longitude = location.getLongitude();
+            }
 
             double distance;
             Location locationA = new Location("point A");
