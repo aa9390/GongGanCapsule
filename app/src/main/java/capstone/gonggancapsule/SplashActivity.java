@@ -33,7 +33,7 @@ public class SplashActivity extends AppCompatActivity {
 
         JobInfo jobInfo = new JobInfo.Builder(1, componentName)
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                .setPeriodic(DateUtils.MINUTE_IN_MILLIS*15)
+                .setPeriodic(DateUtils.HOUR_IN_MILLIS*4)
                 .setPersisted(true)
                 .build();
         jobScheduler.schedule(jobInfo);
