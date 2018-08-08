@@ -24,10 +24,10 @@ https://play.google.com/store/apps/details?id=capstone.gonggancapsule
 몇 개의 일기를 썼는지 기억이 나지 않나요? 일기 리스트를 통해서 확인할 수 있습니다. 일기 리스트에서 일기 제목과 날짜를 확인할 수 있습니다. 
 또 만약 삭제하고 싶은 일기가 있다면, 제목을 클릭해서 삭제할 수 있습니다.
 
-![kakaotalk_photo_2018-08-08-15-32-07](https://user-images.githubusercontent.com/24476756/43820126-433c8bae-9b20-11e8-838f-167ba034a9c2.jpeg)
-![kakaotalk_photo_2018-08-08-15-32-05](https://user-images.githubusercontent.com/24476756/43820127-4365336a-9b20-11e8-9994-68e82b8ebc79.jpeg)
-![kakaotalk_photo_2018-08-08-15-32-03](https://user-images.githubusercontent.com/24476756/43820128-43a3a190-9b20-11e8-8a60-63a815104050.jpeg)
-![kakaotalk_photo_2018-08-08-15-32-01](https://user-images.githubusercontent.com/24476756/43820129-4400c438-9b20-11e8-9cb3-b6a02118ccee.jpeg)
+![kakaotalk_photo_2018-08-08-15-32-07](https://user-images.githubusercontent.com/24476756/43820126-433c8bae-9b20-11e8-838f-167ba034a9c2.jpeg){: width="30%"}
+![kakaotalk_photo_2018-08-08-15-32-05](https://user-images.githubusercontent.com/24476756/43820127-4365336a-9b20-11e8-9994-68e82b8ebc79.jpeg){: width="30%"}
+![kakaotalk_photo_2018-08-08-15-32-03](https://user-images.githubusercontent.com/24476756/43820128-43a3a190-9b20-11e8-8a60-63a815104050.jpeg){: width="30%"}
+![kakaotalk_photo_2018-08-08-15-32-01](https://user-images.githubusercontent.com/24476756/43820129-4400c438-9b20-11e8-9cb3-b6a02118ccee.jpeg){: width="30%"}
 
 
 # 주요 기능
