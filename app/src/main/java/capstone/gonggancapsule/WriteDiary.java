@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -43,7 +44,8 @@ public class WriteDiary extends AppCompatActivity {
     public String dateString;
     public String path;
 
-    Geocoder geocoder = new Geocoder(this);
+    //Geocoder geocoder = new Geocoder(this);
+    Geocoder geocoder;
     List<Address> locationAddress;
     private Double latitude;
     private Double longitude;
@@ -55,6 +57,7 @@ public class WriteDiary extends AppCompatActivity {
 
         // DB9
         final DatabaseHelper dbHelper = new DatabaseHelper(WriteDiary.this, "capsule", null, 3);
+        geocoder = new Geocoder(this);
 
         selectedPictureIv = (ImageView) findViewById(R.id.selectedPictureIv);
         dateTv = (TextView) findViewById(R.id.dateTv);
@@ -109,13 +112,13 @@ public class WriteDiary extends AppCompatActivity {
                 String create_date = dateTv.getText().toString(); //작성 날짜
                 String content = writeContentEt.getText().toString(); //내용
 
-                if(title.equals("")) {
+                if (title.equals("")) {
                     Toast.makeText(WriteDiary.this, "제목을 입력해주세요", Toast.LENGTH_SHORT).show();
                 } else {
                     dbHelper.insertDiary(latitude, longitude, create_date, content, path, title);
 
-                    if(MainActivity.activity2 != null) {
-                        MainActivity activity2 = (MainActivity)MainActivity.activity2;
+                    if (MainActivity.activity2 != null) {
+                        MainActivity activity2 = (MainActivity) MainActivity.activity2;
                         activity2.finish();
                     }
 
@@ -125,7 +128,6 @@ public class WriteDiary extends AppCompatActivity {
                 }
             }
         });
-
     }
 
     public void setPicture(String path) {
@@ -172,19 +174,21 @@ public class WriteDiary extends AppCompatActivity {
     }
 
     // 위치 설정
-    public void setLocation(){
+    public void setLocation() {
         GPSTracker currentGPS = new GPSTracker(this);
         currentGPS.getLocation();
 
         // 현재 위치 LocationTextView에 보여주기
-        try{
+        try {
             latitude = currentGPS.getLatitude();
             longitude = currentGPS.getLongitude();
-            locationAddress = geocoder.getFromLocation(currentGPS.getLatitude(),currentGPS.getLongitude(),1);
-        }catch(IOException ioException) {
+            locationAddress = geocoder.getFromLocation(currentGPS.getLatitude(), currentGPS.getLongitude(), 1);
+        } catch (IOException ioException) {
             //지오코더 사용불가능일때
-        }catch(IllegalArgumentException illegalArgumentException) {
+            Log.d("geo", "사용불가능");
+        } catch (IllegalArgumentException illegalArgumentException) {
             //잘못된 GPS 를 가져왔을시
+            Log.d("geo", "잘못된 gps");
         }
         if (locationAddress == null || locationAddress.size() == 0) {
             //주소 미발견시
@@ -201,8 +205,8 @@ public class WriteDiary extends AppCompatActivity {
         mapBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent( WriteDiary.this , GoogleMapActivity.class );
-                startActivityForResult(intent,0);
+                Intent intent = new Intent(WriteDiary.this, GoogleMapActivity.class);
+                startActivityForResult(intent, 0);
             }
         });
     }
@@ -216,15 +220,18 @@ public class WriteDiary extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        if(exif != null) {
+        if (exif != null) {
             int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,
                     ExifInterface.ORIENTATION_NORMAL);
 
-            if(orientation != -1) {
+            if (orientation != -1) {
                 switch (orientation) {
-                    case ExifInterface.ORIENTATION_ROTATE_90: return 90;
-                    case ExifInterface.ORIENTATION_ROTATE_180: return 180;
-                    case ExifInterface.ORIENTATION_ROTATE_270: return 270;
+                    case ExifInterface.ORIENTATION_ROTATE_90:
+                        return 90;
+                    case ExifInterface.ORIENTATION_ROTATE_180:
+                        return 180;
+                    case ExifInterface.ORIENTATION_ROTATE_270:
+                        return 270;
                 }
             }
         }
@@ -232,19 +239,19 @@ public class WriteDiary extends AppCompatActivity {
     }
 
     private Bitmap getRotatedBitmap(Bitmap bitmap, int degree) {
-        if(degree != 0 && bitmap != null) {
+        if (degree != 0 && bitmap != null) {
             Matrix matrix = new Matrix();
-            matrix.setRotate(degree, (float)bitmap.getWidth()/2, (float)bitmap.getHeight()/2);
+            matrix.setRotate(degree, (float) bitmap.getWidth() / 2, (float) bitmap.getHeight() / 2);
 
             try {
                 Bitmap tmpBitmap = Bitmap.createBitmap(bitmap, 0, 0,
                         bitmap.getWidth(), bitmap.getHeight(), matrix, true);
 
-                if(bitmap != tmpBitmap) {
+                if (bitmap != tmpBitmap) {
                     bitmap.recycle();
                     bitmap = tmpBitmap;
                 }
-            }catch (OutOfMemoryError e) {
+            } catch (OutOfMemoryError e) {
                 e.printStackTrace();
             }
         }
